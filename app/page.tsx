@@ -1,5 +1,3 @@
-import { Typography } from "@mui/material";
-
 export default function Home() {
   return (
     <div
@@ -11,7 +9,7 @@ export default function Home() {
         alignItems: "center",
       }}
     >
-      <Typography variant="h3">Aqua Observer Admin</Typography>
+      <p>Aqua Observer Admin</p>
     </div>
   );
 }

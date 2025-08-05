@@ -1,7 +1,6 @@
 "use client";
-
-import { AppRouterCacheProvider } from "@mui/material-nextjs/v13-appRouter";
-import { ThemeProvider } from "@/theme";
+import { inter } from "@/theme/fonts";
+import "./globals.css";
 
 export default function RootLayout({
   children,
@@ -10,10 +9,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <AppRouterCacheProvider>
-          <ThemeProvider>{children}</ThemeProvider>
-        </AppRouterCacheProvider>
+      <body className={`${inter.className} tracking-tighter antialiased`}>
+        {children}
       </body>
     </html>
   );
