@@ -7,6 +7,7 @@ import RegionalActivity from "@/components/modules/home/RegionalActivity";
 import TopObservers from "@/components/modules/home/TopObservers";
 import QuickActions from "@/components/modules/home/QuickActions";
 import RecentActivity from "@/components/modules/home/RecentActivity";
+import SightingsMap from "@/components/modules/home/SightingMap";
 
 export default function DashboardPage() {
   return (
@@ -20,9 +21,12 @@ export default function DashboardPage() {
         <RegionalActivity />
         <TopObservers />
       </div>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <QuickActions />
-        <RecentActivity />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <SightingsMap />
+        <div className="space-y-4">
+          <RecentActivity />
+          <QuickActions />
+        </div>
       </div>
     </div>
   );

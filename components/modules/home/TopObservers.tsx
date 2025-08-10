@@ -90,12 +90,13 @@ export default function TopObservers() {
         show: false,
       },
     },
-    colors: ["#3B82F6", "#10B981", "#F59E0B", "#EF4444"],
+    // Updated color palette to subtle yet evident shades of blue
+    colors: ["#93c5fd", "#60a5fa", "#3b82f6", "#2563eb"],
     plotOptions: {
       bar: {
         horizontal: false,
         borderRadius: 4,
-        columnWidth: "60%",
+        columnWidth: "56%",
       },
     },
     dataLabels: {
@@ -110,7 +111,7 @@ export default function TopObservers() {
         show: false,
       },
       axisTicks: {
-        show: false,
+        show: true,
       },
       labels: {
         style: {
@@ -129,7 +130,22 @@ export default function TopObservers() {
       max: 80,
     },
     legend: {
-      show: false,
+      show: true,
+      position: "bottom" as const,
+      offsetY: 12,
+      itemMargin: {
+        horizontal: 6,
+      },
+      markers: {
+        size: 7,
+        shape: undefined,
+        strokeWidth: 1,
+        fillColors: undefined,
+        customHTML: undefined,
+        onClick: undefined,
+        offsetX: 0,
+        offsetY: 0,
+      },
     },
     grid: {
       borderColor: "#E5E7EB",
@@ -169,7 +185,7 @@ export default function TopObservers() {
         <CardTitle className="text-lg font-semibold">
           Monthly Sightings by District
         </CardTitle>
-        <div className="flex items-center space-x-4 mt-2">
+        {/* <div className="flex items-center space-x-4 mt-2">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-blue-500 rounded-full" />
             <span className="text-xs text-muted-foreground">Murshidabad</span>
@@ -188,7 +204,7 @@ export default function TopObservers() {
               South 24 Parganas
             </span>
           </div>
-        </div>
+        </div> */}
       </CardHeader>
       <CardContent>
         <div className="h-[280px]">
@@ -196,7 +212,7 @@ export default function TopObservers() {
             options={chartOptions}
             series={chartSeries}
             type="bar"
-            height={350}
+            height={320}
           />
         </div>
       </CardContent>

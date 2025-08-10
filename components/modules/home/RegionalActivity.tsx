@@ -7,16 +7,16 @@ import dynamic from "next/dynamic";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const regionData = [
-  { region: "Murshidabad", sightings: 342, percentage: 85, color: "#3B82F6" },
-  { region: "Hooghly", sightings: 198, percentage: 65, color: "#10B981" },
-  { region: "Howrah", sightings: 156, percentage: 45, color: "#F59E0B" },
+  { region: "Murshidabad", sightings: 342, percentage: 85, color: "#93c5fd" },
+  { region: "Hooghly", sightings: 198, percentage: 65, color: "#60a5fa" },
+  { region: "Howrah", sightings: 156, percentage: 45, color: "#3b82f6" },
   {
     region: "South 24 Parganas",
     sightings: 89,
     percentage: 30,
-    color: "#EF4444",
+    color: "#2563eb",
   },
-  { region: "Nadia", sightings: 72, percentage: 25, color: "#6366F1" },
+  { region: "Nadia", sightings: 72, percentage: 25, color: "#1e40af" },
 ];
 
 export default function RegionalActivity() {
@@ -31,7 +31,12 @@ export default function RegionalActivity() {
     colors: regionData.map((region) => region.color),
     labels: regionData.map((region) => region.region),
     legend: {
-      show: false, // Disable ApexCharts' built-in legend
+      show: true, // Disable ApexCharts' built-in legend
+      position: "bottom" as const,
+      offsetY: 24,
+      itemMargin: {
+        horizontal: 6,
+      },
     },
     dataLabels: {
       enabled: false,
@@ -87,7 +92,7 @@ export default function RegionalActivity() {
         <p className="text-sm text-muted-foreground">(+43%) than last year</p>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px] flex items-center justify-center border-b pb-2">
+        <div className="h-[300px] flex items-center justify-center pb-2">
           <Chart
             options={chartOptions}
             series={chartSeries}
@@ -97,7 +102,7 @@ export default function RegionalActivity() {
           />
         </div>
         {/* Legend Section */}
-        <div className="mt-6 grid grid-cols-3 gap-y-4 gap-x-4">
+        {/* <div className="mt-6 grid grid-cols-3 gap-y-4 gap-x-4">
           {regionData.map((region, index) => (
             <div key={index} className="flex items-center space-x-2">
               <div
@@ -107,7 +112,7 @@ export default function RegionalActivity() {
               <span className="text-xs text-gray-700">{region.region}</span>
             </div>
           ))}
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   );

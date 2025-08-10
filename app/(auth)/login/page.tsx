@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -21,11 +22,20 @@ export default function LoginPage() {
   return (
     <div className="flex min-w-screen min-h-screen bg-white from-blue-50 to-blue-100">
       {/* Welcome Section */}
-      <div className="w-[25vw] flex flex-col justify-center items-center bg-blue-900 text-white text-center px-8">
-        <h1 className="text-4xl font-medium mb-2">Welcome back!</h1>
-        <p className="text-lg opacity-80">
+      <div className="w-[25vw] flex flex-col justify-center items-center bg-stone-100 border-blue-100 border-r text-white text-center px-8">
+        <h1 className="text-4xl font-medium mb-2 text-stone-800">
+          Hi,Welcome back!
+        </h1>
+        <p className="text-lg text-stone-500">
           Sign in to continue to Aqua Observer Admin.
         </p>
+        <Image
+          src="/login-image.png"
+          alt="Login Illustration"
+          width={360}
+          height={250}
+          className="mt-6"
+        />
       </div>
       {/* Login Form Section */}
       <div className="w-[75vw] flex justify-center items-center">
@@ -60,7 +70,7 @@ export default function LoginPage() {
                         name="phoneNumber"
                         type="text"
                         placeholder="Enter your phone number"
-                        className="pl-10 rounded-sm"
+                        className="pl-10 rounded-sm h-12"
                       />
                     </div>
                     <ErrorMessage
@@ -82,7 +92,7 @@ export default function LoginPage() {
                       name="password"
                       type="password"
                       placeholder="Enter your password"
-                      className="mt-2 rounded-sm"
+                      className="mt-2 rounded-sm h-12"
                     />
                     <ErrorMessage
                       name="password"
@@ -104,7 +114,7 @@ export default function LoginPage() {
                     <Label className="block mt-2 text-sm text-gray-600">
                       <a
                         href="/forgot-password"
-                        className="text-blue-600 hover:underline"
+                        className="text-blue-600 underline underline-offset-2"
                       >
                         Forgot password?
                       </a>

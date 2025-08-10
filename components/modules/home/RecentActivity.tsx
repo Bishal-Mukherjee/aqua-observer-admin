@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Activity } from "lucide-react";
 
 const activities = [
   {
@@ -26,8 +27,9 @@ const activities = [
 
 export default function RecentActivity() {
   return (
-    <Card className="shadow-none border-0">
-      <CardHeader>
+    <Card className="shadow-none border-0 max-h-84">
+      <CardHeader className="flex items-center gap-2">
+        <Activity className="h-5 w-5 text-slate-400" />
         <CardTitle>Recent Activity</CardTitle>
       </CardHeader>
       <CardContent>
