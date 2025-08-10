@@ -1,5 +1,7 @@
 "use client";
 
+import dynamic from "next/dynamic";
+
 import GreetingSection from "@/components/modules/home/GreetingSection";
 import CarouselSection from "@/components/modules/home/CarouselSection";
 import StatsCards from "@/components/modules/home/StatsCards";
@@ -7,7 +9,12 @@ import RegionalActivity from "@/components/modules/home/RegionalActivity";
 import TopObservers from "@/components/modules/home/TopObservers";
 import QuickActions from "@/components/modules/home/QuickActions";
 import RecentActivity from "@/components/modules/home/RecentActivity";
-import SightingsMap from "@/components/modules/home/SightingMap";
+
+// Dynamically import components that rely on `window`
+const SightingsMap = dynamic(
+  () => import("@/components/modules/home/SightingMap"),
+  { ssr: false }
+);
 
 export default function DashboardPage() {
   return (

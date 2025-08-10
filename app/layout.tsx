@@ -1,5 +1,5 @@
 "use client";
-import { inter } from "@/theme/fonts";
+// import { inter } from "@/theme/fonts";
 import "./globals.css";
 
 export default function RootLayout({
@@ -9,9 +9,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} tracking-tighter antialiased`}>
-        {children}
-      </body>
+      <body className={`tracking-tighter antialiased`}>{children}</body>
     </html>
   );
 }
