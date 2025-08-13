@@ -1,0 +1,198 @@
+{
+  "species": [
+    {
+      "label": {
+        "en": "Indian Skimmer",
+        "bn": "ইন্ডিয়ান স্কিমার"
+      },
+      "value": "INDIAN_SKIMMER",
+      "scientificName": "Rynchops albicollis",
+      "category": "BIRD",
+      "conservationStatus": "VULNERABLE",
+      "habitat": ["RIVERS", "WETLANDS"],
+      "regionDistribution": ["WEST_BENGAL", "BIHAR"],
+      "identificationFeatures": [
+        "Black and white plumage",
+        "Orange bill with black tip"
+      ],
+      "adultImg": "https://txzuyrbzkwatgdlurvgp.supabase.co/storage/v1/object/public/aqua-observer-bucket/species/indian-skimmer-adult.jpeg",
+      "ageGroup": "duo"
+    },
+    {
+      "label": {
+        "en": "Saltwater Crocodile",
+        "bn": "স্যাল্টওয়াটার ক্রোডিল"
+      },
+      "value": "SALTWATER_CROCODILE",
+      "scientificName": "Crocodylus porosus",
+      "category": "REPTILE",
+      "conservationStatus": "LEAST_CONCERN",
+      "habitat": ["COASTAL", "ESTUARIES"],
+      "regionDistribution": ["ODISHA", "ANDAMAN"],
+      "identificationFeatures": ["Broad snout", "Large size"],
+      "adultImg": "https://txzuyrbzkwatgdlurvgp.supabase.co/storage/v1/object/public/aqua-observer-bucket/species/salt-water-crocodile-adult.jpeg",
+      "ageGroup": "duo"
+    },
+    {
+      "label": {
+        "en": "Soft Shelled Turtle",
+        "bn": "সফ্ট শেল্ড টার্টল"
+      },
+      "value": "SOFT_SHELLED_TURTLE",
+      "scientificName": "Nilssonia gangetica",
+      "category": "REPTILE",
+      "conservationStatus": "VULNERABLE",
+      "habitat": ["RIVERS", "LAKES"],
+      "regionDistribution": ["UTTAR_PRADESH", "BIHAR"],
+      "identificationFeatures": ["Soft shell", "Flat body"],
+      "adultImg": "https://txzuyrbzkwatgdlurvgp.supabase.co/storage/v1/object/public/aqua-observer-bucket/species/soft-shelled-turtle-adult.jpeg",
+      "ageGroup": "duo"
+    },
+    {
+      "label": {
+        "en": "Hard Shelled Turtle",
+        "bn": "হার্ড শেল্ড টার্টল"
+      },
+      "value": "HARD_SHELLED_TURTLE",
+      "scientificName": "Pangshura tecta",
+      "category": "REPTILE",
+      "conservationStatus": "NEAR_THREATENED",
+      "habitat": ["RIVERS", "PONDS"],
+      "regionDistribution": ["WEST_BENGAL", "ASSAM"],
+      "identificationFeatures": ["Hard shell", "Small size"],
+      "adultImg": "https://txzuyrbzkwatgdlurvgp.supabase.co/storage/v1/object/public/aqua-observer-bucket/species/hard-shelled-turtle-adult.jpeg",
+      "ageGroup": "duo"
+    },
+    {
+      "label": {
+        "en": "Marsh Crocodile",
+        "bn": "মার্শ ক্রোডিল"
+      },
+      "value": "MARSH_CROCODILE",
+      "scientificName": "Crocodylus palustris",
+      "category": "REPTILE",
+      "conservationStatus": "VULNERABLE",
+      "habitat": ["MARSHES", "RIVERS"],
+      "regionDistribution": ["GUJARAT", "RAJASTHAN"],
+      "identificationFeatures": ["Broad snout", "Dark coloration"],
+      "adultImg": "https://txzuyrbzkwatgdlurvgp.supabase.co/storage/v1/object/public/aqua-observer-bucket/species/marsh-crocodile-adult.jpeg",
+      "ageGroup": "duo"
+    },
+    {
+      "label": {
+        "en": "Mugger",
+        "bn": "মুগার"
+      },
+      "value": "MUGGER",
+      "scientificName": "Crocodylus palustris",
+      "category": "REPTILE",
+      "conservationStatus": "VULNERABLE",
+      "habitat": ["RIVERS", "LAKES"],
+      "regionDistribution": ["MAHARASHTRA", "GUJARAT"],
+      "identificationFeatures": ["Broad snout", "Robust body"],
+      "adultImg": "https://txzuyrbzkwatgdlurvgp.supabase.co/storage/v1/object/public/aqua-observer-bucket/species/mugger-adult.jpeg",
+      "ageGroup": "duo"
+    },
+    {
+      "label": {
+        "en": "Gharial",
+        "bn": "ঘারিয়াল"
+      },
+      "value": "GHARIAL",
+      "scientificName": "Gavialis gangeticus",
+      "category": "REPTILE",
+      "conservationStatus": "CRITICALLY_ENDANGERED",
+      "habitat": ["RIVERS"],
+      "regionDistribution": ["UTTAR_PRADESH", "BIHAR"],
+      "identificationFeatures": ["Long narrow snout", "Sharp teeth"],
+      "adultImg": "https://txzuyrbzkwatgdlurvgp.supabase.co/storage/v1/object/public/aqua-observer-bucket/species/gharial-adult.jpeg",
+      "ageGroup": "trio"
+    },
+    {
+      "label": {
+        "en": "Smooth Coated Otter",
+        "bn": "স্মুট কোটেড ওটার"
+      },
+      "value": "SMOOTH_COATED_OTTER",
+      "scientificName": "Lutrogale perspicillata",
+      "category": "MAMMAL",
+      "conservationStatus": "VULNERABLE",
+      "habitat": ["RIVERS", "WETLANDS"],
+      "regionDistribution": ["WEST_BENGAL", "ODISHA"],
+      "identificationFeatures": ["Smooth fur", "Webbed feet"],
+      "adultImg": "https://txzuyrbzkwatgdlurvgp.supabase.co/storage/v1/object/public/aqua-observer-bucket/species/soft-shelled-turtle-adult.jpeg",
+      "ageGroup": "duo"
+    },
+    {
+      "label": {
+        "en": "Irrawaddy Dolphin",
+        "bn": "ইর্রাওয়াডি ডলফিন"
+      },
+      "value": "IRRAWADDY_DOLPHIN",
+      "scientificName": "Orcaella brevirostris",
+      "category": "MAMMAL",
+      "conservationStatus": "ENDANGERED",
+      "habitat": ["RIVERS", "ESTUARIES"],
+      "regionDistribution": ["ODISHA", "WEST_BENGAL"],
+      "identificationFeatures": ["Rounded head", "Short dorsal fin"],
+      "adultImg": "https://txzuyrbzkwatgdlurvgp.supabase.co/storage/v1/object/public/aqua-observer-bucket/species/irrawaddy-dolphin-adult.jpeg",
+      "ageGroup": "duo"
+    },
+    {
+      "label": {
+        "en": "Gangetic Dolphin",
+        "bn": "গানেটিক ডলফিন"
+      },
+      "value": "GANGETIC_DOLPHIN",
+      "scientificName": "Platanista gangetica",
+      "category": "MAMMAL",
+      "conservationStatus": "ENDANGERED",
+      "habitat": ["RIVERS"],
+      "regionDistribution": ["BIHAR", "UTTAR_PRADESH"],
+      "identificationFeatures": ["Long snout", "Small dorsal fin"],
+      "adultImg": "https://txzuyrbzkwatgdlurvgp.supabase.co/storage/v1/object/public/aqua-observer-bucket/species/gangetic-dolphin-adult.jpeg",
+      "ageGroup": "duo"
+    },
+    {
+      "label": {
+        "en": "Asian Open Bill Stork",
+        "bn": "এশিয়ান ওপেন বিল স্টর্ক"
+      },
+      "value": "ASIAN_OPEN_BILL_STROK",
+      "scientificName": "Anastomus oscitans",
+      "category": "BIRD",
+      "conservationStatus": "LEAST_CONCERN",
+      "habitat": ["WETLANDS", "FIELDS"],
+      "regionDistribution": ["WEST_BENGAL", "ASSAM"],
+      "identificationFeatures": ["Gap in bill", "White plumage"],
+      "adultImg": "https://txzuyrbzkwatgdlurvgp.supabase.co/storage/v1/object/public/aqua-observer-bucket/species/asian-openbill-stork-adult.jpeg",
+      "ageGroup": "duo"
+    }
+  ],
+  "ageGroup": {
+    "duo": [
+      {
+        "label": { "en": "Adults", "bn": "বয়স্ক" },
+        "value": "adult"
+      },
+      {
+        "label": { "en": "Calves", "bn": "ক্যালভেস" },
+        "value": "calf"
+      }
+    ],
+    "trio": [
+      {
+        "label": { "en": "Adult Male", "bn": "বয়স্ক পুরুষ" },
+        "value": "adultMale"
+      },
+      {
+        "label": { "en": "Adult Female", "bn": "বয়স্ক মহিলা" },
+        "value": "adultFemale"
+      },
+      {
+        "label": { "en": "Sub-Adults/Juveniles", "bn": "অর্ধবয়স্ক/কিশোর" },
+        "value": "subAdult"
+      }
+    ]
+  }
+}

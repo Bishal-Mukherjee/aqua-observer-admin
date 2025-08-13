@@ -6,7 +6,7 @@ import { Calendar, MapPin } from "lucide-react";
 
 export default function GreetingSection() {
   return (
-    <Card className="lg:col-span-7 border-0 shadow-none relative overflow-hidden h-62 mt-6">
+    <Card className="lg:col-span-7 border-0 shadow-none relative overflow-hidden h-62">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"

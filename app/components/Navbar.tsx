@@ -4,55 +4,69 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  Search,
-  Bell,
-  Settings,
-  User,
-  MessageSquare,
-  HelpCircle,
-} from "lucide-react";
+import { Search, Bell } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useSidebar } from "@/app/store/useSidebar";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { isCollapsed } = useSidebar();
 
-  // Get page title based on current path
-  const getPageTitle = () => {
+  const getPageInfo = () => {
     const path = pathname.split("/").pop();
     switch (path) {
       case "home":
-        return "Dashboard Overview";
+        return {
+          title: "Dashboard Overview",
+          description: "Quick stats and recent activity at a glance",
+        };
       case "sightings":
-        return "Dolphin Sightings";
+        return {
+          title: "Sightings",
+          description: "Browse and manage all recorded sightings",
+        };
       case "users":
-        return "User Management";
+        return {
+          title: "User Management",
+          description: "View, add, or update users in your network",
+        };
       case "species":
-        return "Species Database";
+        return {
+          title: "Species Database",
+          description: "Explore and edit the list of observed species",
+        };
       case "questions":
-        return "Question Management";
+        return {
+          title: "Question Management",
+          description: "Manage survey and observation questions",
+        };
       case "reports":
-        return "Analytics & Reports";
+        return {
+          title: "Analytics & Reports",
+          description: "View trends and generate custom reports",
+        };
       default:
-        return "Dashboard";
+        return {
+          title: "Dashboard",
+          description: "Manage your dolphin observation network",
+        };
     }
   };
+
+  const { title, description } = getPageInfo();
 
   return (
     <nav className="w-full h-20 bg-white/60 backdrop-blur-md border-b border-white/20 px-6 flex items-center justify-between">
       {/* Left Section - Page Title */}
       <div className="flex items-center space-x-4">
-        <div>
-          <h1 className="text-xl font-semibold text-gray-900">
-            {getPageTitle()}
-          </h1>
-          <p className="text-sm text-gray-500">
-            Manage your dolphin observation network
-          </p>
+        <div className={cn("pl-10", { "pl-7": !isCollapsed })}>
+          <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+          <p className="text-sm text-gray-500">{description}</p>
         </div>
       </div>
 
       {/* Center Section - Search */}
-      <div className="flex-1 max-w-md ml-[-32px]">
+      <div className="flex-1 max-w-md ml-[-36px]">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-800" />
           <Input

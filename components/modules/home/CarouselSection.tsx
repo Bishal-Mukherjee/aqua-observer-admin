@@ -38,9 +38,9 @@ export default function CarouselSection() {
   };
 
   return (
-    <Card className="lg:col-span-3 border-0 shadow-none bg-transparent">
+    <Card className="lg:col-span-3 border-0 shadow-none p-0">
       <CardContent className="p-0 relative overflow-hidden rounded-2xl">
-        <div className="relative h-60">
+        <div className="relative h-62">
           <img
             src={carouselImages[currentSlide].src}
             alt={carouselImages[currentSlide].title}
