@@ -1,9 +1,9 @@
 "use client";
 
 import { HelmetProvider } from "react-helmet-async";
-import Sidebar from "@/app/components/Sidebar";
-import Navbar from "@/app/components/Navbar";
-import { useSidebar } from "../store/useSidebar";
+import Sidebar from "@/components/layout/Sidebar";
+import Navbar from "@/components/layout/Navbar";
+import { useSidebar } from "@/store/useSidebar";
 import { cn } from "@/lib/utils";
 
 export default function AuthenticatedLayout({

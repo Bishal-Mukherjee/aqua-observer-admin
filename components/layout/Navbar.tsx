@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useSidebar } from "@/app/store/useSidebar";
+import { useSidebar } from "@/store/useSidebar";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -14,16 +14,22 @@ export default function Navbar() {
 
   const getPageInfo = () => {
     const path = pathname.split("/").pop();
+
     switch (path) {
       case "home":
         return {
           title: "Dashboard Overview",
           description: "Quick stats and recent activity at a glance",
         };
-      case "sightings":
+      case "sighting":
         return {
           title: "Sightings",
           description: "Browse and manage all recorded sightings",
+        };
+      case "reporting":
+        return {
+          title: "Reportings",
+          description: "Browse and manage all recorded reportings",
         };
       case "users":
         return {

@@ -1,0 +1,352 @@
+{
+  "reporting": [
+    {
+      "id": "6ab4e64e-bdda-4eb3-a84e-f3e0fd5320d3",
+      "longitude": -122.083953,
+      "latitude": 37.423423,
+      "altitude": 0,
+      "provider": "fused",
+      "district": "NORTH_24_PARAGANAS",
+      "block": "BADURIA",
+      "villageOrGhat": "Belgaria",
+      "species": [
+        {
+          "type": "INDIAN_SKIMMER",
+          "adultMale": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 1
+          },
+          "adultFemale": {
+            "stranded": 1,
+            "injured": 1,
+            "dead": 1
+          },
+          "subAdult": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 0
+          }
+        },
+        {
+          "type": "SALTWATER_CROCODILE",
+          "adultMale": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 0
+          },
+          "adultFemale": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 0
+          },
+          "subAdult": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 0
+          }
+        }
+      ],
+      "images": null,
+      "observed_at": "2025-07-25T21:45:00",
+      "type": "OLD_REPORTING"
+    },
+    {
+      "id": "dec48967-7291-4391-a867-ed7c9fc390c3",
+      "longitude": -122.100001,
+      "latitude": 37.420001,
+      "altitude": 5,
+      "provider": "fused",
+      "district": "BIHAR",
+      "block": "PATNA",
+      "villageOrGhat": "Sonepur",
+      "species": [
+        {
+          "type": "SOFT_SHELLED_TURTLE",
+          "adultMale": {
+            "stranded": 1,
+            "injured": 0,
+            "dead": 0
+          },
+          "adultFemale": {
+            "stranded": 0,
+            "injured": 1,
+            "dead": 0
+          },
+          "subAdult": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 0
+          }
+        }
+      ],
+      "images": null,
+      "observed_at": "2025-08-20T11:30:00",
+      "type": "NEW_REPORTING"
+    },
+    {
+      "id": "5f5a697f-8c30-4ff9-b002-53f3f4e1ef01",
+      "longitude": -122.13001,
+      "latitude": 37.415321,
+      "altitude": 10,
+      "provider": "fused",
+      "district": "WEST_BENGAL",
+      "block": "HOWRAH",
+      "villageOrGhat": "Shibpur",
+      "species": [
+        {
+          "type": "HARD_SHELLED_TURTLE",
+          "adultMale": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 1
+          },
+          "adultFemale": {
+            "stranded": 1,
+            "injured": 0,
+            "dead": 0
+          },
+          "subAdult": {
+            "stranded": 0,
+            "injured": 1,
+            "dead": 0
+          }
+        }
+      ],
+      "images": null,
+      "observed_at": "2025-08-21T13:45:00",
+      "type": "NEW_REPORTING"
+    },
+    {
+      "id": "016f0377-2fe3-40fa-b442-0f58d2989558",
+      "longitude": -122.15,
+      "latitude": 37.41,
+      "altitude": 15,
+      "provider": "fused",
+      "district": "GUJARAT",
+      "block": "SURAT",
+      "villageOrGhat": "Chandkheda",
+      "species": [
+        {
+          "type": "MARSH_CROCODILE",
+          "adultMale": {
+            "stranded": 1,
+            "injured": 0,
+            "dead": 0
+          },
+          "adultFemale": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 0
+          },
+          "subAdult": {
+            "stranded": 0,
+            "injured": 1,
+            "dead": 0
+          }
+        }
+      ],
+      "images": null,
+      "observed_at": "2025-08-22T15:30:00",
+      "type": "NEW_REPORTING"
+    },
+    {
+      "id": "6796c71a-c15b-41dc-86dd-6625ebe8b7ca",
+      "longitude": -122.16,
+      "latitude": 37.405,
+      "altitude": 8,
+      "provider": "fused",
+      "district": "UTTAR_PRADESH",
+      "block": "KANPUR",
+      "villageOrGhat": "Tundla",
+      "species": [
+        {
+          "type": "GHARIAL",
+          "adultMale": {
+            "stranded": 0,
+            "injured": 1,
+            "dead": 0
+          },
+          "adultFemale": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 1
+          },
+          "subAdult": {
+            "stranded": 1,
+            "injured": 0,
+            "dead": 0
+          }
+        }
+      ],
+      "images": null,
+      "observed_at": "2025-08-23T12:00:00",
+      "type": "NEW_REPORTING"
+    },
+    {
+      "id": "f18c2c36-7765-44f9-b464-a277e23e9fd0",
+      "longitude": -122.14,
+      "latitude": 37.43,
+      "altitude": 3,
+      "provider": "fused",
+      "district": "ODISHA",
+      "block": "BHUBANESWAR",
+      "villageOrGhat": "Brahmagiri",
+      "species": [
+        {
+          "type": "IRRAWADDY_DOLPHIN",
+          "adultMale": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 0
+          },
+          "adultFemale": {
+            "stranded": 1,
+            "injured": 0,
+            "dead": 0
+          },
+          "subAdult": {
+            "stranded": 0,
+            "injured": 1,
+            "dead": 0
+          }
+        }
+      ],
+      "images": null,
+      "observed_at": "2025-08-24T14:20:00",
+      "type": "NEW_REPORTING"
+    },
+    {
+      "id": "58a1437a-edb6-4dd8-aad8-0d651251e718",
+      "longitude": -122.2,
+      "latitude": 37.44,
+      "altitude": 7,
+      "provider": "fused",
+      "district": "WEST_BENGAL",
+      "block": "KOLKATA",
+      "villageOrGhat": "Salt Lake",
+      "species": [
+        {
+          "type": "SMOOTH_COATED_OTTER",
+          "adultMale": {
+            "stranded": 0,
+            "injured": 1,
+            "dead": 0
+          },
+          "adultFemale": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 0
+          },
+          "subAdult": {
+            "stranded": 1,
+            "injured": 0,
+            "dead": 0
+          }
+        }
+      ],
+      "images": null,
+      "observed_at": "2025-08-25T10:15:00",
+      "type": "NEW_REPORTING"
+    },
+    {
+      "id": "3dfa6c28-d80c-4cd4-a6f8-9ad2a679c6c6",
+      "longitude": -122.18,
+      "latitude": 37.435,
+      "altitude": 12,
+      "provider": "fused",
+      "district": "UTTAR_PRADESH",
+      "block": "AGRA",
+      "villageOrGhat": "Fatehabad",
+      "species": [
+        {
+          "type": "GANGETIC_DOLPHIN",
+          "adultMale": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 0
+          },
+          "adultFemale": {
+            "stranded": 0,
+            "injured": 1,
+            "dead": 0
+          },
+          "subAdult": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 1
+          }
+        }
+      ],
+      "images": null,
+      "observed_at": "2025-08-26T09:00:00",
+      "type": "NEW_REPORTING"
+    },
+    {
+      "id": "a1125a18-38ab-4254-a8e2-d4dbd5251d7f",
+      "longitude": -122.115,
+      "latitude": 37.418,
+      "altitude": 6,
+      "provider": "fused",
+      "district": "BIHAR",
+      "block": "MUZAFFARPUR",
+      "villageOrGhat": "Hajipur",
+      "species": [
+        {
+          "type": "INDIAN_SKIMMER",
+          "adultMale": {
+            "stranded": 1,
+            "injured": 0,
+            "dead": 0
+          },
+          "adultFemale": {
+            "stranded": 0,
+            "injured": 1,
+            "dead": 0
+          },
+          "subAdult": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 1
+          }
+        }
+      ],
+      "images": null,
+      "observed_at": "2025-08-27T07:45:00",
+      "type": "NEW_REPORTING"
+    },
+    {
+      "id": "d662d105-ded9-4594-addf-9b7ade9da79a",
+      "longitude": -122.145,
+      "latitude": 37.422,
+      "altitude": 9,
+      "provider": "fused",
+      "district": "GUJARAT",
+      "block": "AHMEDABAD",
+      "villageOrGhat": "Maninagar",
+      "species": [
+        {
+          "type": "SALTWATER_CROCODILE",
+          "adultMale": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 0
+          },
+          "adultFemale": {
+            "stranded": 1,
+            "injured": 0,
+            "dead": 0
+          },
+          "subAdult": {
+            "stranded": 0,
+            "injured": 0,
+            "dead": 1
+          }
+        }
+      ],
+      "images": null,
+      "observed_at": "2025-08-28T11:30:00",
+      "type": "NEW_REPORTING"
+    }
+  ]
+}
