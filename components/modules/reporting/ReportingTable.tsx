@@ -39,7 +39,12 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import DetailedRowDialog from "./DetailedRowDialog";
+import dynamic from "next/dynamic";
+
+const DetailedRowDialog = dynamic(
+  () => import("@/components/modules/reporting/DetailedRowDialog"),
+  { ssr: false }
+);
 
 interface ReportEntry {
   id: string;
