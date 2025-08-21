@@ -181,7 +181,7 @@ export default function Sidebar() {
       )}
 
       {/* Navigation */}
-      <div className="flex-1 p-4 space-y-2 overflow-y-auto">
+      <div className="flex-1 p-4 space-y-2 overflow-y-auto overflow-x-hidden">
         {!isCollapsed && (
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
             Overview

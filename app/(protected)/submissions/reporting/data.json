@@ -6,7 +6,7 @@
       "latitude": 37.423423,
       "altitude": 0,
       "provider": "fused",
-      "district": "NORTH_24_PARAGANAS",
+      "district": "NORTH_24_PARGANAS",
       "block": "BADURIA",
       "villageOrGhat": "Belgaria",
       "species": [
@@ -49,7 +49,11 @@
       ],
       "images": null,
       "observed_at": "2025-07-25T21:45:00",
-      "type": "OLD_REPORTING"
+      "type": "OLD_REPORTING",
+      "submittedBy": {
+        "name": "John Doe",
+        "phoneNumber": "+91 12345 67890"
+      }
     },
     {
       "id": "dec48967-7291-4391-a867-ed7c9fc390c3",
@@ -57,8 +61,8 @@
       "latitude": 37.420001,
       "altitude": 5,
       "provider": "fused",
-      "district": "BIHAR",
-      "block": "PATNA",
+      "district": "SOUTH_24_PARGANAS",
+      "block": "DIAMOND_HARBOUR",
       "villageOrGhat": "Sonepur",
       "species": [
         {
@@ -82,7 +86,11 @@
       ],
       "images": null,
       "observed_at": "2025-08-20T11:30:00",
-      "type": "NEW_REPORTING"
+      "type": "LIVE_REPORTING",
+      "submittedBy": {
+        "name": "Jane Smith",
+        "phoneNumber": "+91 98765 43210"
+      }
     },
     {
       "id": "5f5a697f-8c30-4ff9-b002-53f3f4e1ef01",
@@ -90,8 +98,8 @@
       "latitude": 37.415321,
       "altitude": 10,
       "provider": "fused",
-      "district": "WEST_BENGAL",
-      "block": "HOWRAH",
+      "district": "HOWRAH",
+      "block": "SHIBPUR",
       "villageOrGhat": "Shibpur",
       "species": [
         {
@@ -115,7 +123,11 @@
       ],
       "images": null,
       "observed_at": "2025-08-21T13:45:00",
-      "type": "NEW_REPORTING"
+      "type": "LIVE_REPORTING",
+      "submittedBy": {
+        "name": "Alice Johnson",
+        "phoneNumber": "+91 11223 44556"
+      }
     },
     {
       "id": "016f0377-2fe3-40fa-b442-0f58d2989558",
@@ -123,8 +135,8 @@
       "latitude": 37.41,
       "altitude": 15,
       "provider": "fused",
-      "district": "GUJARAT",
-      "block": "SURAT",
+      "district": "MURSHIDABAD",
+      "block": "BERHAMPORE",
       "villageOrGhat": "Chandkheda",
       "species": [
         {
@@ -148,7 +160,11 @@
       ],
       "images": null,
       "observed_at": "2025-08-22T15:30:00",
-      "type": "NEW_REPORTING"
+      "type": "LIVE_REPORTING",
+      "submittedBy": {
+        "name": "Bob Brown",
+        "phoneNumber": "+91 22334 55667"
+      }
     },
     {
       "id": "6796c71a-c15b-41dc-86dd-6625ebe8b7ca",
@@ -156,8 +172,8 @@
       "latitude": 37.405,
       "altitude": 8,
       "provider": "fused",
-      "district": "UTTAR_PRADESH",
-      "block": "KANPUR",
+      "district": "NADIA",
+      "block": "KRISHNANAGAR",
       "villageOrGhat": "Tundla",
       "species": [
         {
@@ -181,7 +197,11 @@
       ],
       "images": null,
       "observed_at": "2025-08-23T12:00:00",
-      "type": "NEW_REPORTING"
+      "type": "LIVE_REPORTING",
+      "submittedBy": {
+        "name": "Charlie Davis",
+        "phoneNumber": "+91 33445 66778"
+      }
     },
     {
       "id": "f18c2c36-7765-44f9-b464-a277e23e9fd0",
@@ -189,8 +209,8 @@
       "latitude": 37.43,
       "altitude": 3,
       "provider": "fused",
-      "district": "ODISHA",
-      "block": "BHUBANESWAR",
+      "district": "HOOGHLY",
+      "block": "CHINSURAH",
       "villageOrGhat": "Brahmagiri",
       "species": [
         {
@@ -214,7 +234,11 @@
       ],
       "images": null,
       "observed_at": "2025-08-24T14:20:00",
-      "type": "NEW_REPORTING"
+      "type": "LIVE_REPORTING",
+      "submittedBy": {
+        "name": "Diana Evans",
+        "phoneNumber": "+91 44556 77889"
+      }
     },
     {
       "id": "58a1437a-edb6-4dd8-aad8-0d651251e718",
@@ -222,8 +246,8 @@
       "latitude": 37.44,
       "altitude": 7,
       "provider": "fused",
-      "district": "WEST_BENGAL",
-      "block": "KOLKATA",
+      "district": "KOLKATA",
+      "block": "SALT LAKE",
       "villageOrGhat": "Salt Lake",
       "species": [
         {
@@ -247,7 +271,11 @@
       ],
       "images": null,
       "observed_at": "2025-08-25T10:15:00",
-      "type": "NEW_REPORTING"
+      "type": "LIVE_REPORTING",
+      "submittedBy": {
+        "name": "Ethan Foster",
+        "phoneNumber": "+91 55667 88990"
+      }
     },
     {
       "id": "3dfa6c28-d80c-4cd4-a6f8-9ad2a679c6c6",
@@ -255,8 +283,8 @@
       "latitude": 37.435,
       "altitude": 12,
       "provider": "fused",
-      "district": "UTTAR_PRADESH",
-      "block": "AGRA",
+      "district": "NADIA",
+      "block": "RANAGHAT",
       "villageOrGhat": "Fatehabad",
       "species": [
         {
@@ -280,7 +308,11 @@
       ],
       "images": null,
       "observed_at": "2025-08-26T09:00:00",
-      "type": "NEW_REPORTING"
+      "type": "LIVE_REPORTING",
+      "submittedBy": {
+        "name": "Fiona Green",
+        "phoneNumber": "+91 66778 99001"
+      }
     },
     {
       "id": "a1125a18-38ab-4254-a8e2-d4dbd5251d7f",
@@ -288,8 +320,8 @@
       "latitude": 37.418,
       "altitude": 6,
       "provider": "fused",
-      "district": "BIHAR",
-      "block": "MUZAFFARPUR",
+      "district": "NORTH_24_PARGANAS",
+      "block": "HABRA",
       "villageOrGhat": "Hajipur",
       "species": [
         {
@@ -313,7 +345,11 @@
       ],
       "images": null,
       "observed_at": "2025-08-27T07:45:00",
-      "type": "NEW_REPORTING"
+      "type": "LIVE_REPORTING",
+      "submittedBy": {
+        "name": "George Harris",
+        "phoneNumber": "+91 77889 00112"
+      }
     },
     {
       "id": "d662d105-ded9-4594-addf-9b7ade9da79a",
@@ -321,8 +357,8 @@
       "latitude": 37.422,
       "altitude": 9,
       "provider": "fused",
-      "district": "GUJARAT",
-      "block": "AHMEDABAD",
+      "district": "SOUTH_24_PARGANAS",
+      "block": "CANNING",
       "villageOrGhat": "Maninagar",
       "species": [
         {
@@ -346,7 +382,11 @@
       ],
       "images": null,
       "observed_at": "2025-08-28T11:30:00",
-      "type": "NEW_REPORTING"
+      "type": "LIVE_REPORTING",
+      "submittedBy": {
+        "name": "Hannah James",
+        "phoneNumber": "+91 88990 11223"
+      }
     }
   ]
 }
