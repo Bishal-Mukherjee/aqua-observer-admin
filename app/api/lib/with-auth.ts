@@ -28,7 +28,7 @@ export const validateUserExists = async (id: string): Promise<boolean> => {
 export function withAuth(handler: ApiRouteHandler) {
   return async function protectedHandler(
     request: NextRequest,
-    context: { params: any } = { params: {} }
+    context: { params: any }
   ): Promise<NextResponse> {
     try {
       const userId = request.headers.get("auth-user-id");
