@@ -40,5 +40,9 @@ export async function middleware(request: NextRequest) {
 
 // 🔐 Protect these routes
 export const config = {
-  matcher: ["/api/v1/users/:path*", "/api/v1/profile/:path*"], // Only protect /admin routes
+  matcher: [
+    "/api/v1/users/:path*",
+    "/api/v1/profile/:path*",
+    "/api/v1/species/:path*",
+  ], // Only protect /admin routes
 };

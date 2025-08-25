@@ -6,14 +6,22 @@ export const GET = withAuth(async (request: NextRequest): Promise<any> => {
   try {
     const id = request.headers.get("auth-user-id");
     const query = await pool.query(
-      "SELECT name, phone_number, gender, address, profile_pic_url, role, tier, status, created_at, last_active_at FROM users WHERE id = $1",
+      `SELECT 
+        id, 
+        name, 
+        phone_number AS "phoneNumber", 
+        gender, 
+        role, 
+        status
+      FROM users WHERE id = $1`,
       [id]
     );
     return Response.json(
-      { result: query.rows[0], total: query.rows.length },
+      { message: "User profile retrieved successfully", result: query.rows[0] },
       { status: 200 }
     );
   } catch (e) {
+    console.log(e);
     return Response.json({ message: "Internal Server Error" }, { status: 500 });
   }
 });

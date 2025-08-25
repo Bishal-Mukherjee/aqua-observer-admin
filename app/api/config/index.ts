@@ -7,6 +7,11 @@ interface Config {
     user: string;
     password: string;
   };
+  twilio: {
+    serviceSid: string;
+    accountSid: string;
+    authToken: string;
+  };
   //   redis: {
   //     username: string;
   //     password: string;
@@ -25,6 +30,11 @@ export const config: Config = {
     name: process.env.DB_NAME || "",
     user: process.env.DB_USER || "",
     password: process.env.DB_PASSWORD || "",
+  },
+  twilio: {
+    serviceSid: process.env.TWILIO_SERVICE_SID || "",
+    accountSid: process.env.TWILIO_ACCOUNT_SID || "",
+    authToken: process.env.TWILIO_AUTH_TOKEN || "",
   },
   //   redis: redisConfig(),
 };

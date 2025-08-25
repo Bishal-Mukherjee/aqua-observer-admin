@@ -1,18 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import Joi from "joi";
-import jwt from "jsonwebtoken";
-import crypto from "crypto";
-import { hash, compare } from "bcrypt";
 import { pool } from "@/app/api/config/db";
-import { config } from "@/app/api/config";
+import { sendCode } from "@/app/api/lib/twilio";
 
 const signinSchema = Joi.object({
-  phoneNumber: Joi.string().required().messages({
+  phoneNumber: Joi.string().length(10).required().messages({
     "any.required": "Phone number is required",
+    "string.length": "Phone number must be exactly 10 digits",
   }),
-  password: Joi.string().required().messages({
-    "any.required": "Password is required",
-  }),
+  isTest: Joi.boolean().optional(),
 });
 
 export const POST = async (request: NextRequest) => {
@@ -27,10 +23,10 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    const { phoneNumber, password } = body;
+    const { phoneNumber, isTest } = body;
 
     const query = await pool.query(
-      "SELECT id, password FROM users WHERE phone_number = $1",
+      "SELECT id FROM users WHERE phone_number = $1",
       [phoneNumber]
     );
 
@@ -41,55 +37,21 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    const user = query.rows[0];
+    // TODO: remove this condition
+    if (!isTest) {
+      const sendCodeResponse = await sendCode(phoneNumber);
 
-    const isPasswordValid = await compare(password, user.password);
-    if (!isPasswordValid) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
-      );
+      if (sendCodeResponse.status !== "pending") {
+        return NextResponse.json(
+          { error: "Failed to send OTP" },
+          { status: 500 }
+        );
+      }
     }
 
-    const accessToken = jwt.sign(
-      {
-        id: user.id,
-      },
-      config.jwtSecret,
-      {
-        expiresIn: "1d",
-      }
-    );
-
-    const refreshToken = crypto.randomBytes(32).toString("hex");
-    const refreshTokenHash = await hash(refreshToken, 10);
-
-    await pool.query(
-      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at) 
-		 VALUES ($1, $2, $3, NOW())`,
-      [
-        user.id,
-        refreshTokenHash,
-        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      ]
-    );
-
-    await pool.query(
-      "DELETE FROM refresh_tokens WHERE user_id = $1 AND expires_at < NOW()",
-      [user.id]
-    );
-
     return NextResponse.json(
-      {
-        message: "User signed in successfully",
-        result: {
-          accessToken,
-          refreshToken,
-        },
-      },
-      {
-        status: 200,
-      }
+      { message: "OTP sent successfully" },
+      { status: 200 }
     );
   } catch (e) {
     console.log(e);

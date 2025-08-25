@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, X } from "lucide-react";
+import { AddSpeciesDialog } from "@/components/modules/species/SpeciesDialog/AddSpeciesDialog";
 
 interface SpeciesFiltersProps {
   searchTerm: string;
@@ -31,7 +32,7 @@ export default function SpeciesFilters({
   setSelectedStatus,
 }: SpeciesFiltersProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div className="grid grid-cols-4 gap-4 mb-6">
       {/* Search Bar */}
       <div className="relative w-full">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
@@ -98,6 +99,10 @@ export default function SpeciesFilters({
             }}
           />
         )}
+      </div>
+
+      <div className="flex items-center justify-end">
+        <AddSpeciesDialog />
       </div>
     </div>
   );

@@ -1,14 +1,13 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   TrendingUp,
   TrendingDown,
   Users,
-  Eye,
-  FileText,
+  Binoculars,
   Search,
+  Siren,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +17,7 @@ const stats = [
     value: "1,247",
     change: "+12%",
     changeType: "positive",
-    icon: Eye,
+    icon: Binoculars,
     description: "from last month",
   },
   {
@@ -30,11 +29,11 @@ const stats = [
     description: "from last month",
   },
   {
-    title: "Pending Reports",
+    title: "Total Reportings",
     value: "23",
     change: "-8%",
     changeType: "negative",
-    icon: FileText,
+    icon: Siren,
     description: "from last month",
   },
   {

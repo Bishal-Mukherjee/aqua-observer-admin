@@ -1,11 +1,12 @@
 "use client";
 
-import React, { Fragment, useState } from "react";
+import { Fragment, useState } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import SpeciesDialog from "@/components/modules/species/SpeciesDialog";
+import SpeciesDialog from "@/components/modules/species/SpeciesDialog/SpeciesDialog";
+import { Species } from "@/app/(protected)/species/page";
 
 // Conservation status color mapping
 const getStatusColor = (status: string) => {
@@ -48,16 +49,16 @@ const formatStatus = (status: string) => {
 };
 
 interface SpeciesGridProps {
-  species: any[];
+  species: Species[];
 }
 
 export default function SpeciesGrid({ species }: SpeciesGridProps) {
-  const [selectedSpecies, setSelectedSpecies] = useState(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(null);
 
-  const handleCardClick = (species: any) => {
+  const handleCardClick = (species: Species) => {
     setSelectedSpecies(species);
-    setIsDialogOpen(true);
+    setIsOpen(true);
   };
 
   return (
@@ -66,12 +67,22 @@ export default function SpeciesGrid({ species }: SpeciesGridProps) {
         {species.map((animal) => (
           <Card
             key={animal.value}
-            className="overflow-hidden border-gray-200 pt-0 shadow-none border-0 cursor-pointer transition-transform duration-200 hover:scale-101"
+            className={cn(
+              "overflow-hidden border-gray-200 pt-0 shadow-none border-0 cursor-pointer transition-transform duration-200 hover:scale-101",
+              { "opacity-[0.7]": !animal.isActive }
+            )}
             onClick={() => handleCardClick(animal)}
           >
             {/* Card Header */}
             <CardHeader className="relative h-48 w-full bg-gray-50">
-              <Image src={animal.adultImg} alt={animal.label.en} fill />
+              <Image src={animal.image} alt={animal.label.en} fill />
+              {!animal.isActive && (
+                <div className="absolute top-2 left-2 transition-transform duration-200">
+                  <Badge variant="outline" className="text-xs bg-white">
+                    Inactive
+                  </Badge>
+                </div>
+              )}
               <div className="absolute top-2 right-2 transition-transform duration-200">
                 <Badge
                   variant="secondary"
@@ -152,8 +163,8 @@ export default function SpeciesGrid({ species }: SpeciesGridProps) {
       </div>
 
       <SpeciesDialog
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
         species={selectedSpecies}
       />
     </Fragment>

@@ -1,20 +1,36 @@
 "use client";
 
+// import { useRouter } from "next/navigation";
 import { HelmetProvider } from "react-helmet-async";
 import Sidebar from "@/components/layout/Sidebar";
 import Navbar from "@/components/layout/Navbar";
 import { useSidebar } from "@/store/useSidebar";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/store/useAuth";
 
 export default function AuthenticatedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  //   const router = useRouter();
+
+  const { user } = useAuth();
   const { isCollapsed } = useSidebar();
+
+  //   useEffect(() => {
+  //     if (user) {
+  //       router.push("/home");
+  //     } else {
+  //       router.push("/login");
+  //     }
+  //   }, [user]);
+
+  if (!user) return null;
+
   return (
     <HelmetProvider>
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
         {/* Fixed Sidebar */}
         <div className="fixed top-0 left-0 z-30">
           <Sidebar />

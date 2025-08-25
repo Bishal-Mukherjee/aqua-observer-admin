@@ -1,12 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -25,6 +36,8 @@ import {
   Siren,
   AlertCircle,
   Skull,
+  AlertOctagon,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
@@ -83,6 +96,7 @@ interface DetailedRowDialogProps {
   isOpen: boolean;
   onClose: () => void;
   reportData: ReportEntry | null;
+  onInvalidateReport?: (reportId: string) => void;
 }
 
 const getSpeciesDisplayColor = (speciesType: string) => {
@@ -183,6 +197,7 @@ const LocationMap: React.FC<{
         maxZoom={14}
         minZoom={14}
         zoomControl={false}
+        dragging={false}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <Marker position={[latitude, longitude]} icon={icon}>
@@ -190,7 +205,7 @@ const LocationMap: React.FC<{
             <div>
               <div className="font-semibold text-sm mb-1">{locationName}</div>
               <div className="text-xs text-gray-600 mb-2">
-                Lat: {latitude.toFixed(6)}, Lng: {longitude.toFixed(6)}
+                {latitude.toFixed(6)}, {longitude.toFixed(6)}
               </div>
               <div className="space-y-1">
                 {species.map((spec, idx) => (
@@ -218,324 +233,395 @@ export default function DetailedRowDialog({
   isOpen,
   onClose,
   reportData,
+  onInvalidateReport,
 }: DetailedRowDialogProps) {
+  const [showInvalidateDialog, setShowInvalidateDialog] = useState(false);
+
   if (!reportData) return null;
 
   const { date, time } = formatDateTime(reportData.observed_at);
 
+  const handleInvalidateClick = () => {
+    setShowInvalidateDialog(true);
+  };
+
+  const handleConfirmInvalidate = () => {
+    if (onInvalidateReport) {
+      onInvalidateReport(reportData.id);
+    }
+    setShowInvalidateDialog(false);
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        className="min-w-[90vw] max-h-[90vh] p-0"
-        showCloseButton={false}
-      >
-        <div className="flex h-[85vh]">
-          <div className="flex-1 flex flex-col">
-            <DialogHeader className="px-6 py-4 border-b border-gray-200">
-              <DialogTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Siren className="h-5 w-5 text-red-600" />
-                Report
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "ml-auto text-xs font-medium border-none",
-                    reportData.type === "LIVE_REPORTING"
-                      ? "bg-green-50 text-green-800"
-                      : "bg-blue-50 text-blue-800"
-                  )}
-                >
-                  {reportData.type.split("_")[0]}
-                </Badge>
-              </DialogTitle>
-            </DialogHeader>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent
+          className="min-w-[90vw] max-h-[90vh] p-0"
+          showCloseButton={false}
+        >
+          <div className="flex h-[85vh]">
+            <div className="flex-1 flex flex-col bg-slate-50 rounded-md">
+              <DialogHeader className="px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Siren className="h-5 w-5 text-red-600" />
+                    Report
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "ml-2 text-xs font-medium border-none",
+                        reportData.type === "LIVE_REPORTING"
+                          ? "bg-green-50 text-green-800"
+                          : "bg-blue-50 text-blue-800"
+                      )}
+                    >
+                      {reportData.type.split("_")[0]}
+                    </Badge>
+                  </DialogTitle>
 
-            <ScrollArea className="h-[76vh] p-4 bg-slate-50 rounded-xl">
-              <Card className="border-none shadow-none mb-4">
-                <CardContent className="px-4 py-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
-                        <Calendar className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {date}
-                        </p>
-                        <p className="text-xs text-gray-600">
-                          Observation Date
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center">
-                        <Clock className="h-5 w-5 text-indigo-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {time}
-                        </p>
-                        <p className="text-xs text-gray-600">Time</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleInvalidateClick}
+                    className="h-8 px-3 text-xs cursor-pointer"
+                  >
+                    <AlertOctagon className="h-3.5 w-3.5 mr-1" />
+                    Invalidate Report
+                  </Button>
+                </div>
+              </DialogHeader>
 
-              <div className="mb-4">
-                <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-1">
-                  <MapPinIcon className="h-5 w-5 text-gray-500" />
-                  Location Details
-                </h3>
-                <div className="grid grid-cols-1 gap-2">
-                  <Card className="border-none shadow-none">
-                    <CardContent className="px-4 py-0">
+              <ScrollArea className="h-[75vh] p-4">
+                <Card className="border-none shadow-none mb-4">
+                  <CardContent className="px-4 py-0">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center">
-                          <Building2 className="h-5 w-5 text-emerald-600" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm font-semibold text-gray-900">
-                                {formatLocationName(reportData.district)}
-                              </p>
-                              <p className="text-xs text-gray-500">District</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-sm font-semibold text-gray-900">
-                                {formatLocationName(reportData.block)}
-                              </p>
-                              <p className="text-xs text-gray-500">Block</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-none shadow-none">
-                    <CardContent className="px-4 py-0">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center">
-                          <Home className="h-5 w-5 text-orange-600" />
+                        <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
+                          <Calendar className="h-5 w-5 text-blue-600" />
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-gray-900">
-                            {reportData.villageOrGhat}
+                            {date}
                           </p>
-                          <p className="text-xs text-gray-500">Village/Ghat</p>
+                          <p className="text-xs text-gray-600">
+                            Observation Date
+                          </p>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              <Separator className="my-4" />
-
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-md font-semibold text-gray-900 flex items-center gap-2">
-                    <PawPrint className="h-5 w-5 text-gray-500" />
-                    Species Observations
-                  </h3>
-
-                  <div className="flex items-center justify-center w-6 h-6 bg-slate-50 text-slate-600 rounded-xl text-xs">
-                    {reportData.species.length || 0}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  {reportData.species.map((species, index) => (
-                    <Card key={index} className="border-none shadow-none">
-                      <CardContent className="p-4 py-0">
-                        <div className="flex items-center justify-between mb-4">
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "text-sm font-medium border-none px-3 py-1",
-                              getSpeciesDisplayColor(species.type)
-                            )}
-                          >
-                            {transformSpeciesName(species.type)}
-                          </Badge>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center">
+                          <Clock className="h-5 w-5 text-indigo-600" />
                         </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {time}
+                          </p>
+                          <p className="text-xs text-gray-600">Time</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
-                        <div className="grid grid-cols-3 gap-6 pt-4">
-                          <div className="text-center">
-                            <span className="font-medium text-gray-700 block mb-2 text-sm">
-                              Adult Male
-                            </span>
-                            <div className="space-y-2 space-x-2">
-                              {getConditionBadge(
-                                species.adultMale.stranded,
-                                "stranded"
-                              )}
-                              {getConditionBadge(
-                                species.adultMale.injured,
-                                "injured"
-                              )}
-                              {getConditionBadge(
-                                species.adultMale.dead,
-                                "dead"
-                              )}
-                              {species.adultMale.stranded === 0 &&
-                                species.adultMale.injured === 0 &&
-                                species.adultMale.dead === 0 && (
-                                  <span className="text-gray-400 text-xs block">
-                                    No observations
-                                  </span>
-                                )}
-                            </div>
+                <div className="mb-4">
+                  <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-1">
+                    <MapPinIcon className="h-5 w-5 text-gray-500" />
+                    Location Details
+                  </h3>
+                  <div className="grid grid-cols-1 gap-2">
+                    <Card className="border-none shadow-none">
+                      <CardContent className="px-4 py-0">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center">
+                            <Building2 className="h-5 w-5 text-emerald-600" />
                           </div>
-
-                          <div className="text-center">
-                            <span className="font-medium text-gray-700 block mb-2 text-sm">
-                              Adult Female
-                            </span>
-                            <div className="space-y-0.5 space-x-1">
-                              {getConditionBadge(
-                                species.adultFemale.stranded,
-                                "stranded"
-                              )}
-                              {getConditionBadge(
-                                species.adultFemale.injured,
-                                "injured"
-                              )}
-                              {getConditionBadge(
-                                species.adultFemale.dead,
-                                "dead"
-                              )}
-                              {species.adultFemale.stranded === 0 &&
-                                species.adultFemale.injured === 0 &&
-                                species.adultFemale.dead === 0 && (
-                                  <span className="text-gray-400 text-xs block">
-                                    No observations
-                                  </span>
-                                )}
-                            </div>
-                          </div>
-
-                          <div className="text-center">
-                            <span className="font-medium text-gray-700 block mb-2 text-sm">
-                              Sub Adult
-                            </span>
-                            <div className="space-y-2">
-                              {getConditionBadge(
-                                species.subAdult.stranded,
-                                "stranded"
-                              )}
-                              {getConditionBadge(
-                                species.subAdult.injured,
-                                "injured"
-                              )}
-                              {getConditionBadge(species.subAdult.dead, "dead")}
-                              {species.subAdult.stranded === 0 &&
-                                species.subAdult.injured === 0 &&
-                                species.subAdult.dead === 0 && (
-                                  <span className="text-gray-400 text-xs block">
-                                    No observations
-                                  </span>
-                                )}
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm font-semibold text-gray-900">
+                                  {formatLocationName(reportData.district)}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  District
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm font-semibold text-gray-900">
+                                  {formatLocationName(reportData.block)}
+                                </p>
+                                <p className="text-xs text-gray-500">Block</p>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
-                </div>
-              </div>
 
-              <Separator className="my-4" />
-
-              <div className="mb-4">
-                <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <ImageIcon className="h-5 w-5 text-gray-500" />
-                  Images
-                </h3>
-                {reportData.images && reportData.images.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-4">
-                    {reportData.images.map((image, index) => (
-                      <div
-                        key={index}
-                        className="aspect-video bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-center hover:shadow-sm transition-shadow overflow-hidden"
-                      >
-                        <img
-                          src={image}
-                          alt={`Observation ${index + 1}`}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
-                      </div>
-                    ))}
+                    <Card className="border-none shadow-none">
+                      <CardContent className="px-4 py-0">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center">
+                            <Home className="h-5 w-5 text-orange-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-900">
+                              {reportData.villageOrGhat}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Village/Ghat
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                ) : (
-                  <Card className="shadow-none border-none py-0">
-                    <CardContent className="p-8 text-center">
-                      <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <ImageIcon className="h-8 w-8 text-gray-400" />
-                      </div>
-                      <p className="text-gray-500 text-sm">
-                        No images available for this report
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
+                </div>
 
-              <Separator className="my-4" />
+                <Separator className="my-4" />
 
-              <div>
-                <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <User className="h-5 w-5 text-gray-500" />
-                  Reporter Information
-                </h3>
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-md font-semibold text-gray-900 flex items-center gap-2">
+                      <PawPrint className="h-5 w-5 text-gray-500" />
+                      Species Observations
+                    </h3>
 
-                <div className="flex items-start justify-between pr-4">
-                  <div className="flex items-center gap-4">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900">
-                          {reportData.submittedBy.name}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-gray-500" />
-                        <span className="text-gray-700 font-mono text-sm">
-                          {formatPhoneNumber(
-                            reportData.submittedBy.phoneNumber
-                          )}
-                        </span>
-                      </div>
+                    <div className="flex items-center justify-center w-6 h-6 bg-slate-100 border text-slate-600 rounded-xl text-xs">
+                      {reportData.species.length || 0}
                     </div>
                   </div>
-                  <Link
-                    href={`/reports/${reportData.id}`}
-                    className="text-blue-600 underline flex items-center text-xs"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    Other Reports
-                  </Link>
+
+                  <div className="space-y-2">
+                    {reportData.species.map((species, index) => (
+                      <Card key={index} className="border-none shadow-none">
+                        <CardContent className="px-4 py-0">
+							<div className="flex items-center justify-between mb-4">
+								<Badge
+								variant="outline"
+								className={cn(
+									"text-sm font-medium border-none px-3 py-1",
+									getSpeciesDisplayColor(species.type)
+								)}
+								>
+								{transformSpeciesName(species.type)}
+								</Badge>
+							</div>
+
+                          <div className="grid grid-cols-3 gap-6">
+                            <div className="text-center">
+                              <span className="font-medium text-gray-700 block mb-2 text-sm">
+                                Adult Male
+                              </span>
+                              <div className="space-y-2 space-x-2">
+                                {getConditionBadge(
+                                  species.adultMale.stranded,
+                                  "stranded"
+                                )}
+                                {getConditionBadge(
+                                  species.adultMale.injured,
+                                  "injured"
+                                )}
+                                {getConditionBadge(
+                                  species.adultMale.dead,
+                                  "dead"
+                                )}
+                                {species.adultMale.stranded === 0 &&
+                                  species.adultMale.injured === 0 &&
+                                  species.adultMale.dead === 0 && (
+                                    <span className="text-gray-400 text-xs block">
+                                      No observations
+                                    </span>
+                                  )}
+                              </div>
+                            </div>
+
+                            <div className="text-center">
+                              <span className="font-medium text-gray-700 block mb-2 text-sm">
+                                Adult Female
+                              </span>
+                              <div className="space-y-0.5 space-x-1">
+                                {getConditionBadge(
+                                  species.adultFemale.stranded,
+                                  "stranded"
+                                )}
+                                {getConditionBadge(
+                                  species.adultFemale.injured,
+                                  "injured"
+                                )}
+                                {getConditionBadge(
+                                  species.adultFemale.dead,
+                                  "dead"
+                                )}
+                                {species.adultFemale.stranded === 0 &&
+                                  species.adultFemale.injured === 0 &&
+                                  species.adultFemale.dead === 0 && (
+                                    <span className="text-gray-400 text-xs block">
+                                      No observations
+                                    </span>
+                                  )}
+                              </div>
+                            </div>
+
+                            <div className="text-center">
+                              <span className="font-medium text-gray-700 block mb-2 text-sm">
+                                Sub Adult
+                              </span>
+                              <div className="space-y-2">
+                                {getConditionBadge(
+                                  species.subAdult.stranded,
+                                  "stranded"
+                                )}
+                                {getConditionBadge(
+                                  species.subAdult.injured,
+                                  "injured"
+                                )}
+                                {getConditionBadge(
+                                  species.subAdult.dead,
+                                  "dead"
+                                )}
+                                {species.subAdult.stranded === 0 &&
+                                  species.subAdult.injured === 0 &&
+                                  species.subAdult.dead === 0 && (
+                                    <span className="text-gray-400 text-xs block">
+                                      No observations
+                                    </span>
+                                  )}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
+
+                <Separator className="my-4" />
+
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-md font-semibold text-gray-900 flex items-center gap-2">
+                      <ImageIcon className="h-5 w-5 text-gray-500" />
+                      Images
+                    </h3>
+
+                    <div className="flex items-center justify-center w-6 h-6 bg-slate-100 border text-slate-600 rounded-xl text-xs">
+                      {reportData.images?.length || 0}
+                    </div>
+                  </div>
+
+                  {reportData.images && reportData.images.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      {reportData.images.map((image, index) => (
+                        <div
+                          key={index}
+                          className="aspect-video bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-center hover:shadow-sm transition-shadow overflow-hidden"
+                        >
+                          <img
+                            src={image}
+                            alt={`Observation ${index + 1}`}
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <Card className="shadow-none border-none py-0">
+                      <CardContent className="p-8 text-center">
+                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <ImageIcon className="h-8 w-8 text-gray-400" />
+                        </div>
+                        <p className="text-gray-500 text-sm">
+                          No images available for this report
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+
+                <Separator className="my-4" />
+
+                <div>
+                  <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <User className="h-5 w-5 text-gray-500" />
+                    Reporter Information
+                  </h3>
+
+                  <div className="flex items-start justify-between pr-4">
+                    <div className="flex items-center gap-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-gray-900">
+                            {reportData.submittedBy.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-gray-500" />
+                          <span className="text-gray-700 font-mono text-sm">
+                            {formatPhoneNumber(
+                              reportData.submittedBy.phoneNumber
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <Link
+                      href={`/reports/${reportData.id}`}
+                      className="text-blue-600 underline flex items-center text-xs"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      Other Reports
+                    </Link>
+                  </div>
+                </div>
+
+                <ScrollBar orientation="vertical" />
+              </ScrollArea>
+            </div>
+
+            <div className="w-1/2 border-l border-gray-200">
+              <div className="h-full">
+                <LocationMap
+                  longitude={reportData.longitude}
+                  latitude={reportData.latitude}
+                  locationName={`${
+                    reportData.villageOrGhat
+                  }, ${formatLocationName(reportData.block)}`}
+                  species={reportData.species}
+                />
               </div>
-
-              <ScrollBar orientation="vertical" />
-            </ScrollArea>
-          </div>
-
-          <div className="w-1/2 border-l border-gray-200">
-            <div className="h-full">
-              <LocationMap
-                longitude={reportData.longitude}
-                latitude={reportData.latitude}
-                locationName={`${
-                  reportData.villageOrGhat
-                }, ${formatLocationName(reportData.block)}`}
-                species={reportData.species}
-              />
             </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog
+        open={showInvalidateDialog}
+        onOpenChange={setShowInvalidateDialog}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-red-600" />
+              Invalidate Report
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to invalidate this report? This action
+              cannot be undone. The report will be marked as invalid and removed
+              from active data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmInvalidate}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Yes, Invalidate Report
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

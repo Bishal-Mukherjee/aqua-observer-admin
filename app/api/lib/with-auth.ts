@@ -3,7 +3,11 @@ import { isEmpty } from "lodash";
 import { pool } from "@/app/api/config/db";
 
 interface ApiRouteHandler {
-  (request: NextRequest): Promise<NextResponse>;
+  (
+    request: NextRequest,
+    context: { params: any },
+    userId?: string
+  ): Promise<NextResponse>;
 }
 
 export const validateUserExists = async (id: string): Promise<boolean> => {
@@ -23,12 +27,13 @@ export const validateUserExists = async (id: string): Promise<boolean> => {
 
 export function withAuth(handler: ApiRouteHandler) {
   return async function protectedHandler(
-    request: NextRequest
+    request: NextRequest,
+    context: { params: any } = { params: {} }
   ): Promise<NextResponse> {
     try {
-      const id = request.headers.get("auth-user-id");
+      const userId = request.headers.get("auth-user-id");
 
-      if (!id) {
+      if (!userId) {
         return NextResponse.json(
           {
             message: "Unauthorized: Missing or invalid token",
@@ -37,7 +42,7 @@ export function withAuth(handler: ApiRouteHandler) {
         );
       }
 
-      const isValidUser = await validateUserExists(id);
+      const isValidUser = await validateUserExists(userId);
 
       if (!isValidUser) {
         return NextResponse.json(
@@ -50,10 +55,11 @@ export function withAuth(handler: ApiRouteHandler) {
 
       await pool.query(
         "UPDATE users SET last_active_at = NOW() WHERE id = $1",
-        [id]
+        [userId]
       );
 
-      return await handler(request);
+      // Pass the original context/params and userId separately
+      return await handler(request, context, userId);
     } catch (error) {
       console.error("Authentication middleware error:", error);
       return NextResponse.json(

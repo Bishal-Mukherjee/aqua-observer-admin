@@ -27,13 +27,13 @@ const activities = [
 
 export default function RecentActivity() {
   return (
-    <Card className="shadow-none border-0 max-h-84">
+    <Card className="shadow-none border-0 h-90">
       <CardHeader className="flex items-center gap-2">
         <Activity className="h-5 w-5 text-slate-400" />
         <CardTitle>Recent Activity</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-4 mt-2">
           {activities.map((activity, index) => (
             <div key={index} className="flex items-start space-x-4">
               <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>

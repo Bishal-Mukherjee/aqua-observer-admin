@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Search, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/store/useSidebar";
+import { useAuth } from "@/store/useAuth";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { user } = useAuth();
   const { isCollapsed } = useSidebar();
 
   const getPageInfo = () => {
@@ -129,11 +131,13 @@ export default function Navbar() {
         {/* Profile */}
         <div className="flex items-center space-x-3 pl-3 border-l border-gray-300">
           <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-            A
+            {user?.name.charAt(0)}
           </div>
           <div className="hidden md:block">
-            <p className="text-sm font-medium text-gray-900">Jenny Martin</p>
-            <p className="text-xs text-gray-500">Super Admin</p>
+            <p className="text-sm font-medium text-gray-900">
+              {user?.name || "Guest"}
+            </p>
+            <p className="text-xs text-gray-500">{user?.role || "User"}</p>
           </div>
         </div>
       </div>

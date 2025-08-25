@@ -1,10 +1,16 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Activity,
   Home,
@@ -20,9 +26,12 @@ import {
   Siren,
   ChevronDown,
   ChevronRight,
+  Globe,
+  ListVideo,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/store/useSidebar";
+import { useAuth } from "@/store/useAuth";
 
 // Define types for navData
 type NavItem = {
@@ -67,6 +76,28 @@ export const navData: NavItem[] = [
     ],
   },
   {
+    id: "member-programs",
+    title: "Member Programs",
+    icon: Globe,
+    badge: null,
+    subRoutes: [
+      {
+        id: "tiers",
+        title: "Tiers",
+        path: "/programs/tiers",
+        icon: Users,
+        badge: null,
+      },
+      {
+        id: "training",
+        title: "Training",
+        path: "/programs/training",
+        icon: ListVideo,
+        badge: null,
+      },
+    ],
+  },
+  {
     id: "users",
     title: "Users",
     path: "/users",
@@ -99,11 +130,16 @@ export const navData: NavItem[] = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { user, clearAuth } = useAuth();
   const { isCollapsed, setIsCollapsed, activeSubRoute, setActiveSubRoute } =
     useSidebar();
 
   const toggleRouteExpansion = (id: string) => {
-    setActiveSubRoute(id);
+    if (activeSubRoute === id) {
+      setActiveSubRoute("");
+    } else {
+      setActiveSubRoute(id);
+    }
   };
 
   const handleNavigation = (path?: string) => {
@@ -113,8 +149,8 @@ export default function Sidebar() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
-    router.push("/auth/login");
+    clearAuth();
+    router.push("/login");
   };
 
   return (
@@ -167,11 +203,15 @@ export default function Sidebar() {
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center text-white font-semibold">
-              A
+              {user?.name.charAt(0)}
             </div>
             <div className="flex-1">
-              <p className="font-medium text-sm text-gray-900">Jenny Martin</p>
-              <p className="text-xs text-gray-500">admin@aquaobserver.com</p>
+              <p className="font-medium text-sm text-gray-900">
+                {user?.name || "Guest"}
+              </p>
+              <p className="text-xs text-gray-500">
+                {`+91 ${user?.phoneNumber}` || "+00 00 0000 0000"}
+              </p>
             </div>
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
               <Bell className="h-4 w-4" />
@@ -181,22 +221,22 @@ export default function Sidebar() {
       )}
 
       {/* Navigation */}
-      <div className="flex-1 p-4 space-y-2 overflow-y-auto overflow-x-hidden">
+      <ScrollArea className="h-[calc(96vh-16rem)] p-4">
         {!isCollapsed && (
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
             Overview
           </p>
         )}
 
-        {navData.map((item) => {
-          const Icon = item.icon;
-          const isActive =
-            pathname === item.path || pathname.startsWith(item.path + "/");
-          const hasSubRoutes = item.subRoutes && item.subRoutes.length > 0;
-          const isExpanded = activeSubRoute === item.id;
+        <div className="space-y-1">
+          {navData.map((item) => {
+            const Icon = item.icon;
+            const isActive =
+              pathname === item.path || pathname.startsWith(item.path + "/");
+            const hasSubRoutes = item.subRoutes && item.subRoutes.length > 0;
+            const isExpanded = activeSubRoute === item.id;
 
-          return (
-            <div key={item.id} className="space-y-1">
+            const buttonContent = (
               <Button
                 variant="ghost"
                 className={cn(
@@ -239,82 +279,191 @@ export default function Sidebar() {
                   </div>
                 )}
               </Button>
+            );
 
-              {/* SubRoutes */}
-              {!isCollapsed && hasSubRoutes && isExpanded && (
-                <div className="pl-5 space-y-1">
-                  {(item.subRoutes as NavItem[]).map((subRoute) => {
-                    const SubIcon = subRoute.icon;
-                    const isSubActive =
-                      pathname === subRoute.path ||
-                      pathname.startsWith(subRoute.path || "");
+            return (
+              <div key={item.id} className="space-y-1 relative">
+                {isCollapsed && hasSubRoutes ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
+                    <TooltipContent side="right" className="p-3 w-[180px]">
+                      <div>
+                        <p className="font-medium text-xs">{item.title}</p>
+                        <div className="space-y-1 mt-1">
+                          {(item.subRoutes as NavItem[]).map((subRoute) => {
+                            const SubIcon = subRoute.icon;
+                            const isSubActive =
+                              pathname === subRoute.path ||
+                              pathname.startsWith(subRoute.path || "");
 
-                    return (
-                      <Button
-                        key={subRoute.id}
-                        variant="ghost"
-                        className={cn(
-                          "w-full justify-start h-10 text-left transition-all duration-200 cursor-pointer",
-                          isSubActive
-                            ? "bg-blue-50 text-blue-700 hover:bg-blue-100"
-                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-800",
-                          "px-3"
-                        )}
-                        onClick={() => handleNavigation(subRoute.path)}
-                      >
-                        <SubIcon className="h-4 w-4 mr-2" />
-                        <div className="flex items-center justify-between w-full">
-                          <span className="text-sm">{subRoute.title}</span>
-                          {subRoute.badge && (
-                            <Badge
-                              variant={isSubActive ? "default" : "secondary"}
-                              className={cn(
-                                "ml-auto text-xs",
-                                isSubActive
-                                  ? "bg-blue-600"
-                                  : "bg-gray-200 text-gray-500"
-                              )}
-                            >
-                              {subRoute.badge}
-                            </Badge>
-                          )}
+                            return (
+                              <button
+                                key={subRoute.id}
+                                className={cn(
+                                  "w-full flex items-center px-2 py-1.5 text-left transition-colors hover:bg-gray-100 group rounded-sm cursor-pointer",
+                                  isSubActive
+                                    ? "bg-blue-50 text-blue-700"
+                                    : "text-gray-600"
+                                )}
+                                onClick={() => handleNavigation(subRoute.path)}
+                              >
+                                <div>
+                                  <SubIcon className="h-4 w-4 mr-2 text-white/80 group-hover:text-black/80" />
+                                </div>
+                                <div className="flex items-center justify-between w-full">
+                                  <span className="text-xs text-white/80 group-hover:text-black/80">
+                                    {subRoute.title}
+                                  </span>
+                                  {subRoute.badge && (
+                                    <Badge
+                                      variant={
+                                        isSubActive ? "default" : "secondary"
+                                      }
+                                      className={cn(
+                                        "ml-2 text-xs",
+                                        isSubActive
+                                          ? "bg-blue-600"
+                                          : "bg-gray-200 text-gray-500"
+                                      )}
+                                    >
+                                      {subRoute.badge}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })}
                         </div>
-                      </Button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                ) : isCollapsed ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
+                    <TooltipContent side="right">
+                      <span>{item.title}</span>
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  buttonContent
+                )}
+
+                {/* SubRoutes */}
+                {!isCollapsed && hasSubRoutes && isExpanded && (
+                  <div className="pl-5 space-y-1">
+                    {(item.subRoutes as NavItem[]).map((subRoute) => {
+                      const SubIcon = subRoute.icon;
+                      const isSubActive =
+                        pathname === subRoute.path ||
+                        pathname.startsWith(subRoute.path || "");
+
+                      return (
+                        <Button
+                          key={subRoute.id}
+                          variant="ghost"
+                          className={cn(
+                            "w-full justify-start h-10 text-left transition-all duration-200 cursor-pointer",
+                            isSubActive
+                              ? "bg-blue-50 text-blue-700 hover:bg-blue-100"
+                              : "text-gray-500 hover:bg-gray-50 hover:text-gray-800",
+                            "px-3"
+                          )}
+                          onClick={() => handleNavigation(subRoute.path)}
+                        >
+                          <SubIcon className="h-4 w-4 mr-2" />
+                          <div className="flex items-center justify-between w-full">
+                            <span className="text-sm">{subRoute.title}</span>
+                            {subRoute.badge && (
+                              <Badge
+                                variant={isSubActive ? "default" : "secondary"}
+                                className={cn(
+                                  "ml-auto text-xs",
+                                  isSubActive
+                                    ? "bg-blue-600"
+                                    : "bg-gray-200 text-gray-500"
+                                )}
+                              >
+                                {subRoute.badge}
+                              </Badge>
+                            )}
+                          </div>
+                        </Button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <ScrollBar orientation="vertical" />
+      </ScrollArea>
 
       <Separator />
 
       {/* Bottom Section */}
       <div className="p-4 space-y-2">
-        <Button
-          variant="ghost"
-          className={cn(
-            "w-full justify-start h-12 text-gray-600 hover:bg-gray-50",
-            isCollapsed ? "px-3" : "px-4"
-          )}
-        >
-          <Settings className={cn("h-5 w-5", isCollapsed ? "" : "mr-3")} />
-          {!isCollapsed && <span>Settings</span>}
-        </Button>
+        {isCollapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full justify-start h-12 text-gray-600 hover:bg-gray-50",
+                  "px-3"
+                )}
+              >
+                <Settings className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <span>Settings</span>
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start h-12 text-gray-600 hover:bg-gray-50",
+              "px-4"
+            )}
+          >
+            <Settings className="h-5 w-5 mr-3" />
+            <span>Settings</span>
+          </Button>
+        )}
 
-        <Button
-          variant="ghost"
-          className={cn(
-            "w-full justify-start h-12 text-red-600 hover:bg-red-50 hover:text-red-700",
-            isCollapsed ? "px-3" : "px-4"
-          )}
-          onClick={handleLogout}
-        >
-          <LogOut className={cn("h-5 w-5", isCollapsed ? "" : "mr-3")} />
-          {!isCollapsed && <span>Logout</span>}
-        </Button>
+        {isCollapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full justify-start h-12 text-red-600 hover:bg-red-50 hover:text-red-700 cursor-pointer",
+                  "px-3"
+                )}
+                onClick={handleLogout}
+              >
+                <LogOut className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <span>Logout</span>
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start h-12 text-red-600 hover:bg-red-50 hover:text-red-700 cursor-pointer",
+              "px-4"
+            )}
+            onClick={handleLogout}
+          >
+            <LogOut className="h-5 w-5 mr-3" />
+            <span>Logout</span>
+          </Button>
+        )}
       </div>
     </div>
   );
