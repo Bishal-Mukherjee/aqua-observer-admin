@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { pool } from "@/app/api/config/db";
 import { withAuth } from "@/app/api/lib/with-auth";
 

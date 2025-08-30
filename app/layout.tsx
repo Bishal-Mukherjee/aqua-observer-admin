@@ -1,5 +1,6 @@
 "use client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/sonner";
 import { inter } from "@/theme/fonts";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ export default function RootLayout({
         <QueryClientProvider client={queryClient}>
           {children}
         </QueryClientProvider>
+        <Toaster position="top-center" />
       </body>
     </html>
   );

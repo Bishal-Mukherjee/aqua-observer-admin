@@ -22,7 +22,7 @@ interface StatisticsCardsProps {
 
 export default function StatisticsCards({ stats }: StatisticsCardsProps) {
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <Card className="shadow-none border-0 border-l-4 border-l-green-500 hover:border-l-green-600 transition-all duration-200 cursor-pointer group">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground">

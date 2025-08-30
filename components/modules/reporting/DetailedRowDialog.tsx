@@ -396,17 +396,17 @@ export default function DetailedRowDialog({
                     {reportData.species.map((species, index) => (
                       <Card key={index} className="border-none shadow-none">
                         <CardContent className="px-4 py-0">
-							<div className="flex items-center justify-between mb-4">
-								<Badge
-								variant="outline"
-								className={cn(
-									"text-sm font-medium border-none px-3 py-1",
-									getSpeciesDisplayColor(species.type)
-								)}
-								>
-								{transformSpeciesName(species.type)}
-								</Badge>
-							</div>
+                          <div className="flex items-center justify-between mb-4">
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "text-sm font-medium border-none px-3 py-1",
+                                getSpeciesDisplayColor(species.type)
+                              )}
+                            >
+                              {transformSpeciesName(species.type)}
+                            </Badge>
+                          </div>
 
                           <div className="grid grid-cols-3 gap-6">
                             <div className="text-center">
@@ -565,12 +565,19 @@ export default function DetailedRowDialog({
                         </div>
                       </div>
                     </div>
+                    {/* show name in the url but try to query by phoneNumber */}
                     <Link
-                      href={`/reports/${reportData.id}`}
+                      href={`/submissions/reporting/${reportData.submittedBy.name}`}
+                      //   href={{
+                      //     pathname: `/submissions/reporting/${reportData.submittedBy.name}`,
+                      //     query: {
+                      //       phoneNumber: reportData.submittedBy.phoneNumber,
+                      //     },
+                      //   }}
                       className="text-blue-600 underline flex items-center text-xs"
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
-                      Other Reports
+                      Other Reportings
                     </Link>
                   </div>
                 </div>

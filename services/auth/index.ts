@@ -8,9 +8,9 @@ export const useSignIn = () => {
       const response = await axios({
         method: "POST",
         url: "/auth/signin",
-        // TODO: remove this condition
         data: {
-          phoneNumber: data.phoneNumber,
+          phoneNumber: `+91${data.phoneNumber}`,
+          // TODO: remove the 'isTest' flag
           isTest: true,
         },
       });
@@ -33,7 +33,10 @@ export const useVerifyCode = () => {
       const response = await axios({
         method: "POST",
         url: "/auth/verify",
-        data,
+        data: {
+          phoneNumber: `+91${data.phoneNumber}`,
+          code: data.code,
+        },
       });
 
       if (response.status !== 200) {

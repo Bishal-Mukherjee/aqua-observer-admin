@@ -43,6 +43,16 @@ export default function Navbar() {
           title: "Species Database",
           description: "Explore and edit the list of observed species",
         };
+      case "tiers":
+        return {
+          title: "User Tiers",
+          description: "Manage and configure user tiers",
+        };
+      case "training":
+        return {
+          title: "Training Modules",
+          description: "Manage and configure training modules",
+        };
       case "questions":
         return {
           title: "Question Management",
@@ -130,9 +140,9 @@ export default function Navbar() {
 
         {/* Profile */}
         <div className="flex items-center space-x-3 pl-3 border-l border-gray-300">
-          <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+          {/* <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">
             {user?.name.charAt(0)}
-          </div>
+          </div> */}
           <div className="hidden md:block">
             <p className="text-sm font-medium text-gray-900">
               {user?.name || "Guest"}

@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import reportingData from "./data.json";
 import StatisticsCards from "@/components/modules/reporting/StatisticsCards";
 import ReportingTable from "@/components/modules/reporting/ReportingTable";
-import ReportingCharts from "@/components/modules/reporting/ReportingCharts";
+import Insights from "@/components/modules/reporting/Insights";
 import { calculateStats } from "@/components/modules/reporting/calculateStats";
 
 const LIVE_REPORTING = "LIVE_REPORTING",
@@ -64,9 +64,9 @@ export default function SubmissionReportingPage() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value={LIVE_REPORTING} className="mt-2">
-            <div className="flex-1">
-              <StatisticsCards stats={stats} />
-              <ReportingCharts data={data} />
+            <StatisticsCards stats={stats} />
+            <div className="">
+              <Insights data={data} />
               <div className="mt-4">
                 <ReportingTable entries={data} />
               </div>
@@ -75,7 +75,7 @@ export default function SubmissionReportingPage() {
           <TabsContent value={OLD_REPORTING} className="mt-2">
             <div className="flex-1">
               <StatisticsCards stats={stats} />
-              <ReportingCharts data={data} />
+              <Insights data={data} />
               <div className="mt-4">
                 <ReportingTable entries={data} />
               </div>

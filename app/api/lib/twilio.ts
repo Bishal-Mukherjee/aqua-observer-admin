@@ -6,13 +6,18 @@ const twilioServiceUrl = `https://verify.twilio.com/v2/Services/${config.twilio.
 export const sendCode = async (phoneNumber: string) => {
   if (!phoneNumber) throw new Error("Phone number is required");
 
+  const phoneRegex = /^\+91\d{10}$/;
+  if (!phoneRegex.test(phoneNumber)) {
+    throw new Error("Invalid phone number");
+  }
+
   const url = `${twilioServiceUrl}/Verifications`;
 
   try {
     const response = await axios.post(
       url,
       new URLSearchParams({
-        To: `+91${phoneNumber}`,
+        To: phoneNumber,
         Channel: "sms",
       }),
       {
@@ -37,13 +42,18 @@ export const verifyCode = async (phoneNumber: string, code: string) => {
   if (!phoneNumber || !code)
     throw new Error("Phone number and code are required");
 
+   const phoneRegex = /^\+91\d{10}$/;
+   if (!phoneRegex.test(phoneNumber)) {
+     throw new Error("Invalid phone number");
+   }
+
   const url = `${twilioServiceUrl}/VerificationCheck`;
 
   try {
     const response = await axios.post(
       url,
       new URLSearchParams({
-        To: `+91${phoneNumber}`,
+        To: phoneNumber,
         Code: code,
       }),
       {

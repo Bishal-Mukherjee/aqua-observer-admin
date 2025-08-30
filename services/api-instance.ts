@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "sonner";
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -27,6 +28,8 @@ apiInstance.interceptors.request.use(
 apiInstance.interceptors.response.use(
   (response) => response,
   (error) => {
+    toast.error(error?.response?.data?.error || "Something went wrong!");
+
     // Optionally handle specific error codes
     if (error.response && error.response.status === 401) {
       // Handle unauthorized access, e.g., redirect to login

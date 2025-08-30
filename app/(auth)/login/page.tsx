@@ -48,9 +48,9 @@ export default function LoginPage() {
           setStep("otp");
           setPhoneNumber(values.phoneNumber);
         },
-        onError: (error) => {
-          console.error("Sign-in error:", error);
-        },
+        // onError: (error) => {
+        //   console.error("Sign-in error:", error);
+        // },
       }
     );
   };
@@ -198,6 +198,7 @@ export default function LoginPage() {
                             value={values.otp}
                             onChange={(value) => setFieldValue("otp", value)}
                             containerClassName="group flex items-center has-disabled:opacity-30"
+                            autoFocus
                           >
                             <InputOTPGroup className="gap-3">
                               <InputOTPSlot

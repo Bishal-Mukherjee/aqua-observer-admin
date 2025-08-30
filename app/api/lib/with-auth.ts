@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isEmpty } from "lodash";
 import { pool } from "@/app/api/config/db";
+import { ALLOWED_ROLES } from "@/constants/constants";
 
 interface ApiRouteHandler {
   (
@@ -14,9 +15,9 @@ export const validateUserExists = async (id: string): Promise<boolean> => {
   if (!id) return false;
   const client = await pool.connect();
   try {
-    const query = "SELECT id FROM users WHERE id = $1";
+    const query = "SELECT id, role FROM users WHERE id = $1";
     const result = await client.query(query, [id]);
-    return !isEmpty(result.rows);
+    return !isEmpty(result.rows) && ALLOWED_ROLES.includes(result.rows[0].role);
   } catch (error) {
     console.error("Database validation error:", error);
     return false;

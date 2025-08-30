@@ -2,12 +2,16 @@ import { NextResponse, type NextRequest } from "next/server";
 import Joi from "joi";
 import { pool } from "@/app/api/config/db";
 import { sendCode } from "@/app/api/lib/twilio";
+import { ALLOWED_ROLES } from "@/constants/constants";
 
 const signinSchema = Joi.object({
-  phoneNumber: Joi.string().length(10).required().messages({
-    "any.required": "Phone number is required",
-    "string.length": "Phone number must be exactly 10 digits",
-  }),
+  phoneNumber: Joi.string()
+    .pattern(/^\+91\d{10}$/)
+    .required()
+    .messages({
+      "any.required": "Phone number is required",
+      "string.pattern.base": "Invalid phone number",
+    }),
   isTest: Joi.boolean().optional(),
 });
 
@@ -26,7 +30,7 @@ export const POST = async (request: NextRequest) => {
     const { phoneNumber, isTest } = body;
 
     const query = await pool.query(
-      "SELECT id FROM users WHERE phone_number = $1",
+      "SELECT id, role FROM users WHERE phone_number = $1",
       [phoneNumber]
     );
 
@@ -35,6 +39,10 @@ export const POST = async (request: NextRequest) => {
         { error: "Invalid credentials" },
         { status: 401 }
       );
+    }
+
+    if (!ALLOWED_ROLES.includes(query.rows[0]?.role)) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
     // TODO: remove this condition

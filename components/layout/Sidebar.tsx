@@ -84,14 +84,14 @@ export const navData: NavItem[] = [
       {
         id: "tiers",
         title: "Tiers",
-        path: "/programs/tiers",
+        path: "/member-programs/tiers",
         icon: Users,
         badge: null,
       },
       {
-        id: "training",
-        title: "Training",
-        path: "/programs/training",
+        id: "training-modules",
+        title: "Training Modules",
+        path: "/member-programs/training-modules",
         icon: ListVideo,
         badge: null,
       },
@@ -202,15 +202,21 @@ export default function Sidebar() {
       {!isCollapsed && (
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center text-white font-semibold">
-              {user?.name.charAt(0)}
+            <div
+              className="w-10 h-10 bg-blue-800 rounded-full flex items-center justify-center text-white"
+              // className="w-10 h-10 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center text-white font-semibold"
+            >
+              {user?.name
+                ?.split(" ")
+                ?.map((n) => n.charAt(0))
+                .join("")}
             </div>
             <div className="flex-1">
               <p className="font-medium text-sm text-gray-900">
                 {user?.name || "Guest"}
               </p>
               <p className="text-xs text-gray-500">
-                {`+91 ${user?.phoneNumber}` || "+00 00 0000 0000"}
+                {user?.phoneNumber || "+00 00 0000 0000"}
               </p>
             </div>
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -228,7 +234,7 @@ export default function Sidebar() {
           </p>
         )}
 
-        <div className="space-y-1">
+        <div className={cn("space-y-1", { "space-y-2": isCollapsed })}>
           {navData.map((item) => {
             const Icon = item.icon;
             const isActive =
@@ -286,7 +292,10 @@ export default function Sidebar() {
                 {isCollapsed && hasSubRoutes ? (
                   <Tooltip>
                     <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
-                    <TooltipContent side="right" className="p-3 w-[180px]">
+                    <TooltipContent
+                      side="right"
+                      className="p-3 w-[180px] rounded-xl"
+                    >
                       <div>
                         <p className="font-medium text-xs">{item.title}</p>
                         <div className="space-y-1 mt-1">
@@ -308,10 +317,20 @@ export default function Sidebar() {
                                 onClick={() => handleNavigation(subRoute.path)}
                               >
                                 <div>
-                                  <SubIcon className="h-4 w-4 mr-2 text-white/80 group-hover:text-black/80" />
+                                  <SubIcon
+                                    className={cn(
+                                      "h-4 w-4 mr-2 text-white/80 group-hover:text-black/80",
+                                      { "text-black": isSubActive }
+                                    )}
+                                  />
                                 </div>
                                 <div className="flex items-center justify-between w-full">
-                                  <span className="text-xs text-white/80 group-hover:text-black/80">
+                                  <span
+                                    className={cn(
+                                      "text-xs text-white/80 group-hover:text-black/80",
+                                      { "text-black": isSubActive }
+                                    )}
+                                  >
                                     {subRoute.title}
                                   </span>
                                   {subRoute.badge && (
@@ -402,7 +421,7 @@ export default function Sidebar() {
       <Separator />
 
       {/* Bottom Section */}
-      <div className="p-4 space-y-2">
+      <div className="p-4 space-y-2 flex-1 flex flex-col items-end justify-end">
         {isCollapsed ? (
           <Tooltip>
             <TooltipTrigger asChild>

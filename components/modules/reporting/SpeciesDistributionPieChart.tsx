@@ -82,7 +82,7 @@ export const SpeciesDistributionPieChart = ({
           Species Distribution
         </CardTitle>
       </CardHeader>
-      <CardContent className="h-[320px]">
+      <CardContent className="h-[450px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -92,7 +92,7 @@ export const SpeciesDistributionPieChart = ({
               labelLine={true}
               label={renderCustomizedLabel}
               fontSize={10}
-              outerRadius={132}
+              outerRadius={140}
               dataKey="value"
               stroke="none"
             >

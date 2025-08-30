@@ -6,12 +6,16 @@ import { hash } from "bcrypt";
 import { pool } from "@/app/api/config/db";
 import { config } from "@/app/api/config";
 import { verifyCode } from "@/app/api/lib/twilio";
+import { ALLOWED_ROLES } from "@/constants/constants";
 
 const verifyOtpSchema = Joi.object({
-  phoneNumber: Joi.string().length(10).required().messages({
-    "any.required": "Phone number is required",
-    "string.length": "Phone number must be exactly 10 digits",
-  }),
+  phoneNumber: Joi.string()
+    .pattern(/^\+91\d{10}$/)
+    .required()
+    .messages({
+      "any.required": "Phone number is required",
+      "string.pattern.base": "Invalid phone number",
+    }),
   code: Joi.string().length(6).required().messages({
     "any.required": "OTP code is required",
     "string.length": "OTP code must be exactly 6 digits",
@@ -38,6 +42,10 @@ export const POST = async (request: NextRequest) => {
       `SELECT id, name, phone_number AS "phoneNumber", gender, role, status FROM users WHERE phone_number = $1`,
       [phoneNumber]
     );
+
+    if (!ALLOWED_ROLES.includes(query.rows[0]?.role)) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
 
     // TODO: remove this condition
     if (code !== WILDCARD_CODE) {
