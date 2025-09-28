@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Download, BarChart3, UserPlus } from "lucide-react";
@@ -19,10 +20,15 @@ export default function QuickActions() {
             <FileText className="h-5 w-5" />
             <span className="text-xs">Review Reports</span>
           </Button>
-          <Button variant="secondary" className="h-16 flex-col space-y-1">
-            <UserPlus className="h-5 w-5" />
-            <span className="text-xs">Add Observer</span>
-          </Button>
+          <Link href={"/users?action=add&role=sighter"} className="w-full">
+            <Button
+              variant="outline"
+              className="h-16 flex-col space-y-1 w-full"
+            >
+              <UserPlus className="h-5 w-5" />
+              <span className="text-xs">Add Sighter</span>
+            </Button>
+          </Link>
           <Button variant="outline" className="h-16 flex-col space-y-1">
             <Download className="h-5 w-5" />
             <span className="text-xs">Export Data</span>

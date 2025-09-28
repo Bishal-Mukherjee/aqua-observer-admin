@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
@@ -22,10 +23,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
-  CloudUpload,
   X,
   Plus,
   MapPin,
@@ -33,8 +32,18 @@ import {
   Save,
   AlertCircle,
   Edit2,
+  Link as LinkIcon,
+  ExternalLink,
+  Loader,
+  Upload,
+  Image,
 } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useFileUpload } from "@/hooks/useFileUpload";
+import validateUrl from "@/lib/validate-links";
+import { useUpdateSpecies } from "@/services/species";
+import { toast } from "sonner";
 
 interface SpeciesFormData {
   commonName: string;
@@ -44,7 +53,9 @@ interface SpeciesFormData {
   habitat: string[];
   geographicDistribution: string[];
   identificationFeatures: string[];
-  image: File | null;
+  image: string;
+  ageGroup: string;
+  isActive: boolean;
 }
 
 interface EditSpeciesDialogProps {
@@ -116,6 +127,11 @@ const GEOGRAPHIC_REGIONS = [
   "MAHARASHTRA",
 ];
 
+const AGE_GROUP_OPTIONS = [
+  { value: "duo", label: "Duo" },
+  { value: "trio", label: "Trio" },
+];
+
 // Validation schema using Yup
 const validationSchema = Yup.object({
   commonName: Yup.string()
@@ -142,16 +158,23 @@ const validationSchema = Yup.object({
     .of(Yup.string())
     .min(1, "At least one geographic region is required"),
   identificationFeatures: Yup.array().of(Yup.string()),
-  image: Yup.mixed().nullable(),
+  image: Yup.string(),
+  ageGroup: Yup.string().required("Age group is required"),
 });
 
 export const EditSpeciesDialog = ({
   species,
   onClose,
 }: EditSpeciesDialogProps) => {
+  const queryClient = useQueryClient();
+  const { mutate: updateSpecies, isPending: isUpdating } = useUpdateSpecies();
+  const { uploadFile, isLoading: isUploading } = useFileUpload();
+
   const [isOpen, setIsOpen] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [newFeature, setNewFeature] = useState("");
+  const [imageMethod, setImageMethod] = useState<"upload" | "link">("link");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isValidatingImageUrl, setIsValidatingImageUrl] = useState(false);
 
   const formik = useFormik<SpeciesFormData>({
     initialValues: {
@@ -162,12 +185,38 @@ export const EditSpeciesDialog = ({
       habitat: [],
       geographicDistribution: [],
       identificationFeatures: [],
-      image: null,
+      image: "",
+      ageGroup: "",
+      isActive: false,
     },
     validationSchema,
     onSubmit: (values) => {
-      console.log("Updated species data:", values);
-      handleClose();
+      updateSpecies(
+        {
+          id: species.id,
+          scientificName: values.scientificName,
+          category: values.category,
+          conservationStatus: values.conservationStatus,
+          habitat: values.habitat,
+          regionDistribution: values.geographicDistribution,
+          identificationFeatures: values.identificationFeatures,
+          image: values.image,
+          ageGroup: values.ageGroup,
+          isActive: values.isActive,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Species updated successfully");
+          },
+          onError: () => {
+            toast.error("Error updating species");
+          },
+          onSettled: () => {
+            handleClose();
+            queryClient.invalidateQueries({ queryKey: ["species"] });
+          },
+        }
+      );
     },
   });
 
@@ -182,23 +231,59 @@ export const EditSpeciesDialog = ({
         habitat: species.habitat || [],
         geographicDistribution: species.regionDistribution || [],
         identificationFeatures: species.identificationFeatures || [],
-        image: null,
+        image: species.image || "",
+        ageGroup: species.ageGroup || "",
+        isActive: species.isActive,
       });
 
       // Set existing image preview
-      if (species.image) {
-        setImagePreview(species.image);
-      }
+      //   if (species.image) {
+      //     formik.setFieldValue("image", species.image);
+      //   }
     }
   }, [species, isOpen]);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle file upload
+  const handleImageFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    formik.setFieldValue("image", "");
     const file = event.target.files?.[0];
     if (file) {
-      formik.setFieldValue("image", file);
-      const reader = new FileReader();
-      reader.onload = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
+      setImageFile(file);
+      const uploadedFile = await uploadFile("aqua-observer-bucket", file);
+      if (uploadedFile?.publicURL) {
+        formik.setFieldValue("image", uploadedFile.publicURL);
+      }
+    }
+  };
+
+  // Remove file
+  const removeImageFile = () => {
+    setImageFile(null);
+    formik.setFieldValue("image", "");
+  };
+
+  // Validate image URL
+  const handleImageUrlChange = async (value: string) => {
+    if (!value.trim()) {
+      formik.setFieldValue("image", "");
+      formik.setFieldError("image", "");
+      return;
+    }
+    setIsValidatingImageUrl(true);
+    try {
+      const result = await validateUrl(value);
+      if (result.valid) {
+        formik.setFieldValue("image", value);
+        formik.setFieldError("image", "");
+      } else {
+        formik.setFieldError("image", result.error || "Invalid URL");
+      }
+    } catch {
+      formik.setFieldError("image", "Error validating URL");
+    } finally {
+      setIsValidatingImageUrl(false);
     }
   };
 
@@ -236,7 +321,6 @@ export const EditSpeciesDialog = ({
 
   const handleClose = () => {
     formik.resetForm();
-    setImagePreview(null);
     setNewFeature("");
     setIsOpen(false);
     onClose();
@@ -271,11 +355,11 @@ export const EditSpeciesDialog = ({
           <Edit2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="min-w-[75vw] p-0">
+      <DialogContent className="min-w-[75vw] max-w-[90vw] p-0">
         <form onSubmit={formik.handleSubmit}>
           <DialogHeader className="px-6 py-4 border-b">
-            <DialogTitle className="text-xl font-medium flex items-center gap-2">
-              <Edit2 className="h-5 w-5" />
+            <DialogTitle className="text-lg font-medium flex items-center gap-2">
+              <Edit2 className="h-4 w-4" />
               Edit Species Profile
             </DialogTitle>
           </DialogHeader>
@@ -283,7 +367,7 @@ export const EditSpeciesDialog = ({
           <ScrollArea className="h-[70vh] py-4">
             {/* Basic Information */}
             <div className="grid grid-cols-2 gap-6 px-6">
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="commonName">Common Name*</Label>
                 <Input
                   id="commonName"
@@ -302,7 +386,7 @@ export const EditSpeciesDialog = ({
                     {getFieldError("commonName")}
                   </p>
                 )}
-              </div>
+              </div> */}
 
               <div className="space-y-2">
                 <Label htmlFor="scientificName">Scientific Name</Label>
@@ -322,6 +406,50 @@ export const EditSpeciesDialog = ({
                   <p className="text-xs text-red-500 flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" />
                     {getFieldError("scientificName")}
+                  </p>
+                )}
+              </div>
+
+              {/* Age Group */}
+              <div className="space-y-2">
+                <Label>Age Group*</Label>
+                <Select
+                  value={formik.values.ageGroup}
+                  onValueChange={(value) => {
+                    formik.setFieldValue("ageGroup", value);
+                  }}
+                >
+                  <SelectTrigger
+                    className={cn(
+                      "w-full",
+                      isFieldInvalid("ageGroup") && "border-red-500"
+                    )}
+                  >
+                    <SelectValue placeholder="Select age group" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AGE_GROUP_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {getFieldError("ageGroup") && (
+                  <p className="text-xs text-red-500 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {getFieldError("ageGroup")}
+                  </p>
+                )}
+                {formik.values.ageGroup && (
+                  <p className="text-xs text-gray-600 ml-1">
+                    {formik.values.ageGroup === "duo"
+                      ? `For ${
+                          formik.values.commonName || "species"
+                        } submissions for 'Adult' and 'Subadult' will be made`
+                      : `For ${
+                          formik.values.commonName || "species"
+                        } submissions for 'Adult Male', 'Adult Female', 'Subadult' will be made`}
                   </p>
                 )}
               </div>
@@ -398,49 +526,145 @@ export const EditSpeciesDialog = ({
 
             {/* Image Upload */}
             <div className="space-y-2 mt-4 px-6">
-              <Label>Species Image</Label>
-              <Card className="border-dashed border-2 border-gray-300 hover:border-gray-400 transition-colors">
-                <CardContent className="p-6">
-                  {imagePreview ? (
-                    <div className="relative">
-                      <img
-                        src={imagePreview}
-                        alt="Species preview"
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
+              <Label className="block text-sm font-medium mb-2">
+                Species Image <span className="text-red-500">*</span>
+              </Label>
+              <div className="flex space-x-2 mb-3">
+                <Button
+                  type="button"
+                  variant={imageMethod === "upload" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setImageMethod("upload")}
+                >
+                  <Upload className="w-4 h-4 mr-1" />
+                  Upload File
+                </Button>
+                <Button
+                  type="button"
+                  variant={imageMethod === "link" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setImageMethod("link")}
+                >
+                  <LinkIcon className="w-4 h-4 mr-1" />
+                  Add Link
+                </Button>
+                <div className="flex items-center gap-1 ml-auto">
+                  {typeof formik.values.image === "string" &&
+                    formik.values.image && (
+                      <>
+                        <ExternalLink className="w-4 h-4" />
+                        <Link
+                          href={formik.values.image}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600"
+                        >
+                          View
+                        </Link>
+                      </>
+                    )}
+                </div>
+              </div>
+
+              {imageMethod === "upload" ? (
+                <div className="space-y-2">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                    {imageFile ? (
+                      <div className="flex items-center justify-between bg-gray-50 pl-2 rounded">
+                        <div className="flex items-center">
+                          {!formik.values.image && isUploading ? (
+                            <Loader className="animate-spin w-4 h-4 mr-2 text-blue-500" />
+                          ) : (
+                            <Image className="w-4 h-4 mr-2 text-gray-500" />
+                          )}
+                          <Link
+                            href={formik.values.image}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={cn("text-sm text-blue-600", {
+                              "pointer-events-none text-gray-500":
+                                !formik.values.image,
+                            })}
+                          >
+                            {imageFile.name}
+                          </Link>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={removeImageFile}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageFileChange}
+                          className="hidden"
+                          id="species-image-upload"
+                        />
+                        <label
+                          htmlFor="species-image-upload"
+                          className="cursor-pointer"
+                        >
+                          <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                          <p className="text-sm text-gray-600">
+                            Click to upload thumbnail image
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            PNG, JPG up to 3MB
+                          </p>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Input
+                    name="image"
+                    value={
+                      typeof formik.values.image === "string"
+                        ? formik.values.image
+                        : ""
+                    }
+                    onChange={(e) => handleImageUrlChange(e.target.value)}
+                    placeholder="https://example.com/thumbnail.jpg"
+                    disabled={isValidatingImageUrl}
+                    className="pr-12"
+                  />
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+                    {formik.values.image && (
                       <Button
                         type="button"
-                        variant="destructive"
+                        variant="ghost"
                         size="sm"
-                        className="absolute top-2 right-2"
+                        className="h-6 w-6 p-0 cursor-pointer hover:bg-gray-100"
                         onClick={() => {
-                          setImagePreview(null);
-                          formik.setFieldValue("image", null);
+                          formik.setFieldValue("image", "");
+                          formik.setFieldError("image", "");
                         }}
+                        disabled={isValidatingImageUrl}
                       >
-                        <X className="h-4 w-4" />
+                        <X className="w-3 h-3 text-gray-400" />
                       </Button>
-                    </div>
-                  ) : (
-                    <label htmlFor="image-upload" className="cursor-pointer">
-                      <div className="flex flex-col items-center justify-center space-y-2 text-gray-500">
-                        <CloudUpload className="h-12 w-12" />
-                        <p className="text-sm font-medium">
-                          Click to upload species image
-                        </p>
-                        <p className="text-xs">PNG, JPG up to 3MB</p>
-                      </div>
-                      <input
-                        id="image-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </CardContent>
-              </Card>
+                    )}
+                    {isValidatingImageUrl && (
+                      <Loader className="animate-spin w-4 h-4 text-blue-500" />
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {formik.touched.image && formik.errors.image && (
+                <div className="text-xs text-red-600 mt-1">
+                  {formik.errors.image}
+                </div>
+              )}
             </div>
 
             {/* Location & Environment */}
@@ -610,9 +834,13 @@ export const EditSpeciesDialog = ({
             <Button
               type="submit"
               className="flex items-center gap-2"
-              disabled={formik.isSubmitting || !formik.isValid}
+              disabled={isUpdating || !formik.isValid}
             >
-              <Save className="h-4 w-4" />
+              {isUpdating ? (
+                <Loader className="animate-spin w-4 h-4 text-white" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               Update Species
             </Button>
           </DialogFooter>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment, useCallback, useMemo, useState } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Helmet } from "react-helmet-async";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, X, Plus } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,8 @@ import { useGetTiers } from "@/services/tiers";
 import { useGetModules } from "@/services/modules";
 import { useModulesPagination } from "@/store/pagination/useModulesPagination";
 import CreateModuleDialog from "@/components/modules/training-modules/CreateModule/CreateModuleDialog";
+import { APP_NAME } from "@/constants/constants";
+import RouteBreadcrumbs from "@/components/layout/RouteBreadcrumbs";
 
 interface Module {
   id: string;
@@ -43,13 +45,7 @@ export default function TrainingModulesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const {
-    currentPage,
-    totalPages,
-    hasNextPage,
-    hasPreviousPage,
-    setCurrentPage,
-  } = useModulesPagination();
+  const { currentPage, setCurrentPage, totalRecords } = useModulesPagination();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTier, setSelectedTier] = useState<string>(
@@ -88,6 +84,7 @@ export default function TrainingModulesPage() {
   const handleFilterChange = (filter: string) => {
     setCurrentPage(1);
     setSelectedTier(filter);
+    setCurrentPage(0);
   };
 
   const clearFilters = () => {
@@ -97,24 +94,16 @@ export default function TrainingModulesPage() {
       router.push("/member-programs/training-modules");
   };
 
-  const handlePageChange = useCallback(
-    (direction: "previous" | "next") => () => {
-      if (direction === "previous") {
-        setCurrentPage(Math.max(currentPage - 1, 1));
-      } else {
-        setCurrentPage(currentPage + 1);
-      }
-    },
-    [currentPage, setCurrentPage]
-  );
-
   return (
     <Fragment>
       <Helmet>
-        <title>Dashboard | Training Modules</title>
+        <title>{APP_NAME} | Training Modules</title>
       </Helmet>
 
-      <div className="flex-1 space-y-6 px-12 pt-8">
+      <div className="py-10 px-12 flex-1 bg-gray-50">
+        <div className="mb-4">
+          <RouteBreadcrumbs />
+        </div>
         <Card className="shadow-none border-0">
           <CardHeader className="pb-0">
             {/* Filters Section */}
@@ -196,13 +185,12 @@ export default function TrainingModulesPage() {
             <ModulesTable
               isLoading={isLoadingModules}
               modules={filteredModules}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              hasNextPage={hasNextPage}
-              hasPreviousPage={hasPreviousPage}
-              onPageChange={(page) => setCurrentPage(page)}
-              onPreviousPage={handlePageChange("previous")}
-              onNextPage={handlePageChange("next")}
+              pagination={{
+                pageIndex: currentPage,
+                pageSize: 10,
+                totalRecords,
+              }}
+              setPagination={setCurrentPage}
             />
           </CardContent>
         </Card>

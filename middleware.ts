@@ -46,5 +46,11 @@ export const config = {
     "/api/v1/species/:path*",
     "/api/v1/tiers/:path*",
     "/api/v1/modules/:path*",
+    "/api/v1/code/:path*",
+    "/api/v1/region/:path*",
+    "/api/v1/notifications/:path*",
+    "/api/v1/reportings/:path*",
+    "/api/v1/sightings/:path*",
+    "/api/v1/home/:path*",
   ], // Only protect /admin routes
 };

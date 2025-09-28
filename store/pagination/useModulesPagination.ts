@@ -1,31 +1,28 @@
 import { create } from "zustand";
 
-interface ModulePaginationState {
+interface PaginationState {
   currentPage: number;
   totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  initializeStore: (page: number, totalPages: number) => void;
+  totalRecords: number;
+  initializeStore: (
+    page: number,
+    totalPages: number,
+    totalRecords: number
+  ) => void;
   setCurrentPage: (page: number) => void;
   setTotalPages: (pages: number) => void;
-  setHasNextPage: (hasNext: boolean) => void;
-  setHasPreviousPage: (hasPrevious: boolean) => void;
 }
 
-export const useModulesPagination = create<ModulePaginationState>((set) => ({
-  currentPage: 1,
-  totalPages: 1,
-  hasNextPage: false,
-  hasPreviousPage: false,
-  initializeStore: (page: number, totalPages: number) =>
+export const useModulesPagination = create<PaginationState>((set) => ({
+  currentPage: 0,
+  totalPages: 0,
+  totalRecords: 0,
+  initializeStore: (page: number, totalPages: number, totalRecords: number) =>
     set({
       currentPage: page,
       totalPages,
-      hasNextPage: page < totalPages,
-      hasPreviousPage: page > 1,
+      totalRecords,
     }),
   setCurrentPage: (page) => set({ currentPage: page }),
   setTotalPages: (pages) => set({ totalPages: pages }),
-  setHasNextPage: (hasNext) => set({ hasNextPage: hasNext }),
-  setHasPreviousPage: (hasPrevious) => set({ hasPreviousPage: hasPrevious }),
 }));

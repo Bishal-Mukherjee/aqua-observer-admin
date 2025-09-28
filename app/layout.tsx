@@ -4,8 +4,15 @@ import { Toaster } from "@/components/ui/sonner";
 import { inter } from "@/theme/fonts";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { HelmetProvider } from "react-helmet-async";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 export default function RootLayout({
   children,
@@ -15,10 +22,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={cn("tracking-tighter antialiased", inter.className)}>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
-        <Toaster position="top-center" />
+        <HelmetProvider>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+          <Toaster position="top-center" />
+        </HelmetProvider>
       </body>
     </html>
   );

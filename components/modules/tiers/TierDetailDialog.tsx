@@ -165,11 +165,12 @@ export default function TierDetailDialog({
                         pathname: "/member-programs/training-modules",
                         query: { tier: tierData.tier },
                       }}
+                      className={cn({
+                        "pointer-events-none opacity-50":
+                          tierData.modules === "0",
+                      })}
                     >
-                      <div
-                        className="group flex items-center gap-4 p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:bg-blue-50 hover:shadow-sm transition-all duration-200"
-                        //   onClick={handleModulesClick}
-                      >
+                      <div className="group flex items-center gap-4 p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:bg-blue-50 hover:shadow-sm transition-all duration-200">
                         <BookOpen className="h-6 w-6 text-blue-600 flex-shrink-0 group-hover:text-blue-700 transition-colors" />
                         <div className="flex-1">
                           <p className="text-sm text-gray-600 group-hover:text-blue-700 transition-colors">
@@ -184,21 +185,32 @@ export default function TierDetailDialog({
                     </Link>
 
                     {/* Users Card - Clickable */}
-                    <div
-                      className="group flex items-center gap-4 p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-green-300 hover:bg-green-50 hover:shadow-sm transition-all duration-200"
-                      onClick={handleUsersClick}
+                    <Link
+                      href={{
+                        pathname: "/users",
+                        query: { tier: tierData.tier },
+                      }}
+                      className={cn({
+                        "pointer-events-none opacity-50":
+                          tierData.users === "0",
+                      })}
                     >
-                      <Users className="h-6 w-6 text-green-600 flex-shrink-0 group-hover:text-green-700 transition-colors" />
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-600 group-hover:text-green-700 transition-colors">
-                          Users
-                        </p>
-                        <p className="font-bold text-xl text-gray-900 group-hover:text-green-700 transition-colors">
-                          {tierData.users}
-                        </p>
+                      <div
+                        className="group flex items-center gap-4 p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-green-300 hover:bg-green-50 hover:shadow-sm transition-all duration-200"
+                        onClick={handleUsersClick}
+                      >
+                        <Users className="h-6 w-6 text-green-600 flex-shrink-0 group-hover:text-green-700 transition-colors" />
+                        <div className="flex-1">
+                          <p className="text-sm text-gray-600 group-hover:text-green-700 transition-colors">
+                            Users
+                          </p>
+                          <p className="font-bold text-xl text-gray-900 group-hover:text-green-700 transition-colors">
+                            {tierData.users}
+                          </p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-green-600 transition-all duration-200" />
                       </div>
-                      <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-green-600 transition-all duration-200" />
-                    </div>
+                    </Link>
                   </div>
                 </div>
 

@@ -4,7 +4,6 @@ import React, { useMemo, useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   flexRender,
   type ColumnDef,
@@ -61,52 +60,80 @@ interface Module {
 interface ModulesTableProps {
   isLoading: boolean;
   modules: any[];
-  currentPage: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  onPageChange: (pageIndex: number) => void;
-  onPreviousPage: () => void;
-  onNextPage: () => void;
+  pagination?: {
+    pageIndex: number;
+    pageSize: number;
+    totalRecords: number;
+  };
+  setPagination?: (params: any) => void;
 }
+
+const formatTierName = (tier: string) => {
+  return tier.replace("TIER_", "Tier ");
+};
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+const getTierColor = (tierLevel: string) => {
+  const colorMap: Record<string, string> = {
+    TIER_1: "bg-green-100 text-green-800 border-green-300",
+    TIER_2: "bg-blue-100 text-blue-800 border-blue-300",
+    TIER_3: "bg-purple-100 text-purple-800 border-purple-300",
+    TIER_4: "bg-orange-100 text-orange-800 border-orange-300",
+    TIER_5: "bg-red-100 text-red-800 border-red-300",
+  };
+  return colorMap[tierLevel] || "bg-gray-100 text-gray-800 border-gray-300";
+};
+
+// Skeleton row for loading state
+const SkeletonRow = () => (
+  <TableRow className="border-b border-gray-100">
+    <TableCell className="py-4">
+      <div className="flex items-start space-x-4">
+        <Skeleton className="h-16 w-24 rounded-md" />
+        <div className="flex-1 min-w-0">
+          <Skeleton className="h-4 w-32 mb-2" />
+          <Skeleton className="h-3 w-48 mb-1" />
+          <Skeleton className="h-3 w-24" />
+        </div>
+      </div>
+    </TableCell>
+    <TableCell className="py-4">
+      <Skeleton className="h-6 w-16 rounded-full" />
+    </TableCell>
+    <TableCell className="py-4">
+      <Skeleton className="h-6 w-12 rounded-full" />
+    </TableCell>
+    <TableCell className="py-4">
+      <Skeleton className="h-4 w-20" />
+    </TableCell>
+    <TableCell className="py-4">
+      <Skeleton className="h-4 w-16" />
+    </TableCell>
+    <TableCell className="py-4">
+      <div className="flex gap-2">
+        <Skeleton className="h-8 w-16 rounded" />
+        <Skeleton className="h-8 w-16 rounded" />
+      </div>
+    </TableCell>
+  </TableRow>
+);
 
 const ModulesTable: React.FC<ModulesTableProps> = ({
   isLoading,
   modules,
-  currentPage,
-  totalPages,
-  hasNextPage,
-  hasPreviousPage,
-  onPageChange,
-  onPreviousPage,
-  onNextPage,
+  pagination = { pageIndex: 0, pageSize: 10, totalRecords: 0 },
+  setPagination,
 }) => {
   const [sortingState, setSortingState] = useState<SortingState>([]);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
   const [action, setAction] = useState<"edit" | "view" | null>(null);
-
-  const formatTierName = (tier: string) => {
-    return tier.replace("TIER_", "Tier ");
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const getTierColor = (tierLevel: string) => {
-    const colorMap: Record<string, string> = {
-      TIER_1: "bg-green-100 text-green-800 border-green-300",
-      TIER_2: "bg-blue-100 text-blue-800 border-blue-300",
-      TIER_3: "bg-purple-100 text-purple-800 border-purple-300",
-      TIER_4: "bg-orange-100 text-orange-800 border-orange-300",
-      TIER_5: "bg-red-100 text-red-800 border-red-300",
-    };
-    return colorMap[tierLevel] || "bg-gray-100 text-gray-800 border-gray-300";
-  };
 
   const tableColumns: ColumnDef<Module>[] = useMemo(
     () => [
@@ -241,53 +268,35 @@ const ModulesTable: React.FC<ModulesTableProps> = ({
   const dataTable = useReactTable({
     data: modules,
     columns: tableColumns,
-    onSortingChange: setSortingState,
+    manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSortingState,
+    onPaginationChange: (updater) => {
+      if (typeof updater !== "function") return;
+      const newPageInfo = updater(dataTable.getState().pagination);
+      setPagination?.(newPageInfo.pageIndex);
+    },
+    rowCount: pagination.totalRecords,
     state: {
       sorting: sortingState,
+      pagination: {
+        pageIndex: pagination.pageIndex,
+        pageSize: pagination.pageSize,
+      },
     },
     initialState: {
       pagination: {
-        pageSize: 10,
+        pageIndex: pagination.pageIndex,
+        pageSize: pagination.pageSize,
       },
     },
   });
 
-  // Skeleton row for loading state
-  const SkeletonRow = () => (
-    <TableRow className="border-b border-gray-100">
-      <TableCell className="py-4">
-        <div className="flex items-start space-x-4">
-          <Skeleton className="h-16 w-24 rounded-md" />
-          <div className="flex-1 min-w-0">
-            <Skeleton className="h-4 w-32 mb-2" />
-            <Skeleton className="h-3 w-48 mb-1" />
-            <Skeleton className="h-3 w-24" />
-          </div>
-        </div>
-      </TableCell>
-      <TableCell className="py-4">
-        <Skeleton className="h-6 w-16 rounded-full" />
-      </TableCell>
-      <TableCell className="py-4">
-        <Skeleton className="h-6 w-12 rounded-full" />
-      </TableCell>
-      <TableCell className="py-4">
-        <Skeleton className="h-4 w-20" />
-      </TableCell>
-      <TableCell className="py-4">
-        <Skeleton className="h-4 w-16" />
-      </TableCell>
-      <TableCell className="py-4">
-        <div className="flex gap-2">
-          <Skeleton className="h-8 w-16 rounded" />
-          <Skeleton className="h-8 w-16 rounded" />
-        </div>
-      </TableCell>
-    </TableRow>
-  );
+  const currentPage = dataTable.getState().pagination.pageIndex + 1;
+  const totalPages = dataTable.getPageCount();
+  const hasNextPage = dataTable.getCanNextPage();
+  const hasPreviousPage = dataTable.getCanPreviousPage();
 
   return (
     <>
@@ -358,41 +367,51 @@ const ModulesTable: React.FC<ModulesTableProps> = ({
       {/* Pagination Controls */}
       <div className="flex items-center justify-between mt-6">
         <div className="text-sm text-gray-600">
-          Showing page {currentPage} of {totalPages} ({modules.length} total
-          modules)
+          {isLoading ? (
+            <Skeleton className="h-4 w-48" />
+          ) : (
+            <>
+              Showing page {currentPage} of {totalPages} ({modules.length} total
+              entries)
+            </>
+          )}
         </div>
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={onPreviousPage}
-            disabled={!hasPreviousPage}
+            onClick={() => dataTable.previousPage()}
+            disabled={!hasPreviousPage || isLoading}
             className="flex items-center space-x-1"
           >
             <ChevronLeft className="h-4 w-4" />
             <span>Previous</span>
           </Button>
           <div className="flex items-center space-x-1">
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              const pageNum = i + 1;
-              return (
-                <Button
-                  key={pageNum}
-                  variant={currentPage === pageNum ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => onPageChange(pageNum)}
-                  className="w-8 h-8"
-                >
-                  {pageNum}
-                </Button>
-              );
-            })}
+            {isLoading ? (
+              <Skeleton className="h-8 w-32" />
+            ) : (
+              Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const pageNum = i + 1;
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => dataTable.setPageIndex(pageNum - 1)}
+                    className="w-8 h-8"
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })
+            )}
           </div>
           <Button
             variant="outline"
             size="sm"
-            onClick={onNextPage}
-            disabled={!hasNextPage}
+            onClick={() => dataTable.nextPage()}
+            disabled={!hasNextPage || isLoading}
             className="flex items-center space-x-1"
           >
             <span>Next</span>

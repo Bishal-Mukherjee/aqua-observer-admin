@@ -8,6 +8,7 @@ import SpeciesGrid from "@/components/modules/species/SpeciesGrid";
 import SpeciesGridSkeleton from "@/components/modules/species/LoadingSkeletons/SpeciesGridSkeleton";
 import StatisticsCards from "@/components/modules/species/StatisticsCards";
 import { useGetSpecies } from "@/services/species";
+import { APP_NAME } from "@/constants/constants";
 
 export interface Label {
   en: string;
@@ -57,10 +58,14 @@ export default function SpeciesPage() {
       .sort((a) => (a.isActive ? -1 : 1));
   }, [searchTerm, selectedCategory, selectedStatus, species]);
 
+  const onCardClick = (category: string) => {
+    setSelectedCategory(category === selectedCategory ? "" : category);
+  };
+
   return (
     <Fragment>
       <Helmet>
-        <title>Dashboard | Species</title>
+        <title>{APP_NAME} | Species</title>
       </Helmet>
 
       <div className="flex-1 space-y-6 px-12 py-8">
@@ -81,6 +86,8 @@ export default function SpeciesPage() {
           reptileCount={
             species.filter((s) => s.category === "REPTILE").length || 0
           }
+          onCardClick={onCardClick}
+          selectedCategory={selectedCategory}
           isLoading={isLoading}
         />
         {isLoading ? (

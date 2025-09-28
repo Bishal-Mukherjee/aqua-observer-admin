@@ -4,12 +4,15 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { BarChart3, Bird, Fish, Worm } from "lucide-react";
 import StatisticsCardsSkeleton from "@/components/modules/species/LoadingSkeletons/StatisticsCardsSkeleton";
+import { cn } from "@/lib/utils";
 
 interface StatisticsCardsProps {
   speciesCount: number;
   birdCount: number;
   mammalCount: number;
   reptileCount: number;
+  selectedCategory?: string;
+  onCardClick: (category: string) => void;
   isLoading?: boolean;
 }
 
@@ -18,12 +21,18 @@ export default function StatisticsCards({
   birdCount,
   mammalCount,
   reptileCount,
+  selectedCategory,
+  onCardClick,
   isLoading,
 }: StatisticsCardsProps) {
   if (isLoading) return <StatisticsCardsSkeleton />;
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      <Card className="shadow-none border-0 cursor-pointer transition-transform duration-200 hover:scale-101">
+      <Card
+        className="shadow-none border border-white cursor-pointer transition-transform duration-200 hover:scale-101"
+        onClick={() => onCardClick("")}
+        role="button"
+      >
         <CardContent className="px-4 py-0">
           <div className="flex items-center justify-between">
             <div className="w-full">
@@ -34,14 +43,18 @@ export default function StatisticsCards({
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">Total Species</p>
-              <p className="text-sm text-muted-foreground/70 mt-4">
-                2,643 sightings
-              </p>
             </div>
           </div>
         </CardContent>
       </Card>
-      <Card className="shadow-none border-0 cursor-pointer transition-transform duration-200 hover:scale-101">
+      <Card
+        className={cn(
+          "shadow-none border border-white cursor-pointer transition-transform duration-200 hover:scale-101",
+          { "border-sky-400": selectedCategory === "BIRD" }
+        )}
+        onClick={() => onCardClick("BIRD")}
+        role="button"
+      >
         <CardContent className="px-4 py-0">
           <div className="flex items-center justify-between">
             <div className="w-full">
@@ -52,14 +65,18 @@ export default function StatisticsCards({
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">Birds</p>
-              <p className="text-sm text-muted-foreground/70 mt-4">
-                1,247 sightings
-              </p>
             </div>
           </div>
         </CardContent>
       </Card>
-      <Card className="shadow-none border-0 cursor-pointer transition-transform duration-200 hover:scale-101">
+      <Card
+        className={cn(
+          "shadow-none border border-white cursor-pointer transition-transform duration-200 hover:scale-101",
+          { "border-purple-400": selectedCategory === "MAMMAL" }
+        )}
+        onClick={() => onCardClick("MAMMAL")}
+        role="button"
+      >
         <CardContent className="px-4 py-0">
           <div className="flex items-center justify-between">
             <div className="w-full">
@@ -70,14 +87,18 @@ export default function StatisticsCards({
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">Mammals</p>
-              <p className="text-sm text-muted-foreground/70 mt-4">
-                832 sightings
-              </p>
             </div>
           </div>
         </CardContent>
       </Card>
-      <Card className="shadow-none border-0 cursor-pointer transition-transform duration-200 hover:scale-101">
+      <Card
+        className={cn(
+          "shadow-none border border-white cursor-pointer transition-transform duration-200 hover:scale-101",
+          { "border-emerald-400": selectedCategory === "REPTILE" }
+        )}
+        onClick={() => onCardClick("REPTILE")}
+        role="button"
+      >
         <CardContent className="p-4 py-0">
           <div className="flex items-center justify-between">
             <div className="w-full">
@@ -88,9 +109,6 @@ export default function StatisticsCards({
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">Reptiles</p>
-              <p className="text-sm text-muted-foreground/70 mt-4">
-                564 sightings
-              </p>
             </div>
           </div>
         </CardContent>

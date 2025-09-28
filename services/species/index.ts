@@ -1,5 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import axios from "@/services/api-instance";
+import { useSpeciesSubmissionPagination } from "@/store/pagination/useSpeciesSubmissionPagination";
 
 export const useGetSpecies = () => {
   return useQuery({
@@ -36,6 +38,43 @@ export const useUpdateSpecies = () => {
         data,
       });
 
+      return response.data;
+    },
+  });
+};
+
+export const useGetSpeciesSubmissions = (
+  submissions: "reportings" | "sightings",
+  species: string = "",
+  fromDate?: Date,
+  toDate?: Date
+) => {
+  const { initializeStore, currentPage } = useSpeciesSubmissionPagination();
+  const nextPage = currentPage + 1;
+  return useQuery({
+    queryKey: [
+      "speciesSubmissions",
+      submissions,
+      species,
+      fromDate,
+      toDate,
+      nextPage,
+    ],
+    queryFn: async () => {
+      const response = await axios({
+        method: "GET",
+        url:
+          `/species/submissions/${submissions}?speciesValue=${species}` +
+          (fromDate ? `&from=${dayjs(fromDate).format("YYYY-MM-DD")}` : "") +
+          (toDate ? `&to=${dayjs(toDate).format("YYYY-MM-DD")}` : "") +
+          (currentPage ? `&page=${nextPage}` : ""),
+      });
+      const { pagination } = response.data;
+      initializeStore(
+        currentPage ?? 1,
+        pagination.totalPages,
+        pagination.total
+      );
       return response.data;
     },
   });

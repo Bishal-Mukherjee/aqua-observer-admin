@@ -10,41 +10,25 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { MapPin, Leaf, Eye, X, Bird, Worm, Squirrel } from "lucide-react";
+import { getStatusColor, getCategoryColor } from "@/constants/colorMaps";
+import {
+  MapPin,
+  Leaf,
+  Eye,
+  X,
+  Bird,
+  Worm,
+  Squirrel,
+  //   Users,
+  //   Siren,
+  //   Binoculars,
+  ExternalLink,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EditSpeciesDialog } from "@/components/modules/species/SpeciesDialog/EditSpeciesDialog";
 import { DeactivateSpecies } from "@/components/modules/species/SpeciesDialog/DeactivateSpecies";
 import { ActivateSpecies } from "./ActivateSpecies";
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "CRITICALLY_ENDANGERED":
-      return "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800/30";
-    case "ENDANGERED":
-      return "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-800/30";
-    case "VULNERABLE":
-      return "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-300 dark:border-yellow-800/30";
-    case "NEAR_THREATENED":
-      return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800/30";
-    case "LEAST_CONCERN":
-      return "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800/30";
-    default:
-      return "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-800/30";
-  }
-};
-
-const getCategoryColor = (category: string) => {
-  switch (category) {
-    case "BIRD":
-      return "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950 dark:text-sky-300 dark:border-sky-800/30";
-    case "MAMMAL":
-      return "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800/30";
-    case "REPTILE":
-      return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800/30";
-    default:
-      return "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-800/30";
-  }
-};
+import Link from "next/link";
 
 const getCategoryIcon = (category: string) => {
   switch (category) {
@@ -174,7 +158,7 @@ export default function SpeciesDialog({
               </div>
 
               {/* Main Content */}
-              <div className="rounded-t-xl bg-background shadow-sm pt-12 pb-6 px-6">
+              <div className="rounded-t-xl bg-background shadow-sm pt-12 pb-4 px-6">
                 {/* Species Title and Scientific Name */}
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1 mb-8">
@@ -200,7 +184,7 @@ export default function SpeciesDialog({
                 {/* Two Column Layout: Location and Identification Side by Side */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Location & Environment Section */}
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
                       <span className="inline-block p-1.5 rounded-md bg-gray-100 dark:bg-gray-800">
                         <MapPin className="h-4 w-4 text-primary" />
@@ -247,9 +231,30 @@ export default function SpeciesDialog({
                         </div>
                       </div>
                     </div>
+
+                    {/* Age Group Section */}
+
+                    <div className="space-y-2 mt-[-16px]">
+                      <div className="flex flex-wrap gap-1.5">
+                        <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                          Age Group
+                        </h3>
+                        <Badge
+                          variant="outline"
+                          className="px-2.5 py-0.5 text-xs bg-purple-50/50 border-none text-purple-700 dark:bg-purple-950/50 dark:text-purple-300"
+                        >
+                          {species.ageGroup}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        {species.ageGroup === "duo"
+                          ? `For ${species.label.en} submissions for 'Adult' and 'Subadult' will be made`
+                          : `For ${species.label.en} submissions for 'Adult Male', 'Adult Female', 'Subadult' will be made`}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="space-y-4 flex flex-col">
                     <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
                       <span className="inline-block p-1.5 rounded-md bg-gray-100 dark:bg-gray-800">
                         <Eye className="h-4 w-4 text-primary" />
@@ -278,6 +283,24 @@ export default function SpeciesDialog({
                           )}
                         </div>
                       </div>
+                    </div>
+
+                    <div className="flex items-center gap-6 mt-auto mb-1">
+                      <Link
+                        href={`/species/reportings?species=${species.value}`}
+                        className="text-primary hover:underline flex items-center gap-1"
+                      >
+                        <ExternalLink className="h-4 w-4 text-blue-600" />
+                        <p className="text-xs">View Reportings</p>
+                      </Link>
+
+                      <Link
+                        href={`/species/sightings?species=${species.value}`}
+                        className="text-primary hover:underline flex items-center gap-1"
+                      >
+                        <ExternalLink className="h-4 w-4 text-blue-600" />
+                        <p className="text-xs">View Sightings</p>
+                      </Link>
                     </div>
                   </div>
                 </div>

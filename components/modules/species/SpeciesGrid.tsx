@@ -2,43 +2,12 @@
 
 import { Fragment, useState } from "react";
 import Image from "next/image";
+import { getStatusColor, getCategoryColor } from "@/constants/colorMaps";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import SpeciesDialog from "@/components/modules/species/SpeciesDialog/SpeciesDialog";
 import { Species } from "@/app/(protected)/species/page";
-
-// Conservation status color mapping
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "CRITICALLY_ENDANGERED":
-      return "bg-red-50 text-red-800";
-    case "ENDANGERED":
-      return "bg-orange-50 text-orange-800";
-    case "VULNERABLE":
-      return "bg-yellow-50 text-yellow-800";
-    case "NEAR_THREATENED":
-      return "bg-blue-50 text-blue-800";
-    case "LEAST_CONCERN":
-      return "bg-green-50 text-green-800";
-    default:
-      return "bg-gray-50 text-gray-800";
-  }
-};
-
-// Category color mapping
-const getCategoryColor = (category: string) => {
-  switch (category) {
-    case "BIRD":
-      return "bg-sky-50 text-sky-800";
-    case "MAMMAL":
-      return "bg-purple-50 text-purple-800";
-    case "REPTILE":
-      return "bg-emerald-50 text-emerald-800";
-    default:
-      return "bg-gray-50 text-gray-800";
-  }
-};
 
 // Format conservation status for display
 const formatStatus = (status: string) => {

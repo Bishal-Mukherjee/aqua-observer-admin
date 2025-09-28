@@ -18,6 +18,7 @@ import { Fragment, useState } from "react";
 import { useSignIn, useVerifyCode } from "@/services/auth";
 import { Loader } from "lucide-react";
 import { Helmet } from "react-helmet-async";
+import { APP_NAME } from "@/constants/constants";
 
 const PhoneSchema = Yup.object().shape({
   phoneNumber: Yup.string()
@@ -91,10 +92,10 @@ export default function LoginPage() {
   return (
     <Fragment>
       <Helmet>
-        <title>Admin | Login</title>
+        <title>{APP_NAME} | Login</title>
         <meta
           name="description"
-          content="Login to your Aqua Observer Admin account"
+          content="Login to your RUDRA App Admin account"
         />
       </Helmet>
       <div className="flex min-w-screen min-h-screen bg-white from-blue-50 to-blue-100">
@@ -105,7 +106,7 @@ export default function LoginPage() {
           </h1>
           <p className="text-lg text-stone-500">
             {step === "phone"
-              ? "Enter your phone number to get started with Aqua Observer Admin."
+              ? "Enter your phone number to get started with RUDRA App Admin."
               : "Enter the OTP sent to your phone to continue."}
           </p>
           <Image

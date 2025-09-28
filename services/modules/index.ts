@@ -3,21 +3,26 @@ import axios from "@/services/api-instance";
 import { useModulesPagination } from "@/store/pagination/useModulesPagination";
 
 export const useGetModules = (tier: string) => {
-  const { currentPage, initializeStore } = useModulesPagination();
+  const { initializeStore, currentPage } = useModulesPagination();
+  const nextPage = currentPage + 1;
   return useQuery({
-    queryKey: ["modules", tier, currentPage],
+    queryKey: ["modules", tier, nextPage],
     queryFn: async () => {
       const response = await axios({
         method: "GET",
         url:
           tier !== "ALL"
-            ? `/modules/${tier}?page=${currentPage}`
-            : `/modules?page=${currentPage}`,
+            ? `/modules/${tier}?page=${nextPage}`
+            : `/modules?page=${nextPage}`,
       });
-      initializeStore(currentPage, response.data?.pagination.totalPages);
+      const { pagination } = response.data;
+      initializeStore(
+        currentPage ?? 1,
+        pagination.totalPages,
+        pagination.total
+      );
       return response.data;
     },
-    refetchOnWindowFocus: false,
   });
 };
 
