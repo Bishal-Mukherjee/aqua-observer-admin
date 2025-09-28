@@ -263,7 +263,7 @@ export default function Sidebar() {
                 {!isCollapsed && (
                   <div className="flex items-center justify-between w-full">
                     <span className="font-medium">{item.title}</span>
-                    {/* {hasSubRoutes && (
+                    {hasSubRoutes && (
                       <Fragment>
                         {isExpanded ? (
                           <ChevronDown className="h-4 w-4 ml-2" />
@@ -271,7 +271,7 @@ export default function Sidebar() {
                           <ChevronRight className="h-4 w-4 ml-2" />
                         )}
                       </Fragment>
-                    )} */}
+                    )}
                   </div>
                 )}
               </Button>
