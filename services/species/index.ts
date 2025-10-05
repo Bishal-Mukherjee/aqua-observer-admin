@@ -24,7 +24,7 @@ export const useUpdateSpecies = () => {
   return useMutation({
     mutationKey: ["updateSpecies"],
     mutationFn: async (data: {
-      id: number;
+      id: string;
       scientificName: string;
       category: string;
       conservationStatus: string;

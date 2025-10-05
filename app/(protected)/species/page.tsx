@@ -24,7 +24,7 @@ export interface Species {
   regionDistribution: string[];
   identificationFeatures: string[];
   image: string;
-  ageGroup: string | null;
+  ageGroup: string;
   isActive: boolean;
   createdAt: string | null;
   lastUpdatedAt: string | null;
