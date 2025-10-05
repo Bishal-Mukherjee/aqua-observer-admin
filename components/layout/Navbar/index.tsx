@@ -10,11 +10,11 @@ import { cn } from "@/lib/utils";
 import { useSidebar } from "@/store/useSidebar";
 import { useAuth } from "@/store/useAuth";
 import { useNotificationPagination } from "@/store/pagination/useNotificationPagination";
-import { useGetSpecies } from "@/services/species";
 import { useGetNotifications } from "@/services/notifications";
 import { createClient } from "@supabase/supabase-js";
 import NotificationPopover from "@/components/layout/Navbar/NotificationPopover";
 import SubmissionDialog from "@/components/common/SubmissionDialog";
+import { useSpecies } from "@/store/useSpecies";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,8 +42,8 @@ const getPageInfo = (pathname: string) => {
       };
     case "users":
       return {
-        title: "User Management",
-        description: "View, add, or update users in your network",
+        title: "Profiles Management",
+        description: "View, add, or update profiles in your network",
       };
     case "species":
       return {
@@ -52,10 +52,10 @@ const getPageInfo = (pathname: string) => {
       };
     case "tiers":
       return {
-        title: "User Tiers",
-        description: "Manage and configure user tiers",
+        title: "Sighter Tiers",
+        description: "Manage and configure sighter tiers",
       };
-    case "training":
+    case "training-modules":
       return {
         title: "Training Modules",
         description: "Manage and configure training modules",
@@ -68,7 +68,7 @@ const getPageInfo = (pathname: string) => {
     case "reports":
       return {
         title: "Analytics & Reports",
-        description: "View trends and generate custom reports",
+        description: "Generate and view custom reports",
       };
     default:
       return {
@@ -99,7 +99,7 @@ export default function Navbar() {
   const { user } = useAuth();
   const { isCollapsed } = useSidebar();
 
-  const { data: speciesData } = useGetSpecies();
+  const { species } = useSpecies();
   const { data, refetch, isLoading } = useGetNotifications();
 
   const { currentPage, totalPages, setCurrentPage } =
@@ -139,17 +139,26 @@ export default function Navbar() {
 
   useEffect(() => {
     const subscription = supabase
-      .channel("reportings") // disbale RLS for this table
+      .channel("reportings") // disbale RLS for this table and enable real-time updates
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "reportings" },
         (payload: any) => {
-          console.log("Change received!", payload);
           refetch();
           toast.warning(getToastText(payload.new?.submission_type), {
             action: {
               label: "View",
-              onClick: () => {},
+              onClick: () => {
+                setIsOpen({
+                  id: payload.new?.id,
+                  submissionType: "REPORTING",
+                  //   submissionType: payload.new?.submission_context.includes(
+                  //     "REPORTING"
+                  //   )
+                  //     ? "REPORTING"
+                  //     : "SIGHTING",
+                });
+              },
             },
           });
         }
@@ -273,7 +282,7 @@ export default function Navbar() {
       </div>
       <SubmissionDialog
         submissionId={isOpen?.id || null}
-        speciesData={speciesData?.result || []}
+        speciesData={species || []}
         type={isOpen?.submissionType}
         onClose={() => setIsOpen(null)}
       />

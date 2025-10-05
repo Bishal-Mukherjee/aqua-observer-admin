@@ -394,7 +394,7 @@ const SightingDetailsSection = ({ reportData }: any) => {
           </h3>
 
           <Card className="border-none shadow-none">
-            <CardContent className="px-4 py-3 bg-gray-50 rounded-lg">
+            <CardContent className="px-4 py-3">
               <p className="text-sm text-gray-700">{reportData.notes}</p>
             </CardContent>
           </Card>

@@ -45,10 +45,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import validateUrl from "@/lib/validate-links";
 import { useFileUpload } from "@/hooks/useFileUpload";
-import { useGetTiers } from "@/services/tiers";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useTiersStore } from "@/store/useTiers";
 
 interface Module {
   id: string;
@@ -103,7 +103,7 @@ export default function UpdateModuleDialog({
 }: UpdateModuleDialogProps) {
   const queryClient = useQueryClient();
 
-  const { data: tierData } = useGetTiers();
+  const { tiers } = useTiersStore();
   const { mutate: updateModule, isPending } = useUpdateModule();
   const { uploadFile, isLoading: isUploading } = useFileUpload();
   const [showDeactivateAlert, setShowDeactivateAlert] = useState(false);
@@ -111,8 +111,8 @@ export default function UpdateModuleDialog({
   // TODO: add 'ONBOARDING' tier to DB
   const tierOptions = [
     { label: "ONBOARDING", value: "ONBOARDING" },
-    ...(tierData?.result?.map((t: { tier: string }) => ({
-      label: t.tier.split("_").join(" "),
+    ...(tiers?.map((t) => ({
+      label: t.tier.replace("TIER_", "Tier "),
       value: t.tier,
     })) || []),
   ];
@@ -232,7 +232,11 @@ export default function UpdateModuleDialog({
     const file = event.target.files?.[0];
     if (file) {
       setThumbnailFile(file);
-      const uploadedFile = await uploadFile("aqua-observer-bucket", file);
+      const uploadedFile = await uploadFile(
+        "training-modules",
+        "thumbnails",
+        file
+      );
       if (uploadedFile?.publicURL) {
         formik.setFieldValue("thumbnail", uploadedFile.publicURL);
       }
@@ -247,7 +251,11 @@ export default function UpdateModuleDialog({
     const file = event.target.files?.[0];
     if (file) {
       setUrlFile(file);
-      const uploadedFile = await uploadFile("aqua-observer-bucket", file);
+      const uploadedFile = await uploadFile(
+        "training-modules",
+        "modules",
+        file
+      );
       if (uploadedFile?.publicURL) {
         formik.setFieldValue("url", uploadedFile.publicURL);
       }
@@ -275,7 +283,7 @@ export default function UpdateModuleDialog({
         titleBn: module.title.bn,
         descEn: module.description.en,
         descBn: module.description.bn,
-        thumbnail: module.thumbnail,
+        thumbnail: module.thumbnail || "",
         url: module.url,
         type: module.type,
         isActive: module.isActive,
@@ -500,19 +508,20 @@ export default function UpdateModuleDialog({
                     Add Link
                   </Button>
                   <div className="flex items-center gap-1 ml-auto">
-                    {formik.values.thumbnail === module?.thumbnail && (
-                      <>
-                        <ExternalLink className="w-4 h-4" />
-                        <Link
-                          href={formik.values.thumbnail}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-blue-600"
-                        >
-                          View
-                        </Link>
-                      </>
-                    )}
+                    {module?.thumbnail &&
+                      formik.values.thumbnail === module?.thumbnail && (
+                        <>
+                          <ExternalLink className="w-4 h-4" />
+                          <Link
+                            href={formik.values.thumbnail}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600"
+                          >
+                            View
+                          </Link>
+                        </>
+                      )}
                   </div>
                 </div>
 

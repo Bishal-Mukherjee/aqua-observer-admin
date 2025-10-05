@@ -12,19 +12,19 @@ import {
 } from "@/components/ui/dialog";
 import { Loader, Plus } from "lucide-react";
 import ModuleForm from "@/components/modules/tiers/CreateTier/ModuleForm";
-import { useGetTiers } from "@/services/tiers";
 import { useCreateModules } from "@/services/modules";
+import { useTiersStore } from "@/store/useTiers";
 
 export default function CreateModuleDialog() {
   const queryClient = useQueryClient();
 
-  const { data: tierData } = useGetTiers();
+  const { tiers } = useTiersStore();
 
   // TODO: add 'ONBOARDING' tier to DB
-  const tiers = [
+  const tierOptions = [
     { label: "ONBOARDING", value: "ONBOARDING" },
-    ...(tierData?.result?.map((t: { tier: string }) => ({
-      label: t.tier.split("_").join(" "),
+    ...(tiers?.map((t) => ({
+      label: t.tier.replace("TIER_", "Tier "),
       value: t.tier,
     })) || []),
   ];
@@ -97,7 +97,7 @@ export default function CreateModuleDialog() {
                 modules={modules}
                 setModules={setModules}
                 showTierSelect
-                tierOptions={tiers}
+                tierOptions={tierOptions}
                 onSubmit={handleSubmitClick}
               />
             </div>

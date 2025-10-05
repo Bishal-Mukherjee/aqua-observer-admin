@@ -18,7 +18,7 @@ interface TierData {
   tier: string;
   title: {
     en: string;
-    bn: string;
+    bn?: string;
   };
   isActive: boolean;
 }

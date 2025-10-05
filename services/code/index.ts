@@ -3,14 +3,12 @@ import axios from "@/services/api-instance";
 
 export const useSendCode = () => {
   const mutation = useMutation({
-    mutationFn: async (data: { phoneNumber: string; isTest?: boolean }) => {
+    mutationFn: async (data: { phoneNumber: string }) => {
       const response = await axios({
         method: "POST",
         url: "/code/send",
         data: {
           phoneNumber: data.phoneNumber,
-          // TODO: remove this condition
-          isTest: true,
         },
       });
       return response.data;

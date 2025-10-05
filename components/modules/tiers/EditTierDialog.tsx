@@ -23,8 +23,9 @@ interface EditTierDialogProps {
   tierData: {
     id: string;
     tier: string;
-    title: { en: string; bn: string };
-    description: { en: string; bn: string };
+    title: { en: string; bn?: string };
+    description: { en: string; bn?: string };
+    isActive: boolean;
   } | null;
 }
 
@@ -67,6 +68,7 @@ export default function EditTierDialog({
             id: tierData.id,
             title: { en: values.titleEn, bn: values.titleBn },
             description: { en: values.descEn, bn: values.descBn },
+            isActive: tierData.isActive,
           },
           ...(hasModuleUpdated && { modules }),
         },
@@ -85,9 +87,9 @@ export default function EditTierDialog({
     if (tierData) {
       formik.setValues({
         titleEn: tierData.title.en,
-        titleBn: tierData.title.bn,
+        titleBn: tierData.title.bn || "",
         descEn: tierData.description.en,
-        descBn: tierData.description.bn,
+        descBn: tierData.description.bn || "",
       });
     }
   }, [tierData]);

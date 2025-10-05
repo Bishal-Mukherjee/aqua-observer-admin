@@ -2,22 +2,20 @@
 
 import React, { Fragment, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
-
+import { PawPrint } from "lucide-react";
 import SpeciesFilters from "@/components/modules/species/SpeciesFilters";
 import SpeciesGrid from "@/components/modules/species/SpeciesGrid";
-import SpeciesGridSkeleton from "@/components/modules/species/LoadingSkeletons/SpeciesGridSkeleton";
 import StatisticsCards from "@/components/modules/species/StatisticsCards";
-import { useGetSpecies } from "@/services/species";
 import { APP_NAME } from "@/constants/constants";
-
-export interface Label {
-  en: string;
-  bn?: string | null;
-}
+import { isEmpty } from "lodash";
+import { useSpecies } from "@/store/useSpecies";
 
 export interface Species {
-  id: number;
-  label: Label;
+  id: string;
+  label: {
+    en: string;
+    bn?: string;
+  };
   value: string;
   scientificName: string;
   category: string;
@@ -26,22 +24,21 @@ export interface Species {
   regionDistribution: string[];
   identificationFeatures: string[];
   image: string;
-  ageGroup: string;
+  ageGroup: string | null;
+  isActive: boolean;
   createdAt: string | null;
   lastUpdatedAt: string | null;
-  isActive: boolean;
 }
 
 export default function SpeciesPage() {
-  const { data, isLoading } = useGetSpecies();
-
-  const species: Species[] = data?.result || [];
+  const { species } = useSpecies();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
 
   const filteredSpecies = useMemo(() => {
+    if (isEmpty(species)) return [];
     return species
       .filter((animal) => {
         const matchesSearch = animal.label.en
@@ -78,23 +75,29 @@ export default function SpeciesPage() {
           setSelectedStatus={setSelectedStatus}
         />
         <StatisticsCards
-          speciesCount={species.length || 0}
-          birdCount={species.filter((s) => s.category === "BIRD").length || 0}
+          speciesCount={species?.length || 0}
+          birdCount={species?.filter((s) => s.category === "BIRD").length || 0}
           mammalCount={
-            species.filter((s) => s.category === "MAMMAL").length || 0
+            species?.filter((s) => s.category === "MAMMAL").length || 0
           }
           reptileCount={
-            species.filter((s) => s.category === "REPTILE").length || 0
+            species?.filter((s) => s.category === "REPTILE").length || 0
           }
           onCardClick={onCardClick}
           selectedCategory={selectedCategory}
-          isLoading={isLoading}
         />
-        {isLoading ? (
-          <SpeciesGridSkeleton />
-        ) : (
-          <SpeciesGrid species={filteredSpecies} />
-        )}
+        <>
+          {isEmpty(species) ? (
+            <div className="mt-20 h-32 flex flex-col items-center justify-center">
+              <PawPrint className="mx-auto mb-2 h-6 w-6 text-gray-400" />
+              <h2 className="text-center text-md text-gray-500">
+                No Species data available
+              </h2>
+            </div>
+          ) : (
+            <SpeciesGrid species={filteredSpecies} />
+          )}
+        </>
       </div>
     </Fragment>
   );

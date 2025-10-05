@@ -146,7 +146,7 @@ export default function UserEditDialog({
         { id: userData.id, ...values },
         {
           onSuccess: () => {
-            toast.success("User updated successfully");
+            toast.success("Profile updated successfully");
             onClose();
           },
           onError: () => {
@@ -216,7 +216,7 @@ export default function UserEditDialog({
           aria-describedby="user-edit"
         >
           <DialogHeader className="pb-2">
-            <DialogTitle className="text-xl">Edit User</DialogTitle>
+            <DialogTitle className="text-xl">Edit Profile</DialogTitle>
           </DialogHeader>
 
           <TooltipProvider>

@@ -3,8 +3,7 @@
 import React, { Fragment } from "react";
 import dynamic from "next/dynamic";
 import { Helmet } from "react-helmet-async";
-import { MapPinned } from "lucide-react";
-import { useGetSpecies } from "@/services/species";
+import { MapPinned, Map as MapIcon } from "lucide-react";
 import { useGetOverviewLocations } from "@/services/home";
 import GreetingSection from "@/components/modules/home/GreetingSection";
 import CarouselSection from "@/components/modules/home/CarouselSection";
@@ -23,6 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { isEmpty } from "lodash";
+import { useSpecies } from "@/store/useSpecies";
 
 const InteractiveMap = dynamic(
   () => import("@/components/common/InteractiveMap"),
@@ -35,7 +36,7 @@ const SUBMISSION_TYPES = [
 ];
 
 export default function DashboardPage() {
-  const { data } = useGetSpecies();
+  const { species } = useSpecies();
   const [selectedType, setSelectedType] = React.useState("reportings");
   const { data: overviewLocations, isLoading } = useGetOverviewLocations(
     selectedType,
@@ -69,12 +70,12 @@ export default function DashboardPage() {
           <CarouselSection />
         </div>
         <StatsCards />
-        <div className="grid gap-6 grid-cols-3">
+        <div className="grid gap-6 grid-cols-3 min-h-[30rem]">
           <DistributionOverviewDonut />
           <DistrictMonthlyStackedBar />
         </div>
         <div className="grid gap-4 lg:grid-cols-2">
-          <Card className="shadow-none border-none">
+          <Card className="shadow-none border-none z-10">
             <CardHeader className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MapPinned className="h-5 w-5 text-slate-400" />
@@ -94,12 +95,21 @@ export default function DashboardPage() {
               </Select>
             </CardHeader>
             <CardContent className="h-full">
-              <InteractiveMap
-                isLoading={isLoading}
-                title={`${currentType} Locations`}
-                data={overviewLocations?.result?.data || []}
-                onLocationSelect={handleSelect}
-              />
+              {isEmpty(overviewLocations?.result?.data) ? (
+                <div className="mt-20 h-32 flex flex-col items-center justify-center">
+                  <MapIcon className="mx-auto mb-2 h-6 w-6 text-gray-400" />
+                  <h2 className="text-center text-md text-gray-500">
+                    No {selectedType} locations data available
+                  </h2>
+                </div>
+              ) : (
+                <InteractiveMap
+                  isLoading={isLoading}
+                  title={`${currentType} Locations`}
+                  data={overviewLocations?.result?.data || []}
+                  onLocationSelect={handleSelect}
+                />
+              )}
             </CardContent>
           </Card>
           <div className="space-y-4">
@@ -110,7 +120,7 @@ export default function DashboardPage() {
       </div>
       <SubmissionDialog
         submissionId={selectedSubmission}
-        speciesData={data?.result || []}
+        speciesData={species}
         onClose={() => setSelectedSubmission(null)}
         type={currentType}
       />

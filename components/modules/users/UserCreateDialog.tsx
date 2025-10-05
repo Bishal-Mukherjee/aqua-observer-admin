@@ -43,16 +43,16 @@ import {
 import { cn } from "@/lib/utils";
 import PhoneVerificationDialog from "./PhoneVerificationDialog";
 import { useCreateUser } from "@/services/users";
-import { useGetDistricts } from "@/services/region";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useDistrictStore } from "@/store/useDistricts";
 
 interface UserCreateData {
   name: string;
   phoneNumber: string;
   age: string;
-  gender: "MALE" | "FEMALE" | "";
+  gender: "MALE" | "FEMALE" | "OTHER" | "";
   email: string;
   occupation: string;
   role: "SIGHTER" | "SUB_ADMIN" | "DFO";
@@ -100,20 +100,20 @@ const validationSchema = Yup.object({
   }),
 });
 
-const formatGenderDisplay = (gender: string) => {
-  const displayMap: Record<string, string> = {
-    MALE: "Male",
-    FEMALE: "Female",
-  };
-  return displayMap[gender] || gender;
-};
+// const formatGenderDisplay = (gender: string) => {
+//   const displayMap: Record<string, string> = {
+//     MALE: "Male",
+//     FEMALE: "Female",
+//   };
+//   return displayMap[gender] || gender;
+// };
 
 export default function UserCreateDialog() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { data } = useGetDistricts();
+  const { districts } = useDistrictStore();
   const { mutate: createUser, isPending } = useCreateUser();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -121,12 +121,6 @@ export default function UserCreateDialog() {
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
 
   const isDialogOpen = isOpen || searchParams.get("action") === "add";
-
-  const districtOptions: Array<{ value: string; label: { en: string } }> =
-    data?.result?.sort(
-      (a: { label: { en: string } }, b: { label: { en: string } }) =>
-        a.label.en.localeCompare(b.label.en)
-    ) || [];
 
   const formik = useFormik<UserCreateData>({
     initialValues: {
@@ -158,11 +152,11 @@ export default function UserCreateDialog() {
 
       createUser(userData, {
         onSuccess: () => {
-          toast.success("User created successfully");
+          toast.success("Profile created successfully");
           handleClose();
         },
         onError: () => {
-          toast.error("Error creating user");
+          toast.error("Error creating profile");
         },
         onSettled: () => {
           queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -227,7 +221,7 @@ export default function UserCreateDialog() {
         <DialogTrigger asChild>
           <Button className="cursor-pointer" onClick={() => setIsOpen(true)}>
             <UserPlus className="h-5 w-5" />
-            Create User
+            Create Profile
           </Button>
         </DialogTrigger>
 
@@ -238,7 +232,7 @@ export default function UserCreateDialog() {
           <DialogHeader className="pb-2">
             <DialogTitle className="text-xl flex items-center gap-2">
               <UserPlus className="h-5 w-5" />
-              Create New User
+              Create New Profile
             </DialogTitle>
           </DialogHeader>
 
@@ -375,6 +369,7 @@ export default function UserCreateDialog() {
                           <SelectGroup>
                             <SelectItem value="MALE">Male</SelectItem>
                             <SelectItem value="FEMALE">Female</SelectItem>
+                            <SelectItem value="OTHER">Other</SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>
@@ -496,18 +491,18 @@ export default function UserCreateDialog() {
                               formik.errors.district &&
                               "border-red-500"
                           )}
-                          disabled={isEmpty(districtOptions)}
+                          disabled={isEmpty(districts)}
                         >
                           <SelectValue placeholder="Select district" />
                         </SelectTrigger>
                         <SelectContent className="max-h-[250px]">
                           <SelectGroup>
-                            {districtOptions?.map((district) => (
+                            {districts?.map((district) => (
                               <SelectItem
                                 key={district.value}
                                 value={district.value}
                               >
-                                {district.label.en}
+                                {district.label}
                               </SelectItem>
                             ))}
                           </SelectGroup>
@@ -628,7 +623,7 @@ export default function UserCreateDialog() {
                     ) : (
                       <>
                         <Save className="h-4 w-4" />
-                        Create User
+                        Create Profile
                       </>
                     )}
                   </Button>

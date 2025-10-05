@@ -11,7 +11,7 @@ export const PUT = withAuth(async (request, { params }): Promise<any> => {
 
     if (!userId) {
       return NextResponse.json(
-        { message: "User ID is required" },
+        { message: "Profile ID is required" },
         { status: 400 }
       );
     }
@@ -21,7 +21,7 @@ export const PUT = withAuth(async (request, { params }): Promise<any> => {
     const user = await pool.query(getUserQuery, [userId]);
 
     if (isEmpty(user.rows)) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+      return NextResponse.json({ message: "Profile not found" }, { status: 404 });
     }
 
     const updateQuery = `
@@ -41,7 +41,7 @@ export const PUT = withAuth(async (request, { params }): Promise<any> => {
     ]);
 
     return NextResponse.json({
-      message: "User updated successfully",
+      message: "Profile updated successfully",
       result: result.rows[0],
     });
   } catch (error) {

@@ -1,9 +1,8 @@
 "use client";
 
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment } from "react";
 import { Helmet } from "react-helmet-async";
 import { DateRange } from "react-day-picker";
-import { useGetSpecies } from "@/services/species";
 import {
   useGetReportings,
   useGetReportingsInsights,
@@ -16,28 +15,34 @@ import Insights from "@/components/common/SubmissionsInsights";
 import SubmissionsTable from "@/components/common/SubmissionsTable";
 import SubmissionDialog from "@/components/common/SubmissionDialog";
 import { APP_NAME } from "@/constants/constants";
-import { useReportingsPagination } from "@/store/pagination/useReportingsPagination";
+import { useReportingsFilters } from "@/store/useReportingsFilters";
+import { useSpecies } from "@/store/useSpecies";
 
 export default function SubmissionReportingPage() {
-  const { currentPage, setCurrentPage, totalRecords } =
-    useReportingsPagination();
+  const { currentPage, setCurrentPage, totalRecords, districts, setDistricts } =
+    useReportingsFilters();
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
-  const { data, isLoading } = useGetReportings(
-    undefined,
-    dateRange?.from,
-    dateRange?.to
-  );
+  const { data, isLoading } = useGetReportings(dateRange?.from, dateRange?.to);
   const { data: insightsData } = useGetReportingsInsights(
     dateRange?.from,
     dateRange?.to
   );
-  const { data: speciesData } = useGetSpecies();
+  const { species } = useSpecies();
 
   const [reportingId, setReportingId] = React.useState<string | null>(null);
 
   const handleSelect = (id: string) => setReportingId(id);
 
   const onClose = () => setReportingId(null);
+
+  const onClearDateRange = () => setDateRange(undefined);
+
+  const handleDistrictsChange = (districts: string[]) => {
+    setDistricts(districts);
+    setCurrentPage(0);
+  };
+
+  const pagination = { pageIndex: currentPage, pageSize: 10, totalRecords };
 
   return (
     <Fragment>
@@ -69,15 +74,15 @@ export default function SubmissionReportingPage() {
           <div className="mt-4">
             <SubmissionsTable
               isLoading={isLoading}
+              dateRange={dateRange}
+              onClearDateRange={onClearDateRange}
               entries={data?.result || []}
               onSelect={handleSelect}
               showDateFilter={false}
-              pagination={{
-                pageIndex: currentPage,
-                pageSize: 10,
-                totalRecords,
-              }}
+              pagination={pagination}
               setPagination={setCurrentPage}
+              selectedDistricts={districts}
+              setSelectedDistricts={handleDistrictsChange}
             />
           </div>
         </div>
@@ -85,7 +90,7 @@ export default function SubmissionReportingPage() {
       <SubmissionDialog
         submissionId={reportingId}
         onClose={onClose}
-        speciesData={speciesData?.result || []}
+        speciesData={species || []}
         type="REPORTING"
       />
     </Fragment>

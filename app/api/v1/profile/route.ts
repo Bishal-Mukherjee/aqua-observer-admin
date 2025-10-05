@@ -12,12 +12,13 @@ export const GET = withAuth(async (request: NextRequest): Promise<any> => {
         phone_number AS "phoneNumber", 
         gender, 
         role, 
-        status
+        status,
+		last_active_at AS "lastActiveAt"
       FROM users WHERE id = $1`,
       [id]
     );
     return Response.json(
-      { message: "User profile retrieved successfully", result: query.rows[0] },
+      { message: "Profile retrieved successfully", result: query.rows[0] },
       { status: 200 }
     );
   } catch (e) {

@@ -21,6 +21,7 @@ import UserCreateDialog from "@/components/modules/users/UserCreateDialog";
 import RouteBreadcrumbs from "@/components/layout/RouteBreadcrumbs";
 import { APP_NAME } from "@/constants/constants";
 import { useUsersPagination } from "@/store/pagination/useUsersPagination";
+import { useTiersStore } from "@/store/useTiers";
 
 interface UserData {
   id: string;
@@ -43,6 +44,7 @@ export default function UsersPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const { tiers } = useTiersStore();
   const { currentPage, setCurrentPage, totalRecords } = useUsersPagination();
 
   const { data, isLoading } = useGetUsers();
@@ -140,11 +142,11 @@ export default function UsersPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Tiers</SelectItem>
-                      <SelectItem value="TIER_1">Tier 1</SelectItem>
-                      <SelectItem value="TIER_2">Tier 2</SelectItem>
-                      <SelectItem value="TIER_3">Tier 3</SelectItem>
-                      <SelectItem value="TIER_4">Tier 4</SelectItem>
-                      <SelectItem value="TIER_5">Tier 5</SelectItem>
+                      {tiers.map((tier) => (
+                        <SelectItem key={tier.id} value={tier.tier}>
+                          {tier.tier.replace("TIER_", "Tier ")}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
 

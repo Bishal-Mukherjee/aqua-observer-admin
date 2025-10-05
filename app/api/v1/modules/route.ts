@@ -156,7 +156,8 @@ export const PUT = withAuth(async (request, { params }) => {
         url = $6,
         thumbnail = $7,
         type = $8,
-		is_active = $9
+		is_active = $9,
+		last_updated_at = NOW()
       WHERE id = $10
     `;
 

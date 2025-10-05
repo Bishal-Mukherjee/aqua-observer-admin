@@ -251,7 +251,11 @@ export const EditSpeciesDialog = ({
     const file = event.target.files?.[0];
     if (file) {
       setImageFile(file);
-      const uploadedFile = await uploadFile("aqua-observer-bucket", file);
+      const uploadedFile = await uploadFile(
+        "platform-assets-bucket",
+        "species",
+        file
+      );
       if (uploadedFile?.publicURL) {
         formik.setFieldValue("image", uploadedFile.publicURL);
       }

@@ -10,13 +10,13 @@ export const useFileUpload = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const uploadFile = async (bucket: string, file: File) => {
+  const uploadFile = async (bucket: string, dirname: string, file: File) => {
     setIsLoading(true);
     setError(null);
 
     try {
       const fileExt = file.name.split(".").pop();
-      const filePath = `uploads/${Date.now()}.${fileExt}`;
+      const filePath = `${dirname}/${Date.now()}.${fileExt}`;
 
       const { data, error } = await supabase.storage
         .from(bucket)

@@ -79,7 +79,7 @@ const UserStatusDialog: React.FC<UserStatusDialogProps> = ({
       {
         onSuccess: () => {
           toast.success(
-            `User '${user.name}' has been ${getActionMessage(true)}.`
+            `Profile '${user.name}' has been ${getActionMessage(true)}.`
           );
         },
         onError: () => {

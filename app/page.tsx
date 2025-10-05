@@ -50,14 +50,14 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 py-6">
-              <Button
+              {/* <Button
                 variant="outline"
                 className="border border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-2.5 rounded-lg transition-colors duration-200 flex items-center gap-2"
                 onClick={handleDownload}
               >
                 <Download className="h-4 w-4" />
                 Download RUDRA App
-              </Button>
+              </Button> */}
 
               <Link href="/login">
                 <Button className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-2.5 rounded-lg transition-colors duration-200 flex items-center gap-2">

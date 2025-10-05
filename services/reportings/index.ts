@@ -1,18 +1,28 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import dayjs from "dayjs";
 import axios from "@/services/api-instance";
-import { useReportingsPagination } from "@/store/pagination/useReportingsPagination";
+import { useReportingsFilters } from "@/store/useReportingsFilters";
 
 export const useGetReportings = (
-  submittedBy?: string,
   fromDate?: Date,
   toDate?: Date,
   enabled?: boolean
 ) => {
-  const { initializeStore, currentPage } = useReportingsPagination();
+  const search = useSearchParams();
+  const { initializeStore, currentPage, districts } = useReportingsFilters();
+  const joinedDistricts = districts?.join(",");
   const nextPage = currentPage + 1;
+  const submittedBy = search.get("id") || undefined;
   return useQuery({
-    queryKey: ["reportings", submittedBy, fromDate, toDate, currentPage],
+    queryKey: [
+      "reportings",
+      submittedBy,
+      joinedDistricts,
+      fromDate,
+      toDate,
+      currentPage,
+    ],
     queryFn: async () => {
       const response = await axios({
         method: "GET",
@@ -21,6 +31,7 @@ export const useGetReportings = (
           (submittedBy ? `submittedBy=${submittedBy}` : "") +
           (fromDate ? `&from=${dayjs(fromDate).format("YYYY-MM-DD")}` : "") +
           (toDate ? `&to=${dayjs(toDate).format("YYYY-MM-DD")}` : "") +
+          (joinedDistricts ? `&districts=${joinedDistricts}` : "") +
           (currentPage ? `&page=${nextPage}` : ""),
       });
       const { pagination } = response.data;

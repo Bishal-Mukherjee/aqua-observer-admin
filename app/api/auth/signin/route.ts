@@ -12,7 +12,6 @@ const signinSchema = Joi.object({
       "any.required": "Phone number is required",
       "string.pattern.base": "Invalid phone number",
     }),
-  isTest: Joi.boolean().optional(),
 });
 
 export const POST = async (request: NextRequest) => {
@@ -27,7 +26,7 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    const { phoneNumber, isTest } = body;
+    const { phoneNumber } = body;
 
     const query = await pool.query(
       "SELECT id, role FROM users WHERE phone_number = $1",
@@ -45,16 +44,13 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    // TODO: remove this condition
-    if (!isTest) {
-      const sendCodeResponse = await sendCode(phoneNumber);
+    const sendCodeResponse = await sendCode(phoneNumber);
 
-      if (sendCodeResponse.status !== "pending") {
-        return NextResponse.json(
-          { error: "Failed to send OTP" },
-          { status: 500 }
-        );
-      }
+    if (sendCodeResponse.status !== "pending") {
+      return NextResponse.json(
+        { error: "Failed to send OTP" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(

@@ -40,7 +40,7 @@ const getSpeciesDisplayColor = (speciesType: string) => {
     GHARIAL: "bg-purple-100 text-purple-800 border-purple-300",
     IRRAWADDY_DOLPHIN: "bg-blue-100 text-blue-800 border-blue-300",
     SMOOTH_COATED_OTTER: "bg-indigo-100 text-indigo-800 border-indigo-300",
-    GANGETIC_DOLPHIN: "bg-cyan-100 text-cyan-800 border-cyan-300",
+    GANGES_RIVER_DOLPHIN: "bg-cyan-100 text-cyan-800 border-cyan-300",
     ASIAN_OPEN_BILL_STROK: "bg-rose-50 text-rose-800 border-rose-300",
   };
   return colorMap[speciesType] || "bg-gray-100 text-gray-800 border-gray-300";

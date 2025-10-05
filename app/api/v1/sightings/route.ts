@@ -12,9 +12,19 @@ export const GET = withAuth(
       const submittedBy = searchParams.get("submittedBy");
       const from = searchParams.get("from");
       const to = searchParams.get("to");
+      const districtsParam = searchParams.get("districts");
       const page = parseInt(searchParams.get("page") || "1");
       const limit = 10;
       const offset = (page - 1) * limit;
+
+      let districts = null;
+
+      if (districtsParam) {
+        districts = districtsParam
+          .split(",")
+          .map((d) => d.trim())
+          .filter((d) => d);
+      }
 
       const client = await pool.connect();
 
@@ -41,6 +51,14 @@ export const GET = withAuth(
           }::date + INTERVAL '1 day' - INTERVAL '1 second'`
         );
         queryParams.push(to);
+      }
+
+      if (districts && districts.length > 0) {
+        const districtPlaceholders = districts
+          .map((_, index) => `$${queryParams.length + index + 1}`)
+          .join(",");
+        conditions.push(`s.district IN (${districtPlaceholders})`);
+        queryParams.push(...districts);
       }
 
       if (conditions.length > 0) {

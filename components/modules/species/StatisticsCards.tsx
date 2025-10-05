@@ -3,7 +3,6 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { BarChart3, Bird, Fish, Worm } from "lucide-react";
-import StatisticsCardsSkeleton from "@/components/modules/species/LoadingSkeletons/StatisticsCardsSkeleton";
 import { cn } from "@/lib/utils";
 
 interface StatisticsCardsProps {
@@ -13,7 +12,6 @@ interface StatisticsCardsProps {
   reptileCount: number;
   selectedCategory?: string;
   onCardClick: (category: string) => void;
-  isLoading?: boolean;
 }
 
 export default function StatisticsCards({
@@ -23,9 +21,7 @@ export default function StatisticsCards({
   reptileCount,
   selectedCategory,
   onCardClick,
-  isLoading,
 }: StatisticsCardsProps) {
-  if (isLoading) return <StatisticsCardsSkeleton />;
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
       <Card

@@ -8,6 +8,7 @@ interface User {
   gender: string;
   role: string;
   status: string;
+  lastActiveAt: string;
 }
 
 interface AuthState {

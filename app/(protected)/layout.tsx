@@ -9,6 +9,9 @@ import Navbar from "@/components/layout/Navbar";
 import { useSidebar } from "@/store/useSidebar";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/store/useAuth";
+import { useGetDistricts } from "@/services/region";
+import { useGetSpecies } from "@/services/species";
+import { useGetTiers } from "@/services/tiers";
 // import { createClient } from "@supabase/supabase-js";
 
 // const supabase = createClient(
@@ -25,6 +28,10 @@ export default function AuthenticatedLayout({
 
   const { user } = useAuth();
   const { isCollapsed } = useSidebar();
+
+  useGetDistricts();
+  useGetSpecies();
+  useGetTiers();
 
   //   useEffect(() => {
   //     if (user) {

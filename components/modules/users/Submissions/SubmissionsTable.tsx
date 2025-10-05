@@ -398,61 +398,6 @@ export default function SubmissionsTable({
 
               {/* Date Range Filters */}
               <div className="flex items-center gap-2">
-                {/* Start Date */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-[140px] justify-start text-left font-normal bg-white",
-                        !startDate && "text-muted-foreground"
-                      )}
-                      disabled={isLoading}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {startDate
-                        ? dayjs(startDate).format("MMM DD")
-                        : "Start date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={startDate}
-                      onSelect={setStartDate}
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                {/* End Date */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-[140px] justify-start text-left font-normal bg-white",
-                        !endDate && "text-muted-foreground"
-                      )}
-                      disabled={!startDate || isLoading}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {endDate ? dayjs(endDate).format("MMM DD") : "End date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={endDate}
-                      onSelect={setEndDate}
-                      disabled={(date) =>
-                        startDate
-                          ? dayjs(date).isBefore(dayjs(startDate))
-                          : false
-                      }
-                    />
-                  </PopoverContent>
-                </Popover>
-
                 {/* District Multi-Select Filter */}
                 <div className="min-w-[280px]">
                   <MultiSelect

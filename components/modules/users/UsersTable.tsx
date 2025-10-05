@@ -197,7 +197,7 @@ export default function UsersTable({
     () => [
       {
         accessorKey: "name",
-        header: "User",
+        header: "Profile",
         cell: ({ row }) => (
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-semibold text-sm">

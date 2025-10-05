@@ -20,6 +20,7 @@ const verifyOtpSchema = Joi.object({
     "any.required": "OTP code is required",
     "string.length": "OTP code must be exactly 6 digits",
   }),
+  rememberMe: Joi.boolean().optional(),
 });
 
 const WILDCARD_CODE = "000000";
@@ -36,10 +37,10 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    const { phoneNumber, code } = body;
+    const { phoneNumber, code, rememberMe = false } = body;
 
     const query = await pool.query(
-      `SELECT id, name, phone_number AS "phoneNumber", gender, role, status FROM users WHERE phone_number = $1`,
+      `SELECT id, name, phone_number AS "phoneNumber", gender, role, status, last_active_at AS "lastActiveAt" FROM users WHERE phone_number = $1`,
       [phoneNumber]
     );
 
@@ -47,19 +48,18 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    // TODO: remove this condition
-    if (code !== WILDCARD_CODE) {
-      const verifyResponse = await verifyCode(phoneNumber, code);
+    const verifyResponse = await verifyCode(phoneNumber, code);
 
-      if (verifyResponse.status !== "approved") {
-        return NextResponse.json(
-          { error: "Invalid OTP code" },
-          { status: 401 }
-        );
-      }
+    if (verifyResponse.status !== "approved") {
+      return NextResponse.json({ error: "Invalid OTP code" }, { status: 401 });
     }
 
     const user = query.rows[0];
+
+    const accessTokenExpiresIn = rememberMe ? "30d" : "1d";
+    const refreshTokenExpiresInMs = rememberMe
+      ? 30 * 24 * 60 * 60 * 1000
+      : 7 * 24 * 60 * 60 * 1000;
 
     const accessToken = jwt.sign(
       {
@@ -67,7 +67,7 @@ export const POST = async (request: NextRequest) => {
       },
       config.jwtSecret,
       {
-        expiresIn: "1d",
+        expiresIn: accessTokenExpiresIn,
       }
     );
 
@@ -76,11 +76,11 @@ export const POST = async (request: NextRequest) => {
 
     await pool.query(
       `INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at) 
-		 VALUES ($1, $2, $3, NOW())`,
+         VALUES ($1, $2, $3, NOW())`,
       [
         user.id,
         refreshTokenHash,
-        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        new Date(Date.now() + refreshTokenExpiresInMs),
       ]
     );
 

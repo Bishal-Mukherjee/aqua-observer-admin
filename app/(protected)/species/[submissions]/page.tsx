@@ -4,23 +4,22 @@ import React, { useState } from "react";
 import { redirect, useParams, useSearchParams } from "next/navigation";
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { useGetSpecies, useGetSpeciesSubmissions } from "@/services/species";
+import { useGetSpeciesSubmissions } from "@/services/species";
 import { useSpeciesSubmissionPagination } from "@/store/pagination/useSpeciesSubmissionPagination";
 import SubmissionsTable from "@/components/common/SubmissionsTable";
 import RouteBreadcrumbs from "@/components/layout/RouteBreadcrumbs";
 import SubmissionDialog from "@/components/common/SubmissionDialog";
-
-// TODO: integrate date range picker
+import { useSpecies } from "@/store/useSpecies";
 
 export default function SpeciesSubmissionsPage() {
   const { submissions } = useParams();
   const search = useSearchParams();
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  const { currentPage, setCurrentPage, totalRecords } =
+  const { currentPage, setCurrentPage, totalRecords, districts, setDistricts } =
     useSpeciesSubmissionPagination();
 
-  const { data: species, isLoading: isLoadingSpecies } = useGetSpecies();
+  const { species } = useSpecies();
 
   const [submissionId, setSubmissionId] = useState<string | null>(null);
 
@@ -28,14 +27,11 @@ export default function SpeciesSubmissionsPage() {
     submissions === "reportings" ? "reportings" : "sightings";
 
   const { data, isLoading } = useGetSpeciesSubmissions(
-    submissionType,
-    search.get("species") || "",
     dateRange?.from,
     dateRange?.to
   );
 
   const results = data?.result || [];
-  const speciesData = species?.result || [];
 
   const handleSelect = (id: string) => setSubmissionId(id);
 
@@ -44,6 +40,14 @@ export default function SpeciesSubmissionsPage() {
   if (!search.get("species")) {
     redirect("/species");
   }
+
+  const onClearDateRange = () => setDateRange(undefined);
+
+  const pagination = {
+    pageIndex: currentPage,
+    pageSize: 10,
+    totalRecords,
+  };
 
   return (
     <>
@@ -59,23 +63,23 @@ export default function SpeciesSubmissionsPage() {
           />
         </div>
         <SubmissionsTable
-          isLoading={isLoading || isLoadingSpecies}
+          isLoading={isLoading}
+          dateRange={dateRange}
+          onClearDateRange={onClearDateRange}
           entries={results}
-          pagination={{
-            pageIndex: currentPage,
-            pageSize: 10,
-            totalRecords,
-          }}
+          pagination={pagination}
           setPagination={setCurrentPage}
           onSelect={handleSelect}
           showSpecies={false}
           showDateFilter={false}
+          selectedDistricts={districts}
+          setSelectedDistricts={setDistricts}
         />
       </div>
       <SubmissionDialog
         onClose={onClose}
         submissionId={submissionId}
-        speciesData={speciesData}
+        speciesData={species}
         type={submissionType === "reportings" ? "REPORTING" : "SIGHTING"}
       />
     </>

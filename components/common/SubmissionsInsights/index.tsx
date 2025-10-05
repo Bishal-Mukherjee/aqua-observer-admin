@@ -3,6 +3,8 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
+import { isEmpty } from "lodash";
+import { PieChart, Map } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { default as ReportingSpeciesDistribution } from "@/components/modules/reportings/SpeciesDistributionPieChart";
 import { default as SightingSpeciesDistribution } from "@/components/modules/sightings/SpeciesDistributionPieChart";
@@ -17,6 +19,24 @@ interface InsightsProps {
   data: any[];
   isLoading: boolean;
   onSelect: (id: string) => void;
+}
+
+function SpeciesDistributionEmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2 h-full text-gray-400">
+      <PieChart className="w-12 h-12" />
+      <span className="text-sm">No species data available</span>
+    </div>
+  );
+}
+
+function SubmissionsMapEmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2 h-full text-gray-400">
+      <Map className="w-12 h-12" />
+      <span className="text-sm">No locations data available</span>
+    </div>
+  );
 }
 
 export default function Insights({ data, isLoading, onSelect }: InsightsProps) {
@@ -43,9 +63,21 @@ export default function Insights({ data, isLoading, onSelect }: InsightsProps) {
           ) : (
             <>
               {submissionType === "Reporting" ? (
-                <ReportingSpeciesDistribution data={data} />
+                <>
+                  {isEmpty(data) ? (
+                    <SpeciesDistributionEmptyState />
+                  ) : (
+                    <ReportingSpeciesDistribution data={data} />
+                  )}
+                </>
               ) : (
-                <SightingSpeciesDistribution data={data} />
+                <>
+                  {isEmpty(data) ? (
+                    <SpeciesDistributionEmptyState />
+                  ) : (
+                    <SightingSpeciesDistribution data={data} />
+                  )}
+                </>
               )}
             </>
           )}
@@ -63,12 +95,18 @@ export default function Insights({ data, isLoading, onSelect }: InsightsProps) {
           {isLoading ? (
             <SubmissionsMapSkeleton />
           ) : (
-            <InteractiveMap
-              isLoading={isLoading}
-              data={data}
-              title={mapTitle}
-              onLocationSelect={onSelect}
-            />
+            <>
+              {isEmpty(data) ? (
+                <SubmissionsMapEmptyState />
+              ) : (
+                <InteractiveMap
+                  isLoading={isLoading}
+                  data={data}
+                  title={mapTitle}
+                  onLocationSelect={onSelect}
+                />
+              )}
+            </>
           )}
         </CardContent>
       </Card>

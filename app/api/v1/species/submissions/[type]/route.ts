@@ -12,9 +12,18 @@ export const GET = withAuth(
     const species = searchParams.get("speciesValue");
     const from = searchParams.get("from");
     const to = searchParams.get("to");
+    const districtsParam = searchParams.get("districts");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = 10;
     const offset = (page - 1) * limit;
+
+    let districts = null;
+    if (districtsParam) {
+      districts = districtsParam
+        .split(",")
+        .map((d) => d.trim())
+        .filter((d) => d);
+    }
 
     if (!species) {
       return NextResponse.json(
@@ -53,6 +62,14 @@ export const GET = withAuth(
         );
         queryParams.push(to);
         paramIdx++;
+      }
+      if (districts && districts.length > 0) {
+        const districtPlaceholders = districts
+          .map((_, idx) => `$${paramIdx + idx}`)
+          .join(",");
+        conditions.push(`s.district IN (${districtPlaceholders})`);
+        queryParams.push(...districts);
+        paramIdx += districts.length;
       }
 
       const whereClause =

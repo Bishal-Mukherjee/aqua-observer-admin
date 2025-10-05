@@ -3,7 +3,6 @@
 import React, { Fragment } from "react";
 import { Helmet } from "react-helmet-async";
 import { DateRange } from "react-day-picker";
-import { useGetSpecies } from "@/services/species";
 import { useGetSightings, useGetSightingsInsights } from "@/services/sightings";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import RouteBreadcrumbs from "@/components/layout/RouteBreadcrumbs";
@@ -13,28 +12,39 @@ import Insights from "@/components/common/SubmissionsInsights";
 import SubmissionsTable from "@/components/common/SubmissionsTable";
 import SubmissionDialog from "@/components/common/SubmissionDialog";
 import { APP_NAME } from "@/constants/constants";
-import { useSightingsPagination } from "@/store/pagination/useSightingsPagination";
+import { useSightingsFilters } from "@/store/useSightingsFilters";
+import { useSpecies } from "@/store/useSpecies";
 
 export default function SubmissionSightingPage() {
-  const { currentPage, setCurrentPage, totalRecords } =
-    useSightingsPagination();
+  const { currentPage, setCurrentPage, totalRecords, districts, setDistricts } =
+    useSightingsFilters();
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
-  const { data, isLoading } = useGetSightings(
-    undefined,
-    dateRange?.from,
-    dateRange?.to
-  );
+  const { data, isLoading } = useGetSightings(dateRange?.from, dateRange?.to);
   const { data: insightsData } = useGetSightingsInsights(
     dateRange?.from,
     dateRange?.to
   );
-  const { data: speciesData } = useGetSpecies();
+  //   const { data: speciesData } = useGetSpecies();
+  const { species } = useSpecies();
 
   const [sightingId, setSightingId] = React.useState<string | null>(null);
 
   const handleSelect = (id: string) => setSightingId(id);
 
   const onClose = () => setSightingId(null);
+
+  const onClearDateRange = () => setDateRange(undefined);
+
+  const handleDistrictsChange = (districts: string[]) => {
+    setDistricts(districts);
+    setCurrentPage(0);
+  };
+
+  const pagination = {
+    pageIndex: currentPage,
+    pageSize: 10,
+    totalRecords,
+  };
 
   return (
     <Fragment>
@@ -67,15 +77,15 @@ export default function SubmissionSightingPage() {
           <div className="mt-4">
             <SubmissionsTable
               isLoading={isLoading}
+              dateRange={dateRange}
+              onClearDateRange={onClearDateRange}
               entries={data?.result || []}
               onSelect={handleSelect}
               showDateFilter={false}
-              pagination={{
-                pageIndex: currentPage,
-                pageSize: 10,
-                totalRecords,
-              }}
+              pagination={pagination}
               setPagination={setCurrentPage}
+              selectedDistricts={districts}
+              setSelectedDistricts={handleDistrictsChange}
             />
           </div>
         </div>
@@ -83,7 +93,7 @@ export default function SubmissionSightingPage() {
       <SubmissionDialog
         onClose={onClose}
         submissionId={sightingId}
-        speciesData={speciesData?.result || []}
+        speciesData={species || []}
         type="SIGHTING"
       />
     </Fragment>

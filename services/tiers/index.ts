@@ -1,7 +1,9 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "@/services/api-instance";
+import { useTiersStore } from "@/store/useTiers";
 
 export const useGetTiers = () => {
+  const { setTiers } = useTiersStore();
   return useQuery({
     queryKey: ["tiers"],
     queryFn: async () => {
@@ -9,6 +11,7 @@ export const useGetTiers = () => {
         method: "GET",
         url: "/tiers",
       });
+      setTiers(response.data?.result || []);
       return response.data;
     },
     staleTime: 5 * 60 * 1000,

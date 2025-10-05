@@ -1,9 +1,12 @@
+import { useParams, useSearchParams } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import axios from "@/services/api-instance";
 import { useSpeciesSubmissionPagination } from "@/store/pagination/useSpeciesSubmissionPagination";
+import { useSpecies } from "@/store/useSpecies";
 
 export const useGetSpecies = () => {
+  const { setSpecies } = useSpecies();
   return useQuery({
     queryKey: ["species"],
     queryFn: async () => {
@@ -11,7 +14,7 @@ export const useGetSpecies = () => {
         method: "GET",
         url: "/species",
       });
-
+      setSpecies(response.data?.result);
       return response.data;
     },
   });
@@ -43,18 +46,23 @@ export const useUpdateSpecies = () => {
   });
 };
 
-export const useGetSpeciesSubmissions = (
-  submissions: "reportings" | "sightings",
-  species: string = "",
-  fromDate?: Date,
-  toDate?: Date
-) => {
-  const { initializeStore, currentPage } = useSpeciesSubmissionPagination();
+export const useGetSpeciesSubmissions = (fromDate?: Date, toDate?: Date) => {
+  const { submissions } = useParams();
+  const search = useSearchParams();
+
+  const submissionType =
+    submissions === "reportings" ? "reportings" : "sightings";
+
+  const species = search.get("species") || "";
+  const { initializeStore, currentPage, districts } =
+    useSpeciesSubmissionPagination();
+  const joinedDistricts = districts?.join(",");
   const nextPage = currentPage + 1;
   return useQuery({
     queryKey: [
       "speciesSubmissions",
-      submissions,
+      submissionType,
+      joinedDistricts,
       species,
       fromDate,
       toDate,
@@ -64,9 +72,10 @@ export const useGetSpeciesSubmissions = (
       const response = await axios({
         method: "GET",
         url:
-          `/species/submissions/${submissions}?speciesValue=${species}` +
+          `/species/submissions/${submissionType}?speciesValue=${species}` +
           (fromDate ? `&from=${dayjs(fromDate).format("YYYY-MM-DD")}` : "") +
           (toDate ? `&to=${dayjs(toDate).format("YYYY-MM-DD")}` : "") +
+          (joinedDistricts ? `&districts=${joinedDistricts}` : "") +
           (currentPage ? `&page=${nextPage}` : ""),
       });
       const { pagination } = response.data;

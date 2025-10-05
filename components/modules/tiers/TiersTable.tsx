@@ -57,11 +57,11 @@ interface TierData {
   tier: string;
   title: {
     en: string;
-    bn: string;
+    bn?: string;
   };
   description: {
     en: string;
-    bn: string;
+    bn?: string;
   };
   modules: string;
   users: string;
@@ -72,7 +72,7 @@ interface TierData {
 
 interface TiersTableProps {
   tiers: TierData[];
-  isLoading: boolean;
+  isLoading?: boolean;
 }
 
 const getTierColor = (tierLevel: string) => {

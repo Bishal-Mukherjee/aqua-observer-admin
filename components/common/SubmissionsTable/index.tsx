@@ -35,15 +35,17 @@ import {
   Search,
   CalendarIcon,
   X,
-  Download,
+  //   Download,
 } from "lucide-react";
 import { getSpeciesDisplayColor } from "@/constants/colorMaps";
 import { cn } from "@/lib/utils";
+import { DateRange } from "react-day-picker";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { formatPhoneNumber } from "@/lib/strings";
+import { useDistrictStore } from "@/store/useDistricts";
 
 dayjs.extend(utc);
 dayjs.extend(isSameOrAfter);
@@ -89,10 +91,14 @@ dayjs.extend(isSameOrBefore);
 interface DataTableProps {
   isLoading?: boolean;
   entries: any[];
+  dateRange?: DateRange | undefined;
+  onClearDateRange?: () => void;
   onSelect: (id: string) => void;
   showSubmittedBy?: boolean;
   showDateFilter?: boolean;
   showSpecies?: boolean;
+  selectedDistricts?: string[];
+  setSelectedDistricts?: (districts: string[]) => void;
   pagination?: {
     pageIndex: number;
     pageSize: number;
@@ -168,110 +174,105 @@ const LoadingSkeletonRows = () => {
 };
 
 // CSV Export utility functions
-const escapeCSVField = (field: any): string => {
-  if (field === null || field === undefined) return "";
-  const stringField = String(field);
-  // Escape quotes and wrap in quotes if contains comma, quote, or newline
-  if (
-    stringField.includes('"') ||
-    stringField.includes(",") ||
-    stringField.includes("\n")
-  ) {
-    return `"${stringField.replace(/"/g, '""')}"`;
-  }
-  return stringField;
-};
+// const escapeCSVField = (field: any): string => {
+//   if (field === null || field === undefined) return "";
+//   const stringField = String(field);
+//   // Escape quotes and wrap in quotes if contains comma, quote, or newline
+//   if (
+//     stringField.includes('"') ||
+//     stringField.includes(",") ||
+//     stringField.includes("\n")
+//   ) {
+//     return `"${stringField.replace(/"/g, '""')}"`;
+//   }
+//   return stringField;
+// };
 
-const convertToCSV = (
-  data: any[],
-  showSubmittedBy: boolean,
-  showSpecies: boolean
-): string => {
-  if (data.length === 0) return "";
+// const convertToCSV = (
+//   data: any[],
+//   showSubmittedBy: boolean,
+//   showSpecies: boolean
+// ): string => {
+//   if (data.length === 0) return "";
 
-  // Define headers based on what columns are shown
-  const headers = [
-    "Observed At",
-    "Coordinates (Lat & Long)",
-    "Revenue Village",
-    "Block",
-    "District",
-    ...(showSpecies ? ["Species"] : []),
-    ...(showSubmittedBy ? ["Name", "Phone"] : []),
-    "Submitted At",
-  ];
+//   // Define headers based on what columns are shown
+//   const headers = [
+//     "Observed At",
+//     "Coordinates (Lat & Long)",
+//     "Revenue Village",
+//     "Block",
+//     "District",
+//     ...(showSpecies ? ["Species"] : []),
+//     ...(showSubmittedBy ? ["Name", "Phone"] : []),
+//     "Submitted At",
+//   ];
 
-  // Convert data to CSV rows
-  const csvRows = data.map((entry) => {
-    const speciesText = showSpecies
-      ? entry.species.map((s: any) => transformSpeciesName(s.type)).join("; ")
-      : "";
+//   // Convert data to CSV rows
+//   const csvRows = data.map((entry) => {
+//     const speciesText = showSpecies
+//       ? entry.species.map((s: any) => transformSpeciesName(s.type)).join("; ")
+//       : "";
 
-    const row = [
-      `${formatObservationDate(entry.observedAt)}, ${formatObservationTime(
-        entry.observedAt
-      )}`,
-      `${entry.latitude}, ${entry.longitude}`,
-      entry.villageOrGhat,
-      formatLocationName(entry.block),
-      formatLocationName(entry.district),
-      ...(showSpecies ? [speciesText] : []),
-      ...(showSubmittedBy
-        ? [entry.submittedBy.name, entry.submittedBy.phoneNumber]
-        : []),
-      `${formatObservationDate(entry.submittedAt)}, ${formatObservationTime(
-        entry.submittedAt
-      )}`,
-    ];
+//     const row = [
+//       `${formatObservationDate(entry.observedAt)}, ${formatObservationTime(
+//         entry.observedAt
+//       )}`,
+//       `${entry.latitude}, ${entry.longitude}`,
+//       entry.villageOrGhat,
+//       formatLocationName(entry.block),
+//       formatLocationName(entry.district),
+//       ...(showSpecies ? [speciesText] : []),
+//       ...(showSubmittedBy
+//         ? [entry.submittedBy.name, entry.submittedBy.phoneNumber]
+//         : []),
+//       `${formatObservationDate(entry.submittedAt)}, ${formatObservationTime(
+//         entry.submittedAt
+//       )}`,
+//     ];
 
-    return row.map(escapeCSVField).join(",");
-  });
+//     return row.map(escapeCSVField).join(",");
+//   });
 
-  // Combine headers and rows
-  return [headers.join(","), ...csvRows].join("\n");
-};
+//   // Combine headers and rows
+//   return [headers.join(","), ...csvRows].join("\n");
+// };
 
-const downloadCSV = (csvContent: string, filename: string) => {
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
+// const downloadCSV = (csvContent: string, filename: string) => {
+//   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+//   const link = document.createElement("a");
 
-  if (link.download !== undefined) {
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", filename);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }
-};
+//   if (link.download !== undefined) {
+//     const url = URL.createObjectURL(blob);
+//     link.setAttribute("href", url);
+//     link.setAttribute("download", filename);
+//     link.style.visibility = "hidden";
+//     document.body.appendChild(link);
+//     link.click();
+//     document.body.removeChild(link);
+//     URL.revokeObjectURL(url);
+//   }
+// };
 
 export default function SubmissionsTable({
   isLoading,
   entries,
+  dateRange = undefined,
+  onClearDateRange,
   onSelect,
   pagination = { pageIndex: 0, pageSize: 10, totalRecords: 0 },
   setPagination,
+  selectedDistricts = [],
+  setSelectedDistricts,
   showDateFilter = true, // Default to true
   showSubmittedBy = true, // Default to true
   showSpecies = true,
 }: DataTableProps) {
+  const { districts } = useDistrictStore();
   const [sortingState, setSortingState] = useState<SortingState>([]);
   const [filterState, setFilterState] = useState<ColumnFiltersState>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
-  const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
-
-  // Get unique districts for filter dropdown
-  const districtOptions = useMemo(() => {
-    const districts = [...new Set(entries.map((entry) => entry.district))];
-    return districts.sort().map((district) => ({
-      label: formatLocationName(district),
-      value: district,
-    }));
-  }, [entries]);
 
   // Custom filter function for date range, districts, and search term
   const filteredData = useMemo(() => {
@@ -297,13 +298,6 @@ export default function SubmissionsTable({
         }
         return isAfterStart && isBeforeEnd;
       });
-    }
-
-    // Apply district filter
-    if (selectedDistricts.length > 0) {
-      filtered = filtered.filter((entry) =>
-        selectedDistricts.includes(entry.district)
-      );
     }
 
     // Apply search term filter
@@ -334,7 +328,7 @@ export default function SubmissionsTable({
     }
 
     return filtered;
-  }, [entries, startDate, endDate, selectedDistricts, searchTerm]);
+  }, [entries, startDate, endDate, searchTerm]);
 
   const tableColumns: ColumnDef<any>[] = useMemo(
     () => [
@@ -477,24 +471,29 @@ export default function SubmissionsTable({
     setSearchTerm("");
     setStartDate(undefined);
     setEndDate(undefined);
-    setSelectedDistricts([]);
+    if (dateRange && onClearDateRange) onClearDateRange();
+    if (setSelectedDistricts) setSelectedDistricts([]);
   };
 
   const hasActiveFilters =
-    searchTerm || startDate || endDate || selectedDistricts.length > 0;
+    searchTerm ||
+    dateRange ||
+    startDate ||
+    endDate ||
+    selectedDistricts.length > 0;
 
-  const handleExportCSV = () => {
-    if (filteredData.length === 0) {
-      alert("No data to export");
-      return;
-    }
+  //   const handleExportCSV = () => {
+  //     if (filteredData.length === 0) {
+  //       alert("No data to export");
+  //       return;
+  //     }
 
-    const csvContent = convertToCSV(filteredData, showSubmittedBy, showSpecies);
-    const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss");
-    const filename = `submissions_${timestamp}.csv`;
+  //     const csvContent = convertToCSV(filteredData, showSubmittedBy, showSpecies);
+  //     const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss");
+  //     const filename = `submissions_${timestamp}.csv`;
 
-    downloadCSV(csvContent, filename);
-  };
+  //     downloadCSV(csvContent, filename);
+  //   };
 
   return (
     <>
@@ -520,7 +519,7 @@ export default function SubmissionsTable({
               {/* Right side controls */}
               <div className="flex items-center gap-2">
                 {/* Export Button */}
-                <Button
+                {/* <Button
                   variant="outline"
                   size="sm"
                   onClick={handleExportCSV}
@@ -529,7 +528,7 @@ export default function SubmissionsTable({
                 >
                   <Download className="h-4 w-4" />
                   Export CSV
-                </Button>
+                </Button> */}
 
                 {/* Date Range Filters */}
                 {showDateFilter && (
@@ -596,9 +595,11 @@ export default function SubmissionsTable({
                 {/* District Multi-Select Filter */}
                 <div className="min-w-[280px]">
                   <MultiSelect
-                    options={districtOptions}
+                    options={districts}
                     selected={selectedDistricts}
-                    onChange={setSelectedDistricts}
+                    onChange={(values) => {
+                      setSelectedDistricts?.(values);
+                    }}
                     placeholder="Select districts..."
                     maxDisplay={2}
                     disabled={isLoading}
@@ -613,6 +614,19 @@ export default function SubmissionsTable({
                 <span className="text-xs font-medium text-gray-500">
                   Active filters:
                 </span>
+                {dateRange && (
+                  <div className="flex items-center gap-1 bg-secondary text-secondary-foreground text-xs font-medium px-2 py-0.5 rounded-md">
+                    {dateRange.from && (
+                      <p>{dayjs(dateRange.from).format("MMM DD, YYYY")}</p>
+                    )}
+                    {dateRange.to && dateRange.from && (
+                      <span className="text-xs text-gray-500"> - </span>
+                    )}
+                    {dateRange.to && (
+                      <p>{dayjs(dateRange.to).format("MMM DD, YYYY")}</p>
+                    )}
+                  </div>
+                )}
                 {searchTerm && (
                   <Badge variant="secondary" className="text-xs">
                     Search: "{searchTerm}"

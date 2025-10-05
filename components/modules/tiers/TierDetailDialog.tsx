@@ -19,11 +19,11 @@ interface TierData {
   tier: string;
   title: {
     en: string;
-    bn: string;
+    bn?: string;
   };
   description: {
     en: string;
-    bn: string;
+    bn?: string;
   };
   modules: string;
   users: string;

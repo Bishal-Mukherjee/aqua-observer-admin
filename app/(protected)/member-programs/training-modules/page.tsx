@@ -16,8 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ModulesTable from "@/components/modules/training-modules/ModulesTable";
-import { useGetTiers } from "@/services/tiers";
 import { useGetModules } from "@/services/modules";
+import { useTiersStore } from "@/store/useTiers";
 import { useModulesPagination } from "@/store/pagination/useModulesPagination";
 import CreateModuleDialog from "@/components/modules/training-modules/CreateModule/CreateModuleDialog";
 import { APP_NAME } from "@/constants/constants";
@@ -52,16 +52,16 @@ export default function TrainingModulesPage() {
     searchParams.get("tier") || "ALL"
   );
 
-  const { data: tiersData, isLoading: isLoadingTiers } = useGetTiers();
+  const { tiers } = useTiersStore();
   const { data, isLoading: isLoadingModules } = useGetModules(selectedTier);
 
   const modules: Module[] = data?.result || [];
 
   // TODO: add 'ONBOARDING' tier to DB
-  const tiers = [
+  const tierOptions = [
     { label: "ONBOARDING", value: "ONBOARDING" },
-    ...(tiersData?.result?.map((t: { tier: string }) => ({
-      label: t.tier.split("_").join(" "),
+    ...(tiers?.map((t) => ({
+      label: t.tier.replace("TIER_", "Tier "),
       value: t.tier,
     })) || []),
   ];
@@ -128,14 +128,13 @@ export default function TrainingModulesPage() {
                     <Select
                       value={selectedTier}
                       onValueChange={handleFilterChange}
-                      disabled={isLoadingTiers}
                     >
                       <SelectTrigger className="bg-white">
                         <SelectValue placeholder="Select tier" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="ALL">All Tiers</SelectItem>
-                        {tiers.map((tier) => (
+                        {tierOptions.map((tier) => (
                           <SelectItem key={tier.value} value={tier.value}>
                             {tier.label.includes("_")
                               ? tier.label.split("_").join(" ")

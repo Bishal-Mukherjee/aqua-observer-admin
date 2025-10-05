@@ -2,15 +2,13 @@
 
 import React, { Fragment } from "react";
 import { Helmet } from "react-helmet-async";
-import { useGetTiers } from "@/services/tiers";
 import { APP_NAME } from "@/constants/constants";
 import RouteBreadcrumbs from "@/components/layout/RouteBreadcrumbs";
 import TiersTable from "@/components/modules/tiers/TiersTable";
+import { useTiersStore } from "@/store/useTiers";
 
 export default function TiersPage() {
-  const { data, isLoading } = useGetTiers();
-
-  const tiers = data?.result || [];
+  const { tiers } = useTiersStore();
 
   return (
     <Fragment>
@@ -22,7 +20,7 @@ export default function TiersPage() {
         <div className="mb-4">
           <RouteBreadcrumbs />
         </div>
-        <TiersTable tiers={tiers} isLoading={isLoading} />
+        <TiersTable tiers={tiers} />
       </div>
     </Fragment>
   );

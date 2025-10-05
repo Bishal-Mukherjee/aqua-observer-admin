@@ -22,7 +22,6 @@ import {
   //   Settings,
   LogOut,
   ChevronLeft,
-  Bell,
   Siren,
   ChevronDown,
   ChevronRight,
@@ -102,7 +101,7 @@ export const navData: NavItem[] = [
   },
   {
     id: "users",
-    title: "Users",
+    title: "Profiles",
     path: "/users",
     icon: Users,
     badge: null,
@@ -126,7 +125,6 @@ export const navData: NavItem[] = [
   //     title: "Reports",
   //     path: "/reports",
   //     icon: BarChart3,
-  //     badge: "5",
   //   },
 ];
 
@@ -213,9 +211,6 @@ export default function Sidebar() {
                 </p>
               )}
             </div>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <Bell className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       ) : (
@@ -230,7 +225,7 @@ export default function Sidebar() {
       )}
 
       {/* Navigation */}
-      <ScrollArea className="h-[calc(96vh-16rem)] p-4">
+      <ScrollArea className="h-[calc(96vh-10rem)] p-4">
         {!isCollapsed && (
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
             Overview

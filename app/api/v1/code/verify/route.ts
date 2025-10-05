@@ -17,8 +17,6 @@ const verifyCodeSchema = Joi.object({
   }),
 });
 
-const WILDCARD_CODE = "000000";
-
 export const POST = withAuth(async (request: NextRequest): Promise<any> => {
   try {
     const body = await request.json();
@@ -34,16 +32,10 @@ export const POST = withAuth(async (request: NextRequest): Promise<any> => {
 
     const { phoneNumber, code } = body;
 
-    // TODO: remove this condition
-    if (code !== WILDCARD_CODE) {
-      const verifyResponse = await verifyCode(phoneNumber, code);
+    const verifyResponse = await verifyCode(phoneNumber, code);
 
-      if (verifyResponse.status !== "approved") {
-        return NextResponse.json(
-          { error: "Invalid OTP code" },
-          { status: 401 }
-        );
-      }
+    if (verifyResponse.status !== "approved") {
+      return NextResponse.json({ error: "Invalid OTP code" }, { status: 401 });
     }
 
     return NextResponse.json(

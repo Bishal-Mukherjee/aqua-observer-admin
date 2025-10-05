@@ -94,3 +94,48 @@ export const GET = withAuth(
     }
   }
 );
+
+export const PUT = withAuth(
+  async (
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+  ) => {
+    const resolvedParams = await params;
+    if (!resolvedParams.id) {
+      return NextResponse.json({ error: "Missing sighting ID" }, { status: 400 });
+    }
+    try {
+      const client = await pool.connect();
+
+      const query = await client.query(
+        'SELECT id, is_valid AS "isValid" FROM sightings WHERE id=$1',
+        [resolvedParams.id]
+      );
+
+      if (query.rows.length === 0) {
+        return NextResponse.json(
+          { error: "Report not found" },
+          { status: 404 }
+        );
+      }
+
+      const { isValid } = query.rows[0];
+
+      await client.query(`UPDATE sightings SET is_valid = $2 WHERE id = $1`, [
+        resolvedParams.id,
+        !isValid,
+      ]);
+      client.release();
+      return NextResponse.json(
+        { message: "Sighting status updated successfully" },
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error("Error updating sighting status:", error);
+      return NextResponse.json(
+        { error: "Internal Server Error" },
+        { status: 500 }
+      );
+    }
+  }
+);

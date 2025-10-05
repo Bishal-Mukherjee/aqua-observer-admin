@@ -1,10 +1,18 @@
 "use client";
 
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin } from "lucide-react";
+import { APP_NAME } from "@/constants/constants";
+import { useAuth } from "@/store/useAuth";
+
+dayjs.extend(utc);
 
 export default function GreetingSection() {
+  const { user } = useAuth();
+  const isToday = dayjs().isSame(dayjs(user?.lastActiveAt), "day");
   return (
     <Card className="lg:col-span-7 border-0 shadow-none relative overflow-hidden h-62">
       {/* Background Image */}
@@ -21,16 +29,25 @@ export default function GreetingSection() {
 
       <CardContent className="relative z-10 p-6 pt-2">
         <div className="flex items-center justify-between">
-          <div className="space-y-5">
-            <h1 className="text-3xl font-bold text-white">🌊 Hi! Admin</h1>
+          <div className="space-y-3">
+            <h1 className="text-2xl font-semibold text-white">
+              🌊 Welcome to {APP_NAME},
+            </h1>
             <p className="text-white/90 text-lg max-w-md">
               Monitoring the rich biodiversity of West Bengal's rivers and
               coastal regions.
             </p>
             <div className="flex items-center space-x-4 mt-4">
-              <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
+              <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm p-1.5">
                 <Calendar className="h-3 w-3 mr-1" />
-                Last sync: Today, 2:30 PM
+                Last sync:{" "}
+                {isToday
+                  ? "Today, "
+                  : dayjs
+                      .utc(user?.lastActiveAt)
+                      .local()
+                      .format("MMM D, YYYY, ")}{" "}
+                {dayjs.utc(user?.lastActiveAt).local().format("hh:mm A")}
               </Badge>
             </div>
           </div>
@@ -41,7 +58,7 @@ export default function GreetingSection() {
                 <span className="text-sm text-white/70">Current Coverage</span>
               </div>
               <div className="text-2xl font-bold text-white">
-                23 Active Districts
+                23 Active Districts of West Bengal
               </div>
               <div className="text-sm text-white/80">
                 Monitoring Hooghly, Murshidabad, Howrah, South 24 Parganas and

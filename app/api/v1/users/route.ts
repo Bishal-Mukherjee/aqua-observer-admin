@@ -113,7 +113,7 @@ export const POST = withAuth(async (request: NextRequest): Promise<any> => {
 
     return Response.json(
       {
-        message: "User created successfully",
+        message: "Profile created successfully",
         result: query.rows[0],
       },
       { status: 201 }

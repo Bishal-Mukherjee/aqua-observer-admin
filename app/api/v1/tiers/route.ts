@@ -79,9 +79,9 @@ export const POST = withAuth(async (request) => {
       a.tier.localeCompare(b.tier)
     )[existingTiers.length - 1];
 
-    const upcomingTier = `TIER_${
-      parseInt(lastAddedTier.tier.split("_")[1]) + 1
-    }`;
+    const upcomingTier = isEmpty(existingTiers)
+      ? "TIER_1"
+      : `TIER_${parseInt(lastAddedTier.tier.split("_")[1]) + 1}`;
 
     const sql = `
       INSERT INTO tiers (tier, title_en, title_bn, description_en, description_bn)
