@@ -85,6 +85,14 @@ const transformSpeciesName = (rawType: string) => {
     .join(" ");
 };
 
+const formatCause = (cause: string) => {
+  return cause
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
 const formatLocationName = (location: string) => {
   return location.replace(/_/g, " ");
 };
@@ -142,7 +150,7 @@ const ageGroupMap: Record<string, string> = {
 };
 
 // Component for rendering species data for reporting (with conditions)
-const ReportingSpeciesCard = ({ species, speciesData }: any) => {
+const ReportingSpeciesCard = ({ species, speciesData, causes }: any) => {
   const mergedSpeciesData = useMemo(() => {
     if (!species || !speciesData) return [];
 
@@ -151,25 +159,61 @@ const ReportingSpeciesCard = ({ species, speciesData }: any) => {
         (s: any) => s.value === speciesItem.type
       )?.ageGroup;
 
-      if (ageGroup === "trio") {
-        return {
-          type: speciesItem.type,
-          data: {
-            adultMale: speciesItem.adultMale,
-            adultFemale: speciesItem.adultFemale,
-            subAdult: speciesItem.subAdult,
-          },
-        };
-      }
       return {
         type: speciesItem.type,
-        data: {
-          adult: speciesItem.adult,
-          subAdult: speciesItem.subAdult,
-        },
+        data:
+          ageGroup === "trio"
+            ? {
+                adultMale: speciesItem.adultMale,
+                adultFemale: speciesItem.adultFemale,
+                subAdult: speciesItem.subAdult,
+              }
+            : {
+                adult: speciesItem.adult,
+                subAdult: speciesItem.subAdult,
+              },
+        causes:
+          causes?.find((cause: any) => cause.species === speciesItem.type) ||
+          {},
       };
     });
-  }, [species, speciesData]);
+  }, [species, speciesData, causes]);
+
+  // Optimized: Render causes for a species
+  const renderCauses = (speciesType: string) => {
+    const speciesCauses =
+      mergedSpeciesData.find((s: any) => s.type === speciesType)?.causes || {};
+    const { cause = [], otherCause } = speciesCauses;
+
+    if ((!cause || cause.length === 0) && !otherCause) return null;
+
+    return (
+      <div className="mt-4 w-full flex items-center gap-2">
+        <h4 className="text-xs font-medium text-gray-600">Causes:</h4>
+        <div className="flex flex-wrap gap-1">
+          {cause
+            ?.filter((c: string) => c !== "OTHER")
+            .map((c: string, idx: number) => (
+              <Badge
+                key={idx}
+                variant="outline"
+                className="bg-amber-50 text-amber-800 border-amber-300 text-xs"
+              >
+                {formatCause(c)}
+              </Badge>
+            ))}
+          {otherCause && (
+            <Badge
+              variant="outline"
+              className="bg-gray-50 text-gray-800 border-gray-300 text-xs"
+            >
+              {otherCause}
+            </Badge>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-2">
@@ -209,6 +253,8 @@ const ReportingSpeciesCard = ({ species, speciesData }: any) => {
                 </div>
               ))}
             </div>
+
+            {renderCauses(species.type)}
           </CardContent>
         </Card>
       ))}
@@ -656,7 +702,8 @@ export default function SubmissionDialog({
                       <SightingSpeciesCard species={reportData.species} />
                     ) : (
                       <ReportingSpeciesCard
-                        species={reportData.species}
+                        species={reportData?.species}
+                        causes={reportData?.causes}
                         speciesData={speciesData}
                       />
                     )}

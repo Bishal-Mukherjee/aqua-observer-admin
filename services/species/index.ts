@@ -2,8 +2,8 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import axios from "@/services/api-instance";
-import { useSpeciesSubmissionPagination } from "@/store/pagination/useSpeciesSubmissionPagination";
 import { useSpecies } from "@/store/useSpecies";
+import { useSpeciesSubmissionPagination } from "@/store/pagination/useSpeciesSubmissionPagination";
 
 export const useGetSpecies = () => {
   const { setSpecies } = useSpecies();
@@ -15,6 +15,20 @@ export const useGetSpecies = () => {
         url: "/species",
       });
       setSpecies(response.data?.result);
+      return response.data;
+    },
+  });
+};
+
+export const useCreateSpecies = () => {
+  return useMutation({
+    mutationKey: ["createSpecies"],
+    mutationFn: async (data: any) => {
+      const response = await axios({
+        method: "POST",
+        url: "/species",
+        data,
+      });
       return response.data;
     },
   });

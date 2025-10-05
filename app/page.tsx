@@ -3,31 +3,36 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Helmet } from "react-helmet-async";
-import { Download, LogIn, Users, BarChart3, Database } from "lucide-react";
+import {
+  // Download,
+  LogIn,
+  Users,
+  BarChart3,
+  Database,
+} from "lucide-react";
 import { APP_NAME } from "@/constants/constants";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  const handleDownload = () => {
-    const link = document.createElement("a");
-    //   link.href =
-    //     "https://rudratracker-storage.s3.ap-south-1.amazonaws.com/rudra-app.apk";
-    link.href =
-      "https://txzuyrbzkwatgdlurvgp.supabase.co/storage/v1/object/public/aqua-observer-bucket/packages/rudra-app.apk";
-    link.download = "rudra.apk";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
+  //   const handleDownload = () => {
+  //     const link = document.createElement("a");
+  //     //   link.href =
+  //     //     "https://rudratracker-storage.s3.ap-south-1.amazonaws.com/rudra-app.apk";
+  //     link.href =
+  //       "https://txzuyrbzkwatgdlurvgp.supabase.co/storage/v1/object/public/aqua-observer-bucket/packages/rudra-app.apk";
+  //     link.download = "rudra.apk";
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   };
   return (
     <>
       <Helmet>
-        <title>{APP_NAME} - Dashboard</title>
+        <title>{APP_NAME} | ADMIN</title>
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex items-center justify-center py-3 pb-6 px-1">
-        <div className="max-w-5xl mx-auto px-4">
+        <div className="max-w-5xl mx-auto px-4 mt-4">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
               <Image
@@ -111,6 +116,22 @@ export default function Home() {
             <p className="text-sm text-gray-500 leading-relaxed">
               Supporting conservation research and biodiversity monitoring
               initiatives across freshwater and marine ecosystems.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <Image
+              src="/habitat-logo.png"
+              alt="Habitat Lens Logo"
+              width={40}
+              height={40}
+              className="mx-auto mt-16 rounded-xl"
+            />
+            <p className="text-sm text-gray-500 leading-relaxed text-center">
+              Developed and maintained by the{" "}
+              <span className="font-medium text-yellow-500">
+                Habitat Lens Pvt. Ltd.
+              </span>
             </p>
           </div>
         </div>

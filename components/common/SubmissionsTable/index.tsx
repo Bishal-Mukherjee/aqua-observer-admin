@@ -116,11 +116,11 @@ const transformSpeciesName = (rawType: string) => {
 };
 
 const formatObservationDate = (isoString: string) => {
-  return dayjs.utc(isoString).format("MMM DD, YYYY");
+  return dayjs.utc(isoString).local().format("MMM DD, YYYY");
 };
 
 const formatObservationTime = (isoString: string) => {
-  return dayjs.utc(isoString).format("hh:mm A");
+  return dayjs.utc(isoString).local().format("hh:mm A");
 };
 
 const formatLocationName = (location: string) => {

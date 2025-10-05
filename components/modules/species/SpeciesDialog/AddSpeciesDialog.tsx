@@ -22,10 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
-  CloudUpload,
   X,
   Plus,
   MapPin,
@@ -41,13 +39,14 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-// Add these imports if they exist in your project
-// import { useFileUpload } from "@/hooks/useFileUpload";
-// import validateUrl from "@/lib/validate-links";
+import { useFileUpload } from "@/hooks/useFileUpload";
+import { useCreateSpecies } from "@/services/species";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SpeciesFormData {
-  label_en: string;
-  label_bn: string;
+  labelEn: string;
+  labelBn: string;
   scientificName: string;
   category: string;
   conservationStatus: string;
@@ -129,11 +128,11 @@ const AGE_GROUP_OPTIONS = [
 
 // Validation schema using Yup
 const validationSchema = Yup.object({
-  label_en: Yup.string()
+  labelEn: Yup.string()
     .required("Common name is required")
     .min(2, "Common name must be at least 2 characters")
     .max(100, "Common name must be less than 100 characters"),
-  label_bn: Yup.string().nullable(),
+  labelBn: Yup.string().nullable(),
   scientificName: Yup.string().nullable(),
   category: Yup.string()
     .required("Category is required")
@@ -159,18 +158,20 @@ const validationSchema = Yup.object({
 });
 
 export const AddSpeciesDialog = () => {
+  const queryClient = useQueryClient();
+  const { mutate: createSpecies, isPending: isCreating } = useCreateSpecies();
+  const { uploadFile, isLoading: isUploading } = useFileUpload();
+
   const [newFeature, setNewFeature] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [imageMethod, setImageMethod] = useState<"upload" | "link">("link");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isValidatingImageUrl, setIsValidatingImageUrl] = useState(false);
-  // Uncomment if you have these hooks
-  // const { uploadFile, isLoading: isUploading } = useFileUpload();
 
   const formik = useFormik<SpeciesFormData>({
     initialValues: {
-      label_en: "",
-      label_bn: "",
+      labelEn: "",
+      labelBn: "",
       scientificName: "",
       category: "",
       conservationStatus: "",
@@ -182,8 +183,18 @@ export const AddSpeciesDialog = () => {
     },
     validationSchema,
     onSubmit: (values) => {
-      console.log("Species data submitted:", values);
-      handleClose();
+      createSpecies(values, {
+        onSuccess: () => {
+          toast.success("Species created successfully");
+        },
+        onError: (error: any) => {
+          toast.error("Error creating species");
+        },
+        onSettled: () => {
+          handleClose();
+          queryClient.invalidateQueries({ queryKey: ["species"] });
+        },
+      });
     },
   });
 
@@ -196,17 +207,15 @@ export const AddSpeciesDialog = () => {
     if (file) {
       setImageFile(file);
       // Uncomment and modify if you have file upload functionality
-      // const uploadedFile = await uploadFile("aqua-observer-bucket", file);
-      // if (uploadedFile?.publicURL) {
-      //   formik.setFieldValue("image", uploadedFile.publicURL);
-      // }
+      const uploadedFile = await uploadFile(
+        "platform-assets-bucket",
+        "species",
+        file
+      );
 
-      // For now, create a preview URL
-      const reader = new FileReader();
-      reader.onload = () => {
-        formik.setFieldValue("image", reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      if (uploadedFile?.publicURL) {
+        formik.setFieldValue("image", uploadedFile.publicURL);
+      }
     }
   };
 
@@ -321,39 +330,39 @@ export const AddSpeciesDialog = () => {
             {/* Basic Information */}
             <div className="grid grid-cols-3 gap-6 px-6">
               <div className="space-y-2">
-                <Label htmlFor="label_en">Common Name*</Label>
+                <Label htmlFor="labelEn">Common Name*</Label>
                 <Input
-                  id="label_en"
-                  name="label_en"
-                  value={formik.values.label_en}
+                  id="labelEn"
+                  name="labelEn"
+                  value={formik.values.labelEn}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   placeholder="e.g., Indian Skimmer"
-                  className={cn(isFieldInvalid("label_en") && "border-red-500")}
+                  className={cn(isFieldInvalid("labelEn") && "border-red-500")}
                 />
-                {getFieldError("label_en") && (
+                {getFieldError("labelEn") && (
                   <p className="text-xs text-red-500 flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" />
-                    {getFieldError("label_en")}
+                    {getFieldError("labelEn")}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="label_bn">Common Name (Bengali)</Label>
+                <Label htmlFor="labelBn">Common Name (Bengali)</Label>
                 <Input
-                  id="label_bn"
-                  name="label_bn"
-                  value={formik.values.label_bn}
+                  id="labelBn"
+                  name="labelBn"
+                  value={formik.values.labelBn}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   placeholder="e.g., ভারতীয় স্কিমার"
-                  className={cn(isFieldInvalid("label_bn") && "border-red-500")}
+                  className={cn(isFieldInvalid("labelBn") && "border-red-500")}
                 />
-                {getFieldError("label_bn") && (
+                {getFieldError("labelBn") && (
                   <p className="text-xs text-red-500 flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" />
-                    {getFieldError("label_bn")}
+                    {getFieldError("labelBn")}
                   </p>
                 )}
               </div>
@@ -489,10 +498,10 @@ export const AddSpeciesDialog = () => {
                 <p className="text-xs text-gray-600 ml-1">
                   {formik.values.ageGroup === "duo"
                     ? `For ${
-                        formik.values.label_en || "species"
+                        formik.values.labelEn || "species"
                       } submissions for 'Adult' and 'Subadult' will be made`
                     : `For ${
-                        formik.values.label_en || "species"
+                        formik.values.labelEn || "species"
                       } submissions for 'Adult Male', 'Adult Female', 'Subadult' will be made`}
                 </p>
               </div>
@@ -805,8 +814,17 @@ export const AddSpeciesDialog = () => {
               className="flex items-center gap-2"
               disabled={formik.isSubmitting || !formik.isValid}
             >
-              <Save className="h-4 w-4" />
-              Save Species
+              {isCreating ? (
+                <>
+                  <Loader className="animate-spin h-4 w-4" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4" />
+                  Save Species
+                </>
+              )}
             </Button>
           </DialogFooter>
         </form>

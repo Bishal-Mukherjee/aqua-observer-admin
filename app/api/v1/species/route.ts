@@ -149,8 +149,15 @@ export const POST = withAuth(async (request: NextRequest) => {
       ageGroup,
     } = body;
 
+    const lastAddedId = await pool.query(
+      "SELECT id FROM species ORDER BY id DESC LIMIT 1"
+    );
+
+    const newSpeciesId = lastAddedId.rows[0].id + 1;
+
     const sql = `
       INSERT INTO species (
+	    id,
         label_en,
         label_bn,
         value,
@@ -166,13 +173,14 @@ export const POST = withAuth(async (request: NextRequest) => {
         created_at,
         last_updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW());
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW());
     `;
 
     const values = [
+      newSpeciesId,
       labelEn,
       labelBn || null,
-      labelEn.toLowerCase().replace(/\s+/g, "_"),
+      labelEn.toUpperCase().replace(/\s+/g, "_"),
       scientificName || null,
       category,
       conservationStatus,
