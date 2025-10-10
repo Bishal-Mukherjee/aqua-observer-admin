@@ -18,7 +18,7 @@ export default function TierForm({
     <div className="w-[45vw] p-6 border-r border-gray-100">
       <form
         onSubmit={formik.handleSubmit}
-        className="space-y-4 flex flex-col h-full"
+        className="space-y-4 flex flex-col h-full overflow-y-auto pr-1"
       >
         <div>
           <label className="block text-sm font-medium mb-1">

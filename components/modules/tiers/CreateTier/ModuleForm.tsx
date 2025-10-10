@@ -429,7 +429,7 @@ export default function ModuleForm({
           </div>
 
           {/* Content */}
-          <div className="flex-1 px-6">
+          <div className="flex-1 px-6 overflow-y-auto">
             {currentStep === 1 && (
               <form
                 onSubmit={moduleFormik.handleSubmit}

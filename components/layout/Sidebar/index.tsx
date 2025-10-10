@@ -225,7 +225,7 @@ export default function Sidebar() {
       )}
 
       {/* Navigation */}
-      <ScrollArea className="h-[calc(96vh-10rem)] p-4">
+      <ScrollArea className="h-[calc(100vh-16rem)] p-4 pb-0">
         {!isCollapsed && (
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
             Overview

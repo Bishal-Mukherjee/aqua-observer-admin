@@ -27,7 +27,7 @@ export default function GreetingSection() {
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/50" />
 
-      <CardContent className="relative z-10 p-6 pt-2">
+      <CardContent className="relative z-10 p-6 px-4">
         <div className="flex items-center justify-between">
           <div className="space-y-3">
             <h1 className="text-2xl font-semibold text-white">
@@ -57,7 +57,7 @@ export default function GreetingSection() {
                 <MapPin className="h-4 w-4 text-white/70" />
                 <span className="text-sm text-white/70">Current Coverage</span>
               </div>
-              <div className="text-2xl font-bold text-white">
+              <div className="text-xl font-bold text-white">
                 23 Active Districts of West Bengal
               </div>
               <div className="text-sm text-white/80">

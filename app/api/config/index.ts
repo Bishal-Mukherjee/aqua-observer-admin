@@ -18,6 +18,11 @@ interface Config {
     host: string;
     port: number;
   };
+  supabase: {
+    url: string;
+    anonKey: string;
+    lookupBucket: string;
+  };
   jwtSecret: string;
 }
 
@@ -41,5 +46,10 @@ export const config: Config = {
     password: process.env.REDIS_PASSWORD || "",
     host: process.env.REDIS_HOST || "",
     port: Number(process.env.REDIS_PORT),
+  },
+  supabase: {
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+    anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+    lookupBucket: process.env.NEXT_PUBLIC_LOOKUP_BUCKET || "",
   },
 };

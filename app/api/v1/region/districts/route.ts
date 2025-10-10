@@ -1,18 +1,18 @@
+import axios from "axios";
 import { NextResponse } from "next/server";
-import { redisClient } from "@/app/api/config/redis";
 import { withAuth } from "@/app/api/lib/with-auth";
+import { config } from "@/app/api/config";
 
 export const GET = withAuth(async () => {
   try {
-    const districts = (await redisClient.call(
-      "JSON.GET",
-      "districts"
-    )) as string;
+    const url = `${config.supabase.url}/storage/v1/object/${config.supabase.lookupBucket}/districts.json`;
 
-    if (districts) {
+    const districts = await axios({ url, method: "GET" });
+
+    if (districts.data?.length) {
       return NextResponse.json({
         message: "Districts fetched successfully",
-        result: JSON.parse(districts),
+        result: districts.data,
       });
     }
 
