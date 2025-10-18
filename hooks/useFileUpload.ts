@@ -1,10 +1,5 @@
 import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""; // Replace with your Supabase URL
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""; // Replace with your Supabase anon key
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from "@/lib/supabase";
 
 export const useFileUpload = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -40,9 +35,5 @@ export const useFileUpload = () => {
     }
   };
 
-  return {
-    uploadFile,
-    isLoading,
-    error,
-  };
+  return { uploadFile, isLoading, error };
 };

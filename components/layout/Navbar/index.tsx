@@ -30,12 +30,12 @@ const getPageInfo = (pathname: string) => {
         title: "Dashboard Overview",
         description: "Quick stats and recent activity at a glance",
       };
-    case "sighting":
+    case "sightings":
       return {
         title: "Sightings",
         description: "Browse and manage all recorded sightings",
       };
-    case "reporting":
+    case "reportings":
       return {
         title: "Reportings",
         description: "Browse and manage all recorded reportings",

@@ -32,7 +32,6 @@ import {
   Skull,
   AlertOctagon,
   CheckCircle,
-  //   Eye,
   Droplets,
   Cloud,
   Shield,
@@ -57,6 +56,8 @@ import DetailedDialogSkeleton, {
   MapSkeleton,
 } from "@/components/common/SubmissionDialog/Skeleton";
 import ActionAlert from "@/components/common/SubmissionDialog/ActionAlert";
+import { SignedImage } from "@/components/common/SignedImage";
+
 const SubmissionMap = dynamic(
   () => import("@/components/common/SubmissionDialog/SubmissionMap"),
   {
@@ -496,6 +497,41 @@ export default function SubmissionDialog({
     }
   };
 
+  const handleImageClick = (
+    e: React.MouseEvent<HTMLImageElement>,
+    imageUrl: string
+  ) => {
+    const win = window.open("", "_blank");
+    if (win) {
+      win.document.write(`
+      <html>
+        <head>
+          <title>Image Preview</title>
+          <style>
+            body {
+              margin: 0;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              height: 100vh;
+              background: #000000;
+            }
+            img {
+              width: 60vw;
+              height: 60vh;
+			  object-fit: contain;
+              display: block;
+            }
+          </style>
+        </head>
+        <body>
+          <img src="${imageUrl}" alt="Preview" />
+        </body>
+      </html>
+    `);
+    }
+  };
+
   const handleConfirm = () => {
     if (submissionId) {
       const mutation =
@@ -736,13 +772,28 @@ export default function SubmissionDialog({
                           (image: string, index: number) => (
                             <div
                               key={index}
-                              className="aspect-video bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-center hover:shadow-sm transition-shadow overflow-hidden"
+                              className="aspect-video bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-center hover:shadow-sm transition-shadow overflow-hidden cursor-pointer"
+                              role="button"
                             >
-                              <img
-                                src={image}
-                                alt={`Observation ${index + 1}`}
-                                className="w-full h-full object-cover rounded-lg"
-                              />
+                              {image?.includes("https") ? (
+                                <img
+                                  src={image}
+                                  alt={`submission-image-${index + 1}`}
+                                  className="w-full h-full object-cover rounded-lg"
+                                  onClick={(e) => handleImageClick(e, image)}
+                                />
+                              ) : (
+                                <SignedImage
+                                  src={image}
+                                  alt={`submission-image-${index + 1}`}
+                                  className="w-full h-full object-cover rounded-lg hover:scale-105 transition-transform"
+                                  width={400}
+                                  height={225}
+                                  onClick={(e, imageUrl) =>
+                                    handleImageClick(e, imageUrl)
+                                  }
+                                />
+                              )}
                             </div>
                           )
                         )}

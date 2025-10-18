@@ -52,5 +52,6 @@ export const config = {
     "/api/v1/reportings/:path*",
     "/api/v1/sightings/:path*",
     "/api/v1/home/:path*",
+    "/api/v1/resources/:path*",
   ], // Only protect /admin routes
 };
