@@ -417,6 +417,7 @@ export default function UsersTable({
       const newPageInfo = updater(dataTable.getState().pagination);
       setPagination?.(newPageInfo.pageIndex);
     },
+    rowCount: pagination.totalRecords,
     state: {
       sorting: sortingState,
       pagination: {

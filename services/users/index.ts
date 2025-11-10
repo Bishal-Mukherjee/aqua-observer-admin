@@ -6,7 +6,7 @@ export const useGetUsers = () => {
   const { initializeStore, currentPage } = useUsersPagination();
   const nextPage = currentPage + 1;
   return useQuery({
-    queryKey: ["users"],
+    queryKey: ["users", currentPage],
     queryFn: async () => {
       const response = await axios({
         method: "GET",
@@ -16,7 +16,7 @@ export const useGetUsers = () => {
       initializeStore(
         currentPage ?? 1,
         pagination.totalPages,
-        pagination.totalRecords
+        pagination.total
       );
       return response.data;
     },
