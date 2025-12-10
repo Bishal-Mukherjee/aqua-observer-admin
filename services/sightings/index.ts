@@ -76,6 +76,19 @@ export const useGetSightingById = (id: string | null) => {
   });
 };
 
+export const useGetSightingsInBatch = () => {
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const response = await axios({
+        method: "POST",
+        url: "/sightings/batch",
+        data: { ids },
+      });
+      return response.data;
+    },
+  });
+};
+
 export const useToogleSightingStatus = () => {
   return useMutation({
     mutationFn: async ({ id }: { id: string }) => {

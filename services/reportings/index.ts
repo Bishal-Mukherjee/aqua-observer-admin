@@ -76,6 +76,19 @@ export const useGetReportingById = (id: string | null) => {
   });
 };
 
+export const useGetReportingsInBatch = () => {
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const response = await axios({
+        method: "POST",
+        url: "/reportings/batch",
+        data: { ids },
+      });
+      return response.data;
+    },
+  });
+};
+
 export const useToogleReportingStatus = () => {
   return useMutation({
     mutationFn: async ({ id }: { id: string }) => {

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { memo, useMemo } from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import ReactECharts from "echarts-for-react";
+import type { EChartsOption } from "echarts";
 
 const colors = [
   "#93c5fd",
@@ -14,26 +15,6 @@ const colors = [
   "#172554",
 ];
 
-// Custom tooltip for species pie chart
-const CustomTooltip = ({ active, payload }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-white p-3 shadow-lg rounded-lg border border-gray-200">
-        <p className="text-xs text-gray-900">{payload[0].payload.name}</p>
-        <p className="text-xs text-gray-600">
-          {payload[0].value.toLocaleString()} individuals
-        </p>
-      </div>
-    );
-  }
-  return null;
-};
-
-// Custom label function for pie chart
-const renderCustomizedLabel = (entry: any) => {
-  return `${entry.name} (${entry.value})`;
-};
-
 interface SpeciesDistributionPieChartProps {
   data: any[];
 }
@@ -41,7 +22,7 @@ interface SpeciesDistributionPieChartProps {
 function SpeciesDistributionPieChart({
   data,
 }: SpeciesDistributionPieChartProps) {
-  const speciesData = useMemo(() => {
+  const chartOption = useMemo<EChartsOption>(() => {
     const speciesCount: Record<string, number> = {};
 
     data.forEach((report) => {
@@ -59,34 +40,58 @@ function SpeciesDistributionPieChart({
       });
     });
 
-    return Object.keys(speciesCount).map((type, index) => ({
+    const speciesData = Object.keys(speciesCount).map((type, index) => ({
       name: type.replace(/_/g, " "),
       value: speciesCount[type],
-      color: colors[index % colors.length],
+      itemStyle: {
+        color: colors[index % colors.length],
+      },
     }));
+
+    return {
+      tooltip: {
+        trigger: "item",
+      },
+      legend: {
+        orient: "horizontal",
+        left: "center",
+        top: "bottom",
+        textStyle: {
+          fontSize: 12,
+        },
+      },
+      series: [
+        {
+          type: "pie",
+          radius: "60%",
+          center: ["50%", "50%"],
+          data: speciesData,
+          label: {
+            fontSize: 10,
+            formatter: "{b} ({c})",
+          },
+          labelLine: {
+            show: true,
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: "rgba(0, 0, 0, 0.5)",
+            },
+          },
+          animation: false,
+        },
+      ],
+    };
   }, [data]);
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <PieChart>
-        <Pie
-          data={speciesData}
-          cx="50%"
-          cy="50%"
-          label={renderCustomizedLabel}
-          fontSize={10}
-          outerRadius={125}
-          dataKey="value"
-          stroke="none"
-          isAnimationActive={false}
-        >
-          {speciesData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color} />
-          ))}
-        </Pie>
-        <Tooltip content={<CustomTooltip />} />
-      </PieChart>
-    </ResponsiveContainer>
+    <ReactECharts
+      option={chartOption}
+      style={{ width: "100%", height: "100%" }}
+      opts={{ renderer: "canvas" }}
+    />
   );
 }
 

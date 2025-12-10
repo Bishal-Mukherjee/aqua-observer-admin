@@ -18,7 +18,7 @@ import {
   Binoculars,
   Users,
   PawPrint,
-  //   BarChart3,
+  BarChart3,
   //   Settings,
   LogOut,
   ChevronLeft,
@@ -120,12 +120,12 @@ export const navData: NavItem[] = [
   //     icon: FileQuestion,
   //     badge: null,
   //   },
-  //   {
-  //     id: "reports",
-  //     title: "Reports",
-  //     path: "/reports",
-  //     icon: BarChart3,
-  //   },
+  {
+    id: "reports",
+    title: "Reports",
+    path: "/reports",
+    icon: BarChart3,
+  },
 ];
 
 export default function Sidebar() {
@@ -153,7 +153,7 @@ export default function Sidebar() {
       className={
         "h-screen bg-white relative border-r-2 border-gray-200 flex flex-col transition-all duration-300 top-0 left-0 z-30"
       }
-      style={{ width: isCollapsed ? "78px" : `${drawerWidth}px` }}
+      style={{ width: isCollapsed ? "82px" : `${drawerWidth}px` }}
     >
       <Button
         variant="ghost"
@@ -170,59 +170,71 @@ export default function Sidebar() {
       </Button>
 
       {/* Header */}
-      <div className="py-4 px-4 border-b border-gray-100">
-        <div className="flex items-center justify-between">
-          {!isCollapsed ? (
-            <div className="flex items-center space-x-3">
-              <Image
-                src="/app-logo.png"
-                alt={APP_NAME}
-                width={48}
-                height={48}
-              />
-              <div>
-                <h2 className="font-bold text-lg text-gray-900">{APP_NAME}</h2>
-                <p className="text-xs text-gray-500">Admin Dashboard</p>
-              </div>
-            </div>
-          ) : (
-            <Image src="/app-logo.png" alt={APP_NAME} width={48} height={48} />
+      <div className="py-4 px-4 border-b border-gray-100 overflow-hidden">
+        <div
+          className={cn(
+            "flex items-center transition-all duration-300",
+            isCollapsed ? "justify-start" : "space-x-3"
           )}
+        >
+          <Image
+            src="/app-logo.png"
+            alt={APP_NAME}
+            width={48}
+            height={48}
+            className="flex-shrink-0"
+          />
+          <div
+            className={cn(
+              "transition-all duration-300 min-w-0",
+              isCollapsed
+                ? "opacity-0 w-0 invisible"
+                : "opacity-100 w-auto visible"
+            )}
+          >
+            <h2 className="font-bold text-lg text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
+              {APP_NAME}
+            </h2>
+            <p className="text-xs text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis">
+              Admin Dashboard
+            </p>
+          </div>
         </div>
       </div>
 
       {/* User Profile Section */}
-      {!isCollapsed ? (
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-800 rounded-full flex items-center justify-center text-white">
-              {user?.name
-                ?.split(" ")
-                ?.map((n) => n.charAt(0))
-                .join("")}
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-sm text-gray-900">
-                {user?.name || "Guest"}
-              </p>
-              {user?.phoneNumber && (
-                <p className="text-xs text-gray-500">
-                  {formatPhoneNumber(user?.phoneNumber)}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="p-4 border-b border-gray-100 flex justify-center">
-          <div className="w-10 h-10 bg-blue-800 rounded-full flex items-center justify-center text-white">
+      <div className="p-4 border-b border-gray-100 overflow-hidden">
+        <div
+          className={cn(
+            "flex items-center transition-all duration-300",
+            isCollapsed ? "justify-center pl-1" : "space-x-3"
+          )}
+        >
+          <div className="w-10 h-10 bg-blue-800 rounded-full flex items-center justify-center text-white flex-shrink-0">
             {user?.name
               ?.split(" ")
               ?.map((n) => n.charAt(0))
               .join("")}
           </div>
+          <div
+            className={cn(
+              "flex-1 transition-all duration-300 min-w-0",
+              isCollapsed
+                ? "opacity-0 w-0 invisible"
+                : "opacity-100 w-auto visible"
+            )}
+          >
+            <p className="font-medium text-sm text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
+              {user?.name || "Guest"}
+            </p>
+            {user?.phoneNumber && (
+              <p className="text-xs text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis">
+                {formatPhoneNumber(user?.phoneNumber)}
+              </p>
+            )}
+          </div>
         </div>
-      )}
+      </div>
 
       {/* Navigation */}
       <ScrollArea className="h-[calc(100vh-16rem)] p-4 pb-0">
@@ -246,11 +258,11 @@ export default function Sidebar() {
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start h-12 text-left transition-all duration-200 cursor-pointer",
+                  "justify-start h-12 text-left transition-all duration-200 cursor-pointer",
                   isActive
                     ? "bg-blue-50 text-blue-700 border-blue-600 hover:bg-blue-100"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-                  isCollapsed ? "px-3" : "px-4"
+                  isCollapsed ? "w-[44px] px-3" : "w-full px-4"
                 )}
                 onClick={() => toggleRouteExpansion(item.id)}
               >
@@ -278,7 +290,7 @@ export default function Sidebar() {
                   isActive
                     ? "bg-blue-50 text-blue-700 border-blue-600 hover:bg-blue-100"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-                  isCollapsed ? "px-3" : "px-4"
+                  isCollapsed ? "w-[44px] px-3" : "w-full px-4"
                 )}
               >
                 <Icon className={cn("h-5 w-5", isCollapsed ? "" : "mr-3")} />
@@ -311,7 +323,7 @@ export default function Sidebar() {
                       className="p-3 w-[180px] rounded-xl"
                     >
                       <div>
-                        <p className="font-medium text-xs">{item.title}</p>
+                        <p className="font-medium text-xs mb-2">{item.title}</p>
                         <div className="space-y-1 mt-1">
                           {(item.subRoutes as NavItem[]).map((subRoute) => {
                             const SubIcon = subRoute.icon;
