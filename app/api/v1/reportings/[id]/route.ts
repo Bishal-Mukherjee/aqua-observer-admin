@@ -32,6 +32,7 @@ export const GET = withAuth(
              r.is_valid AS "isValid",
 			 r.submission_context AS "type",
 			 r.is_valid AS "isValid",
+			 r.notes,
              JSON_BUILD_OBJECT(
                'id', r.submitted_by,
                'name', u.name,

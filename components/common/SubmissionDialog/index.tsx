@@ -435,22 +435,6 @@ const SightingDetailsSection = ({ reportData }: any) => {
           </div>
         </div>
       )}
-
-      {/* Notes */}
-      {reportData.notes && (
-        <div className="mb-4">
-          <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <FileText className="h-5 w-5 text-gray-500" />
-            Additional Notes
-          </h3>
-
-          <Card className="border-none shadow-none">
-            <CardContent className="px-4 py-3">
-              <p className="text-sm text-gray-700">{reportData.notes}</p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </>
   );
 };
@@ -750,6 +734,24 @@ export default function SubmissionDialog({
                       <Separator className="my-4" />
                       <SightingDetailsSection reportData={reportData} />
                     </>
+                  )}
+
+                  {/* Notes */}
+                  {reportData?.notes && (
+                    <div className="mb-4">
+                      <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-gray-500" />
+                        Additional Notes
+                      </h3>
+
+                      <Card className="border-none shadow-none">
+                        <CardContent className="px-4 py-3">
+                          <p className="text-sm text-gray-700">
+                            {reportData.notes}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </div>
                   )}
 
                   <Separator className="my-4" />
