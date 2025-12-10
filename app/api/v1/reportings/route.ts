@@ -13,6 +13,8 @@ export const GET = withAuth(
       const from = searchParams.get("from");
       const to = searchParams.get("to");
       const districtsParam = searchParams.get("districts");
+      const isValidParam = searchParams.get("isValid");
+      const isValid = isValidParam !== null ? isValidParam === "true" : true;
       const page = parseInt(searchParams.get("page") || "1");
       const limit = 10;
       const offset = (page - 1) * limit;
@@ -60,6 +62,9 @@ export const GET = withAuth(
         conditions.push(`r.district IN (${districtPlaceholders})`);
         queryParams.push(...districts);
       }
+
+      conditions.push(`r.is_valid = $${queryParams.length + 1}`);
+      queryParams.push(isValid);
 
       if (conditions.length > 0) {
         baseQuery += ` WHERE ${conditions.join(" AND ")}`;

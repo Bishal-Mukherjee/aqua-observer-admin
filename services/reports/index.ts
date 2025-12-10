@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { DateRange } from "react-day-picker";
-import defaultAxios from "axios";
+import baseAxios from "axios";
 import axios from "@/services/api-instance";
 
 export const useFetchFilteredDocs = () => {
@@ -113,7 +113,7 @@ export const useFetchReportById = (reportId: string) => {
 export const useGenerateReport = () => {
   return useMutation({
     mutationFn: async (data: any) => {
-      const response = await defaultAxios({
+      const response = await baseAxios({
         url: `${process.env.NEXT_PUBLIC_SUBMISSION_URL}/generate-reports/${data.type}`,
         method: "POST",
         data,

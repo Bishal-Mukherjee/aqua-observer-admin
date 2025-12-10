@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import dayjs from "dayjs";
 import axios from "@/services/api-instance";
 import { useReportingsFilters } from "@/store/useReportingsFilters";
@@ -10,10 +10,14 @@ export const useGetReportings = (
   enabled?: boolean
 ) => {
   const search = useSearchParams();
+  const pathname = usePathname();
+
   const { initializeStore, currentPage, districts } = useReportingsFilters();
   const joinedDistricts = districts?.join(",");
   const nextPage = currentPage + 1;
   const submittedBy = search.get("id") || undefined;
+  const isValidParam = pathname.includes("invalid") ? "false" : "true";
+
   return useQuery({
     queryKey: [
       "reportings",
@@ -32,7 +36,8 @@ export const useGetReportings = (
           (fromDate ? `&from=${dayjs(fromDate).format("YYYY-MM-DD")}` : "") +
           (toDate ? `&to=${dayjs(toDate).format("YYYY-MM-DD")}` : "") +
           (joinedDistricts ? `&districts=${joinedDistricts}` : "") +
-          (currentPage ? `&page=${nextPage}` : ""),
+          (currentPage ? `&page=${nextPage}` : "") +
+          (isValidParam ? `&isValid=${isValidParam}` : ""),
       });
       const { pagination } = response.data;
       initializeStore(
