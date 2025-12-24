@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
 import { DateRange } from "react-day-picker";
+import { isEmpty } from "lodash";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,38 +13,54 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { MultiSelect } from "@/components/ui/multi-select";
 import { Loader, FileText, CheckCircle, Download } from "lucide-react";
-import { useSpecies } from "@/store/useSpecies";
-import { useDistrictStore } from "@/store/useDistricts";
-import { useCreateReport } from "@/services/reports";
+import {
+  useCreateReport,
+  useFetchFilteredDocs,
+  useGenerateReport,
+  useUpdateReport,
+} from "@/services/reports";
 import { useFileUpload } from "@/hooks/useFileUpload";
-import { set } from "lodash";
+import { ReportCriteriaForm } from "@/components/modules/reports/ReportForm/ReportCriteriaForm";
+import { ReportEnvironmentalForm } from "@/components/modules/reports/ReportForm/ReportEnvironmentalForm";
+import {
+  convertReportingsToCSV,
+  convertSightingsToCSV,
+} from "@/lib/convertToCSV";
+import CSVFileSvg from "@/assets/csv-file";
+import ReportSvg from "@/assets/report";
+import { Progress } from "@/components/ui/progress";
 
-const SUBMISSION_TYPES = [
-  { value: "reportings", label: "Reportings" },
-  { value: "sightings", label: "Sightings" },
-];
+const FormSegmentIndicator = ({
+  currentIndex,
+  parts = 2,
+}: {
+  currentIndex: number;
+  parts?: number;
+}) => {
+  return (
+    <div className="w-full flex justify-center items-center space-x-2 mb-4">
+      {[...Array(parts)].map((_, i) => (
+        <div
+          key={i}
+          className={`h-2 w-2 rounded-full ${
+            i === currentIndex ? "bg-blue-600" : "bg-gray-300"
+          }`}
+        />
+      ))}
+    </div>
+  );
+};
+
+const progressStepsMap: Record<number, string> = {
+  5: "Creating report record...",
+  15: "Fetching report data...",
+  35: "Generating CSV file...",
+  60: "Generating analysis report...",
+  80: "Uploading analysis report...",
+  90: "Updating report record...",
+  100: "Complete!",
+};
 
 const validationSchema = Yup.object({
   dateRange: Yup.object({
@@ -54,203 +71,267 @@ const validationSchema = Yup.object({
   species: Yup.array(),
   submissionType: Yup.string(),
   description: Yup.string(),
+  waterBody: Yup.array(),
+  waterBodyConditions: Yup.array(),
+  weatherConditions: Yup.array(),
+  threats: Yup.array(),
+  fishingGears: Yup.array(),
 });
-
-const convertToCSV = (data: any[]) => {
-  if (!data || data.length === 0) return "";
-
-  // Define CSV headers
-  const headers = [
-    "ID",
-    "Latitude",
-    "Longitude",
-    "District",
-    "Block",
-    "Village/Ghat",
-    "Submitted At",
-    "Species",
-    "Causes",
-    "Submitted By Name",
-    "Submitted By Phone",
-  ];
-
-  // Convert data to CSV rows
-  const rows = data.map((item) => {
-    const species =
-      item.species
-        ?.map(
-          (s: any) =>
-            `${s.type} (A:${s.adult.stranded + s.adult.injured + s.adult.dead})`
-        )
-        .join("; ") || "";
-    const causes =
-      item.causes
-        ?.map(
-          (c: any) =>
-            `${c.species}: ${c.cause?.join(", ")} ${c.otherCause || ""}`
-        )
-        .join("; ") || "";
-
-    return [
-      item.id,
-      item.latitude,
-      item.longitude,
-      item.district,
-      item.block,
-      item.villageOrGhat,
-      new Date(item.submittedAt).toLocaleDateString(),
-      species,
-      causes,
-      item.submittedBy?.name || "",
-      item.submittedBy?.phoneNumber || "",
-    ];
-  });
-
-  // Combine headers and rows
-  const csvContent = [headers, ...rows]
-    .map((row) => row.map((field) => `"${field}"`).join(","))
-    .join("\n");
-
-  return csvContent;
-};
 
 export default function CreateReportDialog() {
   const { uploadFile } = useFileUpload();
-  const { mutate: createReport, isPending } = useCreateReport();
+
+  const { mutate: fetchFilteredDocs, isPending } = useFetchFilteredDocs();
+  const { mutate: createReport, isPending: isCreating } = useCreateReport();
+  const { mutate: updateReport, isPending: isUpdating } = useUpdateReport();
+  const { mutate: generateReport, isPending: isGenerating } =
+    useGenerateReport();
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [generationProgress, setGenerationProgress] = useState<number>(0);
+  const [formSegmentIndex, setFormSegmentIndex] = useState<number>(0);
   const [showSuccessAlert, setShowSuccessAlert] = useState<boolean>(false);
   const [reportData, setReportData] = useState<any>(null);
-  const [result, setResult] = useState<any>(null);
-
-  const { species } = useSpecies();
-  const { districts } = useDistrictStore();
-
-  const speciesOptions = useMemo(() => {
-    return species.map((s) => ({ label: s.label.en, value: s.value }));
-  }, [species]);
+  const [fileLink, setFileLink] = useState<{
+    reportFile: string;
+    analysisFile: string;
+  }>({
+    reportFile: "",
+    analysisFile: "",
+  });
 
   const formik = useFormik({
     initialValues: {
       dateRange: undefined as DateRange | undefined,
       districts: [] as string[],
+      description: "",
       species: [] as string[],
       submissionType: "reportings",
-      description: "",
+      waterBody: [] as string[],
+      waterBodyConditions: [] as string[],
+      weatherConditions: [] as string[],
+      threats: [] as string[],
+      fishingGears: [] as string[],
     },
     validationSchema,
     onSubmit: async (values) => {
       try {
+        setGenerationProgress(5);
+
         createReport(
           {
-            dateRange,
-            districts: values.districts,
-            species: values.species,
             submissionType: values.submissionType,
             description: values.description,
+            parameters: {
+              dateRange: values.dateRange,
+              district: values.districts,
+              species: values.species,
+              waterBody: values.waterBody,
+              waterBodyCondition: values.waterBodyConditions,
+              weatherCondition: values.weatherConditions,
+              threats: values.threats,
+              fishingGears: values.fishingGears,
+            },
           },
           {
-            onSuccess: async (data) => {
-              if (data?.result.length === 0) {
-                toast.error("No records found for the selected criteria");
-                return;
-              }
+            onSuccess: (reportRecord) => {
+              setGenerationProgress(15);
 
-              const csvContent = convertToCSV(data.result);
-              const blob = new Blob([csvContent], {
-                type: "text/csv;charset=utf-8;",
-              });
+              fetchFilteredDocs(
+                {
+                  dateRange: values.dateRange,
+                  districts: values.districts,
+                  species: values.species,
+                  submissionType: values.submissionType,
+                  description: values.description,
+                  waterBody: values.waterBody,
+                  waterBodyConditions: values.waterBodyConditions,
+                  weatherConditions: values.weatherConditions,
+                  threats: values.threats,
+                  fishingGears: values.fishingGears,
+                },
+                {
+                  onSuccess: async (data) => {
+                    if (isEmpty(data?.result)) {
+                      toast.error("No records found for the selected criteria");
+                      setGenerationProgress(0);
+                      return;
+                    }
 
-              const uploadResult = await uploadFile(
-                "dashboard-bucket",
-                "reports",
-                new File(
-                  [blob],
-                  `marine_report_${new Date().toISOString().split("T")[0]}.csv`,
-                  { type: "text/csv" }
-                )
+                    setReportData(data);
+                    setGenerationProgress(35);
+
+                    const csvContent =
+                      values.submissionType === "reportings"
+                        ? convertReportingsToCSV(data.result)
+                        : convertSightingsToCSV(data.result);
+                    const csvBlob = new Blob([csvContent], {
+                      type: "text/csv;charset=utf-8;",
+                    });
+
+                    const csvUploadResult = await uploadFile(
+                      "dashboard-bucket",
+                      "reports",
+                      new File([csvBlob], `${Date.now()}.csv`, {
+                        type: "text/csv",
+                      })
+                    );
+
+                    let csvUrl = "";
+                    if (csvUploadResult?.publicURL) {
+                      csvUrl = csvUploadResult.publicURL;
+                      setFileLink((prev) => ({
+                        ...prev,
+                        reportFile: csvUrl,
+                      }));
+                    }
+
+                    setGenerationProgress(60);
+
+                    generateReport(
+                      { data: data.result, type: values.submissionType },
+                      {
+                        onSuccess: async (pdfBlob) => {
+                          setGenerationProgress(80);
+
+                          const uploadResult = await uploadFile(
+                            "dashboard-bucket",
+                            "reports",
+                            new File([pdfBlob], `${Date.now()}.pdf`, {
+                              type: "application/pdf",
+                            })
+                          );
+
+                          let pdfUrl = "";
+                          if (uploadResult?.publicURL) {
+                            pdfUrl = uploadResult.publicURL;
+                            setFileLink((prev) => ({
+                              ...prev,
+                              analysisFile: pdfUrl,
+                            }));
+                          }
+
+                          setGenerationProgress(90);
+
+                          updateReport(
+                            {
+                              reportId: reportRecord.data.id,
+                              reportUrl: pdfUrl,
+                              csvDataUrl: csvUrl,
+                            },
+                            {
+                              onSuccess: () => {
+                                setGenerationProgress(100);
+
+                                setTimeout(() => {
+                                  setShowSuccessAlert(true);
+                                  setGenerationProgress(0);
+                                }, 500);
+                              },
+                              onError: (err) => {
+                                console.error(err);
+                                toast.error("Failed to update report record");
+                                setGenerationProgress(0);
+                              },
+                            }
+                          );
+                        },
+                        onError: (err) => {
+                          console.error(err);
+                          toast.error("Failed to generate PDF report");
+                          setGenerationProgress(0);
+                        },
+                      }
+                    );
+                  },
+                  onError: () => {
+                    toast.error("Failed to fetch report data");
+                    setGenerationProgress(0);
+                  },
+                }
               );
-
-              setResult(uploadResult);
-              setReportData(data);
-              setIsOpen(false);
-              setShowSuccessAlert(true);
-              toast.success("Report generated successfully!");
             },
             onError: () => {
-              toast.error("Failed to generate report");
-            },
-            onSettled: () => {
-              formik.resetForm();
-              setDateRange(undefined);
-              setIsOpen(false);
+              toast.error("Failed to create report record");
+              setGenerationProgress(0);
             },
           }
         );
       } catch (err) {
         toast.error("An unexpected error occurred");
+        setGenerationProgress(0);
       }
     },
   });
 
   const handleDateRangeChange = (newDateRange: DateRange | undefined) => {
-    setDateRange(newDateRange);
     formik.setFieldValue("dateRange", newDateRange);
   };
 
-  const handleDownloadReport = () => {
-    // Convert data to CSV format
-    // if (reportData?.result && reportData.result.length > 0) {
-    //   const csvContent = convertToCSV(reportData.result);
-    //   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    //   const url = URL.createObjectURL(blob);
-    //   const a = document.createElement("a");
-    //   a.href = url;
-    //   a.download = `marine_report_${
-    //     new Date().toISOString().split("T")[0]
-    //   }.csv`;
-    //   document.body.appendChild(a);
-    //   a.click();
-    //   document.body.removeChild(a);
-    //   URL.revokeObjectURL(url);
-    // }
+  const downloadReports = async (fileType: "pdf" | "csv") => {
+    if (fileType === "pdf" && fileLink.analysisFile) {
+      const [, fileName] = fileLink.analysisFile.split("/reports/");
 
-    // setShowSuccessAlert(false);
-    // resetForm();
+      const response = await fetch(fileLink.analysisFile);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
 
-    console.log("result", result);
-    if (result?.publicURL) {
-      window.open(result.publicURL, "_blank");
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      a.click();
+
+      URL.revokeObjectURL(url);
+    } else if (fileType === "csv" && fileLink.reportFile) {
+      const [, fileName] = fileLink.reportFile.split("/reports/");
+      const a = document.createElement("a");
+      a.href = fileLink.reportFile;
+      a.download = fileName;
+      a.click();
     }
   };
 
   const resetForm = () => {
-    formik.resetForm();
-    setDateRange(undefined);
     setReportData(null);
+    setFileLink({ reportFile: "", analysisFile: "" });
+    setShowSuccessAlert(false);
+    setGenerationProgress(0);
   };
 
-  // Since all fields are optional, form is always valid
-  const hasAnyValue =
-    (dateRange?.from && dateRange?.to) ||
-    formik.values.districts.length > 0 ||
-    formik.values.species.length > 0 ||
-    formik.values.submissionType ||
-    formik.values.description.trim();
+  const resetFormAndFilters = () => {
+    formik.resetForm();
+    setReportData(null);
+    setFormSegmentIndex(0);
+    setFileLink({ reportFile: "", analysisFile: "" });
+    setShowSuccessAlert(false);
+    setGenerationProgress(0);
+  };
+
+  const hasRequiredFields =
+    formik.values.dateRange?.from && formik.values.dateRange?.to;
+
+  const isGeneratingReport =
+    isPending ||
+    isCreating ||
+    isUpdating ||
+    isGenerating ||
+    generationProgress > 0;
 
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button className="ml-4 flex items-center cursor-pointer" size="sm">
+          <Button
+            className="ml-4 flex items-center cursor-pointer text-xs"
+            size="sm"
+          >
             <FileText className="h-4 w-4" />
             Generate Report
           </Button>
         </DialogTrigger>
 
         <DialogContent
-          className="max-h-[90vh] min-w-[40vw] py-0 px-1 gap-0"
+          className="max-h-[95vh] min-w-[40vw] py-0 px-1 gap-0"
           aria-describedby="generate-report-dialog"
         >
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
@@ -260,149 +341,144 @@ export default function CreateReportDialog() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="px-6 py-4 flex-1 overflow-y-auto">
-            <form onSubmit={formik.handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label className="text-slate-700">Date Range</Label>
-                <DateRangePicker
-                  date={dateRange}
-                  onDateChange={handleDateRangeChange}
-                  placeholder="Select date range"
-                  numberOfMonths={2}
-                  className="w-full"
-                />
-              </div>
+          {formSegmentIndex === 0 ? (
+            <ReportCriteriaForm
+              formik={formik}
+              onDateRangeChange={handleDateRangeChange}
+              isPending={isPending}
+            />
+          ) : (
+            <ReportEnvironmentalForm formik={formik} />
+          )}
 
-              <div className="space-y-2">
-                <Label className="text-slate-700">Districts</Label>
-                <MultiSelect
-                  options={districts}
-                  selected={formik.values.districts}
-                  onChange={(values) =>
-                    formik.setFieldValue("districts", values)
-                  }
-                  placeholder="Select districts..."
-                  maxDisplay={3}
-                  disabled={isPending}
-                />
-              </div>
+          {formik.values.submissionType === "sightings" && (
+            <FormSegmentIndicator currentIndex={formSegmentIndex} parts={2} />
+          )}
 
-              <div className="space-y-2">
-                <Label className="text-slate-700">Species</Label>
-                <MultiSelect
-                  options={speciesOptions}
-                  selected={formik.values.species}
-                  onChange={(values) => formik.setFieldValue("species", values)}
-                  placeholder="Select species..."
-                  maxDisplay={3}
-                  disabled={isPending}
-                />
+          {isGeneratingReport && (
+            <div className="px-6 py-4 border-t border-gray-100 space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-700 font-medium">
+                  {progressStepsMap[generationProgress]}
+                </span>
+                <span className="text-gray-500">{generationProgress}%</span>
               </div>
-
-              <div className="space-y-2">
-                <Label className="text-slate-700">Submission Type</Label>
-                <Select
-                  value={formik.values.submissionType}
-                  onValueChange={(value) =>
-                    formik.setFieldValue("submissionType", value)
-                  }
-                  disabled={isPending}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Select submission type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SUBMISSION_TYPES.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-slate-700">
-                  Description
-                </Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  placeholder="Describe the purpose of this report, e.g., 'Monthly marine wildlife monitoring report for conservation analysis' or 'Research data compilation for species migration patterns study'"
-                  value={formik.values.description}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  rows={3}
-                  className="resize-none"
-                  disabled={isPending}
-                />
-              </div>
-            </form>
-          </div>
+              <Progress value={generationProgress} className="h-2" />
+            </div>
+          )}
 
           <DialogFooter className="px-6 py-4 border-t border-gray-100">
+            {formSegmentIndex === 1 ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setFormSegmentIndex(0)}
+                disabled={isGeneratingReport}
+              >
+                Back
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsOpen(false);
+                  resetFormAndFilters();
+                }}
+                disabled={isGeneratingReport}
+              >
+                Cancel
+              </Button>
+            )}
             <Button
-              type="button"
-              variant="outline"
               onClick={() => {
-                setIsOpen(false);
-                resetForm();
+                if (
+                  formik.values.submissionType === "sightings" &&
+                  formSegmentIndex === 0
+                ) {
+                  setFormSegmentIndex(1);
+                } else {
+                  formik.submitForm();
+                }
               }}
-              disabled={isPending}
+              disabled={!hasRequiredFields || isGeneratingReport}
             >
-              Cancel
-            </Button>
-            <Button
-              onClick={formik.submitForm}
-              disabled={isPending || !hasAnyValue}
-            >
-              {isPending ? (
+              {isGeneratingReport ? (
                 <>
-                  <Loader className="animate-spin h-4 w-4 mr-2" />
+                  <Loader className="animate-spin h-4 w-4" />
                   Generating...
                 </>
+              ) : formik.values.submissionType === "sightings" &&
+                formSegmentIndex === 0 ? (
+                "Next"
               ) : (
-                "Generate Report"
+                "Generate"
               )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={showSuccessAlert} onOpenChange={setShowSuccessAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
+      <Dialog
+        open={showSuccessAlert}
+        onOpenChange={(open) => {
+          if (!open) {
+            resetForm();
+          }
+        }}
+      >
+        <DialogContent
+          className="min-w-[36vw] py-0 px-1 gap-0"
+          aria-describedby="download-report-dialog"
+        >
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+            <DialogTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-green-600" />
-              Report Generated Successfully!
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Your report has been generated with{" "}
-              <span className="font-semibold text-green-700">
-                {reportData?.result?.length || 0} records
-              </span>
-              . Would you like to download the report as a CSV file?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={() => {
-                setShowSuccessAlert(false);
-                resetForm();
-              }}
+              Report successfully generated!
+            </DialogTitle>
+          </DialogHeader>
+
+          <p className="px-6 py-4 text-sm text-gray-700">
+            Your report has been successfully generated and contains{" "}
+            <span className="font-semibold text-green-700">
+              {reportData?.result?.length || 0} records
+            </span>
+            . Download the report in your preferred format below.
+          </p>
+
+          <div className="px-6 pb-6 space-y-3">
+            <div
+              className="p-3 border border-gray-200 flex items-center gap-3 hover:bg-green-50 hover:border-green-400 transition-all rounded-lg cursor-pointer group"
+              onClick={() => downloadReports("csv")}
             >
-              Close
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDownloadReport}
-              className="bg-green-600 hover:bg-green-700"
+              <CSVFileSvg className="h-10 w-10 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900">Download as CSV</p>
+                <p className="text-xs text-gray-600">
+                  Raw data in spreadsheet format
+                </p>
+              </div>
+              <Download className="h-5 w-5 text-gray-400 group-hover:text-green-600 transition-colors" />
+            </div>
+
+            <div
+              className="p-3 border border-gray-200 flex items-center gap-3 hover:bg-blue-50 hover:border-blue-400 transition-all rounded-lg cursor-pointer group"
+              onClick={() => downloadReports("pdf")}
             >
-              <Download className="h-4 w-4" />
-              Download CSV
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <ReportSvg className="h-10 w-10 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900">
+                  Download Analysis Report
+                </p>
+                <p className="text-xs text-gray-600">
+                  Comprehensive report with charts and graphs
+                </p>
+              </div>
+              <Download className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

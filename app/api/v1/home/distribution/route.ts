@@ -27,13 +27,30 @@ export const GET = withAuth(
         LIMIT 5
       `;
 
+      const countQuery = `
+		SELECT COUNT(*)::integer AS total_count
+		FROM ${tableName}
+		WHERE district IS NOT NULL
+	  `;
+
       const result = await client.query(query);
+      const countResult = await client.query(countQuery);
       client.release();
+
+      const topFiveCount = result.rows.reduce((acc, row) => acc + row.count, 0);
+      const totalCount = countResult.rows[0].total_count;
+      const otherCount = totalCount - topFiveCount;
+
+      const updatedRows = [...result.rows];
+
+      if (otherCount > 0) {
+        updatedRows.push({ region: "Others", count: otherCount });
+      }
 
       return NextResponse.json(
         {
           message: "Top districts fetched successfully",
-          result: result.rows,
+          result: updatedRows,
         },
         { status: 200 }
       );

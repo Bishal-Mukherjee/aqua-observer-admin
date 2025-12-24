@@ -75,7 +75,7 @@ const NotificationPopover: React.FC<NotificationPopoverProps> = ({
           aria-label="Notifications"
         >
           <Bell className="w-4 h-4 text-slate-500" />
-          <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs bg-red-200 text-red-500 border-2 border-white">
+          <Badge className="absolute -top-1 -right-1 h-5 min-w-5 max-w-7 p-0 px-2 text-xs bg-red-200 text-red-500 border-2 border-white">
             {totalNotifications}
           </Badge>
         </button>

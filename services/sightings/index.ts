@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import dayjs from "dayjs";
 import axios from "@/services/api-instance";
 import { useSightingsFilters } from "@/store/useSightingsFilters";
@@ -10,10 +10,14 @@ export const useGetSightings = (
   enabled?: boolean
 ) => {
   const search = useSearchParams();
+  const pathname = usePathname();
+
   const { initializeStore, currentPage, districts } = useSightingsFilters();
   const joinedDistricts = districts?.join(",");
   const nextPage = currentPage + 1;
   const submittedBy = search.get("id") || undefined;
+  const isValidParam = pathname.includes("invalid") ? "false" : "true";
+
   return useQuery({
     queryKey: [
       "sightings",
@@ -32,7 +36,8 @@ export const useGetSightings = (
           (fromDate ? `&from=${dayjs(fromDate).format("YYYY-MM-DD")}` : "") +
           (toDate ? `&to=${dayjs(toDate).format("YYYY-MM-DD")}` : "") +
           (joinedDistricts ? `&districts=${joinedDistricts}` : "") +
-          (currentPage ? `&page=${nextPage}` : ""),
+          (currentPage ? `&page=${nextPage}` : "") +
+          (isValidParam ? `&isValid=${isValidParam}` : ""),
       });
       const { pagination } = response.data;
       initializeStore(
@@ -73,6 +78,19 @@ export const useGetSightingById = (id: string | null) => {
       return response.data;
     },
     enabled: !!id,
+  });
+};
+
+export const useGetSightingsInBatch = () => {
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const response = await axios({
+        method: "POST",
+        url: "/sightings/batch",
+        data: { ids },
+      });
+      return response.data;
+    },
   });
 };
 

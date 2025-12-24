@@ -200,7 +200,7 @@ export default function Navbar() {
       </div>
 
       {/* Center Section - Search */}
-      <div className="flex-1 max-w-[35vw]">
+      {/* <div className="flex-1 max-w-[35vw]">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-800" />
           <Input
@@ -208,7 +208,7 @@ export default function Navbar() {
             className="pl-10 bg-white/50 backdrop-blur-sm border focus:bg-white/70 transition-all"
           />
         </div>
-      </div>
+      </div> */}
 
       {/* Right Section - Actions */}
       <div className="flex items-center space-x-3">

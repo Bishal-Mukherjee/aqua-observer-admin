@@ -10,6 +10,7 @@ import {
   type SortingState,
   type ColumnFiltersState,
 } from "@tanstack/react-table";
+import { isEmpty } from "lodash";
 import {
   Table,
   TableBody,
@@ -35,7 +36,7 @@ import {
   Search,
   CalendarIcon,
   X,
-  //   Download,
+  Download,
 } from "lucide-react";
 import { getSpeciesDisplayColor } from "@/constants/colorMaps";
 import { cn } from "@/lib/utils";
@@ -46,6 +47,11 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { formatPhoneNumber } from "@/lib/strings";
 import { useDistrictStore } from "@/store/useDistricts";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 dayjs.extend(utc);
 dayjs.extend(isSameOrAfter);
@@ -94,6 +100,7 @@ interface DataTableProps {
   dateRange?: DateRange | undefined;
   onClearDateRange?: () => void;
   onSelect: (id: string) => void;
+  onExportCSV?: () => void;
   showSubmittedBy?: boolean;
   showDateFilter?: boolean;
   showSpecies?: boolean;
@@ -173,92 +180,13 @@ const LoadingSkeletonRows = () => {
   );
 };
 
-// CSV Export utility functions
-// const escapeCSVField = (field: any): string => {
-//   if (field === null || field === undefined) return "";
-//   const stringField = String(field);
-//   // Escape quotes and wrap in quotes if contains comma, quote, or newline
-//   if (
-//     stringField.includes('"') ||
-//     stringField.includes(",") ||
-//     stringField.includes("\n")
-//   ) {
-//     return `"${stringField.replace(/"/g, '""')}"`;
-//   }
-//   return stringField;
-// };
-
-// const convertToCSV = (
-//   data: any[],
-//   showSubmittedBy: boolean,
-//   showSpecies: boolean
-// ): string => {
-//   if (data.length === 0) return "";
-
-//   // Define headers based on what columns are shown
-//   const headers = [
-//     "Observed At",
-//     "Coordinates (Lat & Long)",
-//     "Revenue Village",
-//     "Block",
-//     "District",
-//     ...(showSpecies ? ["Species"] : []),
-//     ...(showSubmittedBy ? ["Name", "Phone"] : []),
-//     "Submitted At",
-//   ];
-
-//   // Convert data to CSV rows
-//   const csvRows = data.map((entry) => {
-//     const speciesText = showSpecies
-//       ? entry.species.map((s: any) => transformSpeciesName(s.type)).join("; ")
-//       : "";
-
-//     const row = [
-//       `${formatObservationDate(entry.observedAt)}, ${formatObservationTime(
-//         entry.observedAt
-//       )}`,
-//       `${entry.latitude}, ${entry.longitude}`,
-//       entry.villageOrGhat,
-//       formatLocationName(entry.block),
-//       formatLocationName(entry.district),
-//       ...(showSpecies ? [speciesText] : []),
-//       ...(showSubmittedBy
-//         ? [entry.submittedBy.name, entry.submittedBy.phoneNumber]
-//         : []),
-//       `${formatObservationDate(entry.submittedAt)}, ${formatObservationTime(
-//         entry.submittedAt
-//       )}`,
-//     ];
-
-//     return row.map(escapeCSVField).join(",");
-//   });
-
-//   // Combine headers and rows
-//   return [headers.join(","), ...csvRows].join("\n");
-// };
-
-// const downloadCSV = (csvContent: string, filename: string) => {
-//   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-//   const link = document.createElement("a");
-
-//   if (link.download !== undefined) {
-//     const url = URL.createObjectURL(blob);
-//     link.setAttribute("href", url);
-//     link.setAttribute("download", filename);
-//     link.style.visibility = "hidden";
-//     document.body.appendChild(link);
-//     link.click();
-//     document.body.removeChild(link);
-//     URL.revokeObjectURL(url);
-//   }
-// };
-
 export default function SubmissionsTable({
   isLoading,
   entries,
   dateRange = undefined,
   onClearDateRange,
   onSelect,
+  onExportCSV,
   pagination = { pageIndex: 0, pageSize: 10, totalRecords: 0 },
   setPagination,
   selectedDistricts = [],
@@ -482,19 +410,6 @@ export default function SubmissionsTable({
     endDate ||
     selectedDistricts.length > 0;
 
-  //   const handleExportCSV = () => {
-  //     if (filteredData.length === 0) {
-  //       alert("No data to export");
-  //       return;
-  //     }
-
-  //     const csvContent = convertToCSV(filteredData, showSubmittedBy, showSpecies);
-  //     const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss");
-  //     const filename = `submissions_${timestamp}.csv`;
-
-  //     downloadCSV(csvContent, filename);
-  //   };
-
   return (
     <>
       <Card className="shadow-none border-0">
@@ -519,16 +434,18 @@ export default function SubmissionsTable({
               {/* Right side controls */}
               <div className="flex items-center gap-2">
                 {/* Export Button */}
-                {/* <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleExportCSV}
-                  disabled={isLoading || filteredData.length === 0}
-                  className="flex items-center gap-2 bg-white hover:bg-gray-50"
-                >
-                  <Download className="h-4 w-4" />
-                  Export CSV
-                </Button> */}
+                {!isEmpty(filteredData) && (
+                  <Tooltip>
+                    <TooltipTrigger onClick={onExportCSV}>
+                      <div className="p-2 rounded-md hover:bg-gray-200 cursor-pointer">
+                        <Download className="w-4 h-4 cursor-pointer" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Export {filteredData.length} entries</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
 
                 {/* Date Range Filters */}
                 {showDateFilter && (

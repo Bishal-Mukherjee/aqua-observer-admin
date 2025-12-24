@@ -10,17 +10,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGetOverviewMonthly } from "@/services/home";
-import { useState } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import { useState, useMemo } from "react";
+import ReactECharts from "echarts-for-react";
+import type { EChartsOption } from "echarts";
 
 // Color palette for different districts
 const COLORS = [
@@ -76,31 +68,6 @@ const LoadingSkeleton = () => (
   </Card>
 );
 
-const CustomTooltip = ({ active, payload, label, selectedType }: any) => {
-  if (active && payload && payload.length) {
-    const total = payload.reduce(
-      (sum: number, entry: any) => sum + entry.value,
-      0
-    );
-
-    return (
-      <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
-        <p className="text-sm font-medium text-gray-700 mb-2">{`${label}`}</p>
-        {payload.map((entry: any, index: number) => (
-          <p key={index} className="text-xs text-slate-600 mt-1">
-            {toTitleCaseLabel(entry.dataKey)}: {entry.value} {selectedType}
-          </p>
-        ))}
-        <hr className="my-1 border-gray-200" />
-        <p className="text-xs font-medium text-gray-800">
-          Total: {total} {selectedType}
-        </p>
-      </div>
-    );
-  }
-  return null;
-};
-
 export default function DistrictMonthlyStackedBar() {
   const [selectedType, setSelectedType] = useState<"sightings" | "reportings">(
     "reportings"
@@ -113,6 +80,108 @@ export default function DistrictMonthlyStackedBar() {
     selectedType,
     selectedYear
   );
+
+  const chartOption = useMemo<EChartsOption>(() => {
+    const chartData = data?.result?.chartData || [];
+    const regions = data?.result?.metadata?.regions || [];
+
+    // Calculate max value for Y-axis domain
+    const maxValue = Math.max(...chartData.map((item: any) => item.total || 0));
+    const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
+
+    return {
+      tooltip: {
+        trigger: "axis",
+        axisPointer: {
+          type: "shadow",
+        },
+        formatter: (params: any) => {
+          const month = params[0]?.axisValue;
+          const total = params.reduce(
+            (sum: number, entry: any) => sum + entry.value,
+            0
+          );
+          let tooltip = `<div>`;
+          tooltip += `<p style="font-weight: 600; color: #374151; margin-bottom: 8px;">${month}</p>`;
+          params.forEach((entry: any) => {
+            if (entry.value > 0) {
+              tooltip += `<p style="font-size: 12px; color: #475569; margin-top: 4px;">
+                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${
+                  entry.color
+                }; border-radius: 2px; margin-right: 6px;"></span>
+                ${toTitleCaseLabel(entry.seriesName)}: ${
+                entry.value
+              } ${selectedType}
+              </p>`;
+            }
+          });
+          tooltip += `<hr style="margin: 8px 0; border-color: #e5e7eb;" />`;
+          tooltip += `<p style="font-size: 12px; font-weight: 600; color: #111827;">Total: ${total} ${selectedType}</p>`;
+          tooltip += `</div>`;
+          return tooltip;
+        },
+        backgroundColor: "#ffffff",
+      },
+      legend: {
+        orient: "horizontal",
+        left: "center",
+        bottom: 20,
+        textStyle: {
+          fontSize: 12,
+        },
+        itemWidth: 14,
+        itemHeight: 14,
+        formatter: (name: string) => toTitleCaseLabel(name),
+      },
+      grid: {
+        top: 20,
+        right: 20,
+        left: 40,
+        bottom: 80,
+        containLabel: false,
+      },
+      xAxis: {
+        type: "category",
+        data: chartData.map((item: any) => item.month),
+        axisTick: {
+          show: true,
+        },
+        axisLine: {
+          show: false,
+        },
+        axisLabel: {
+          fontSize: 12,
+          color: "#6B7280",
+        },
+      },
+      yAxis: {
+        type: "value",
+        max: yAxisMax || 100,
+        axisLabel: {
+          fontSize: 12,
+          color: "#6B7280",
+        },
+        splitLine: {
+          lineStyle: {
+            type: "dashed",
+            color: "#E5E7EB",
+          },
+        },
+      },
+      series: regions.map((region: string, index: number) => ({
+        name: region,
+        type: "bar",
+        stack: "total",
+        data: chartData.map((item: any) => item[region] || 0),
+        itemStyle: {
+          color: COLORS[index % COLORS.length],	
+        },
+        emphasis: {
+          focus: "series",
+        },
+      })),
+    };
+  }, [data, selectedType]);
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -128,13 +197,7 @@ export default function DistrictMonthlyStackedBar() {
     );
   }
 
-  const chartData = data?.result?.chartData || [];
-  const regions = data?.result?.metadata?.regions || [];
   const summary = data?.result?.summary || {};
-
-  // Calculate max value for Y-axis domain
-  const maxValue = Math.max(...chartData.map((item: any) => item.total || 0));
-  const yAxisMax = Math.ceil(maxValue * 1.1); // Add 10% padding
 
   return (
     <Card className="col-span-2 shadow-none border-0">
@@ -157,8 +220,8 @@ export default function DistrictMonthlyStackedBar() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {/* <SelectItem value="2023">2023</SelectItem>
-                <SelectItem value="2024">2024</SelectItem> */}
+                <SelectItem value="2023">2023</SelectItem>
+                <SelectItem value="2024">2024</SelectItem>
                 <SelectItem value="2025">2025</SelectItem>
               </SelectContent>
             </Select>
@@ -181,53 +244,11 @@ export default function DistrictMonthlyStackedBar() {
       </CardHeader>
       <CardContent className="h-[300px]">
         <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={chartData}
-              margin={{
-                top: 20,
-                right: 20,
-                left: -20,
-                bottom: 60,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis
-                dataKey="month"
-                axisLine={false}
-                tickLine={true}
-                tick={{ fontSize: 12, fill: "#6B7280" }}
-              />
-              <YAxis
-                tick={{ fontSize: 12, fill: "#6B7280" }}
-                domain={[0, yAxisMax || 100]}
-              />
-              <Tooltip
-                content={<CustomTooltip selectedType={selectedType} />}
-              />
-              <Legend
-                wrapperStyle={{
-                  paddingTop: "12px",
-                  fontSize: "12px",
-                }}
-                iconType="rect"
-                iconSize={7}
-                formatter={(value) => toTitleCaseLabel(value)}
-              />
-              {regions.map((region: string, index: number) => (
-                <Bar
-                  key={region}
-                  dataKey={region}
-                  name={toTitleCaseLabel(region)}
-                  stackId="a"
-                  fill={COLORS[index % COLORS.length]}
-                  radius={
-                    index === regions.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]
-                  }
-                />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
+          <ReactECharts
+            option={chartOption}
+            style={{ width: "100%", height: "100%" }}
+            opts={{ renderer: "canvas" }}
+          />
         </div>
       </CardContent>
     </Card>

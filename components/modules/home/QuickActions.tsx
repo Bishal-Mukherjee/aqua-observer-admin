@@ -16,14 +16,16 @@ export default function QuickActions() {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-3">
-          <Button className="h-16 flex-col space-y-1">
-            <FileText className="h-5 w-5" />
-            <span className="text-xs">Review Reports</span>
-          </Button>
+          <Link href={"/reports"} className="w-full">
+            <Button className="w-full h-16 flex-col space-y-1">
+              <FileText className="h-5 w-5" />
+              <span className="text-xs">Review Reports</span>
+            </Button>
+          </Link>
           <Link href={"/users?action=add&role=sighter"} className="w-full">
             <Button
               variant="outline"
-              className="h-16 flex-col space-y-1 w-full"
+              className="w-full h-16 flex-col space-y-1"
             >
               <UserPlus className="h-5 w-5" />
               <span className="text-xs">Add Sighter</span>

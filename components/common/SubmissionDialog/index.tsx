@@ -3,6 +3,10 @@
 import React, { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import {
@@ -70,6 +74,10 @@ const SubmissionMap = dynamic(
   }
 );
 
+dayjs.extend(utc);
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+
 interface SubmissionDialogProps {
   onClose: () => void;
   submissionId: string | null;
@@ -98,20 +106,12 @@ const formatLocationName = (location: string) => {
   return location.replace(/_/g, " ");
 };
 
-const formatDateTime = (isoString: string) => {
-  const dateObj = new Date(isoString);
-  return {
-    date: dateObj.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }),
-    time: dateObj.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    }),
-  };
+const formatObservationDate = (isoString: string) => {
+  return dayjs(isoString).format("DD MMMM, YYYY");
+};
+
+const formatObservationTime = (isoString: string) => {
+  return dayjs(isoString).format("hh:mm A");
 };
 
 const getConditionBadge = (count: number, type: string) => {
@@ -349,7 +349,9 @@ const SightingDetailsSection = ({ reportData }: any) => {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-900">
-                      {formatEnumValue(reportData.waterBody)}
+                      {reportData?.waterBody
+                        ?.map((condition: string) => formatEnumValue(condition))
+                        .join(", ")}
                     </p>
                     <p className="text-xs text-gray-500">Water Body</p>
                   </div>
@@ -378,7 +380,9 @@ const SightingDetailsSection = ({ reportData }: any) => {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">
-                    {formatEnumValue(reportData.weatherCondition)}
+                    {reportData?.weatherCondition
+                      ?.map((condition: string) => formatEnumValue(condition))
+                      .join(", ")}
                   </p>
                   <p className="text-xs text-gray-500">Weather</p>
                 </div>
@@ -429,22 +433,6 @@ const SightingDetailsSection = ({ reportData }: any) => {
               </Badge>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* Notes */}
-      {reportData.notes && (
-        <div className="mb-4">
-          <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <FileText className="h-5 w-5 text-gray-500" />
-            Additional Notes
-          </h3>
-
-          <Card className="border-none shadow-none">
-            <CardContent className="px-4 py-3">
-              <p className="text-sm text-gray-700">{reportData.notes}</p>
-            </CardContent>
-          </Card>
         </div>
       )}
     </>
@@ -565,10 +553,6 @@ export default function SubmissionDialog({
     }
   };
 
-  const { date, time } = formatDateTime(
-    reportData?.observedAt || reportData?.submittedAt
-  );
-
   const isValidReport = reportData?.isValid;
 
   return (
@@ -644,7 +628,7 @@ export default function SubmissionDialog({
                           </div>
                           <div>
                             <p className="text-sm font-semibold text-gray-900">
-                              {date}
+                              {formatObservationDate(reportData.observedAt)}
                             </p>
                             <p className="text-xs text-gray-600">
                               Observation Date
@@ -657,7 +641,7 @@ export default function SubmissionDialog({
                           </div>
                           <div>
                             <p className="text-sm font-semibold text-gray-900">
-                              {time}
+                              {formatObservationTime(reportData.observedAt)}
                             </p>
                             <p className="text-xs text-gray-600">Time</p>
                           </div>
@@ -750,6 +734,24 @@ export default function SubmissionDialog({
                       <Separator className="my-4" />
                       <SightingDetailsSection reportData={reportData} />
                     </>
+                  )}
+
+                  {/* Notes */}
+                  {reportData?.notes && (
+                    <div className="mb-4">
+                      <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-gray-500" />
+                        Additional Notes
+                      </h3>
+
+                      <Card className="border-none shadow-none">
+                        <CardContent className="px-4 py-3">
+                          <p className="text-sm text-gray-700">
+                            {reportData.notes}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </div>
                   )}
 
                   <Separator className="my-4" />
