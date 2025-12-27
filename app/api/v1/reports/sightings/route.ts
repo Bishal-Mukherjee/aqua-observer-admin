@@ -141,7 +141,8 @@ export const POST = withAuth(async (request: NextRequest) => {
                    'adult', sp.adult,
                    'adultMale', sp.adult_male,
                    'adultFemale', sp.adult_female,
-                   'subAdult', sp.sub_adult
+                   'subAdult', sp.sub_adult,
+                   'unidentified', sp.unidentified
                  )
                ), '[]'
              )
@@ -151,7 +152,8 @@ export const POST = withAuth(async (request: NextRequest) => {
                  adult,
                  adult_male,
                  adult_female,
-                 sub_adult
+                 sub_adult,
+				 unidentified
                FROM sighting_species
                WHERE sighting_id = s.id
              ) sp

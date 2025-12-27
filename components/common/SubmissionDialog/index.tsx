@@ -148,6 +148,7 @@ const ageGroupMap: Record<string, string> = {
   subAdult: "Juvenile",
   adultMale: "Adult Male",
   adultFemale: "Adult Female",
+  unidentified: "Unidentified",
 };
 
 // Component for rendering species data for reporting (with conditions)
@@ -312,6 +313,16 @@ const SightingSpeciesCard = ({ species }: any) => {
                     </span>
                   </div>
                 )}
+                {speciesItem.unidentified > 0 && (
+                  <div className="flex items-center gap-1">
+                    <span className="font-medium text-gray-700">
+                      Unidentified:
+                    </span>
+                    <span className="text-gray-900">
+                      {speciesItem.unidentified}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
@@ -329,6 +340,11 @@ const SightingDetailsSection = ({ reportData }: any) => {
       .toLowerCase()
       .replace(/\b\w/g, (l) => l.toUpperCase());
   };
+
+  const hasNoneThreats =
+    reportData.threats &&
+    reportData.threats.length === 1 &&
+    reportData.threats[0] === "NONE";
 
   return (
     <>
@@ -400,17 +416,21 @@ const SightingDetailsSection = ({ reportData }: any) => {
             Threats Identified
           </h3>
 
-          <div className="flex flex-wrap gap-2">
-            {reportData.threats.map((threat: string, index: number) => (
-              <Badge
-                key={index}
-                variant="outline"
-                className="bg-red-50 text-red-800 border-red-300"
-              >
-                {formatEnumValue(threat)}
-              </Badge>
-            ))}
-          </div>
+          {hasNoneThreats ? (
+            <p className="text-sm text-gray-600 mb-2">No threats identified.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {reportData.threats.map((threat: string, index: number) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className="bg-red-50 text-red-800 border-red-300"
+                >
+                  {formatEnumValue(threat)}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
