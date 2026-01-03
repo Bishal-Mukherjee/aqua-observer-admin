@@ -10,9 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGetOverviewMonthly } from "@/services/home";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
+import dayjs from "dayjs";
 
 // Color palette for different districts
 const COLORS = [
@@ -174,7 +175,7 @@ export default function DistrictMonthlyStackedBar() {
         stack: "total",
         data: chartData.map((item: any) => item[region] || 0),
         itemStyle: {
-          color: COLORS[index % COLORS.length],	
+          color: COLORS[index % COLORS.length],
         },
         emphasis: {
           focus: "series",
@@ -182,6 +183,17 @@ export default function DistrictMonthlyStackedBar() {
       })),
     };
   }, [data, selectedType]);
+
+  const getYearOptions = useCallback(() => {
+    const currentYear = dayjs().year();
+    const MAX_YEARS = 4;
+    return Array.from({ length: MAX_YEARS }, (_, i) => currentYear - i).map(
+      (year) => ({
+        label: year.toString(),
+        value: year.toString(),
+      })
+    );
+  }, []);
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -220,9 +232,11 @@ export default function DistrictMonthlyStackedBar() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="2023">2023</SelectItem>
-                <SelectItem value="2024">2024</SelectItem>
-                <SelectItem value="2025">2025</SelectItem>
+                {getYearOptions().map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Select
