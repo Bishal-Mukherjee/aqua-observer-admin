@@ -63,7 +63,7 @@ export default function ModuleForm({
 
   const [currentStep, setCurrentStep] = useState(1);
   const [thumbnailMethod, setThumbnailMethod] = useState<"upload" | "link">(
-    "upload"
+    "upload",
   );
   const [urlMethod, setUrlMethod] = useState<"upload" | "link">("upload");
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -198,7 +198,7 @@ export default function ModuleForm({
   };
 
   const handleThumbnailFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -206,7 +206,7 @@ export default function ModuleForm({
       const uploadedFile = await uploadFile(
         "training-modules",
         "thumbnails",
-        file
+        file,
       );
       if (uploadedFile?.publicURL) {
         fileFormik.setFieldValue("thumbnail", uploadedFile.publicURL);
@@ -215,7 +215,7 @@ export default function ModuleForm({
   };
 
   const handleUrlFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -223,7 +223,7 @@ export default function ModuleForm({
       const uploadedFile = await uploadFile(
         "training-modules",
         "modules",
-        file
+        file,
       );
       if (uploadedFile?.publicURL) {
         fileFormik.setFieldValue("url", uploadedFile.publicURL);
@@ -254,7 +254,7 @@ export default function ModuleForm({
                 {
                   "opacity-50 cursor-not-allowed hover:bg-transparent":
                     isEmpty(modules),
-                }
+                },
               )}
               onClick={() => {
                 if (!isEmpty(modules)) {
@@ -403,7 +403,7 @@ export default function ModuleForm({
                       {
                         "opacity-50 cursor-not-allowed hover:bg-transparent":
                           isEmpty(modules),
-                      }
+                      },
                     )}
                     onClick={() => {
                       if (!isEmpty(modules)) {
@@ -826,7 +826,7 @@ export default function ModuleForm({
                               fileFormik.setFieldValue("url", "");
                               fileFormik.setFieldError(
                                 "url",
-                                "URL is required"
+                                "URL is required",
                               );
                             }}
                             disabled={isValidatingUrl}

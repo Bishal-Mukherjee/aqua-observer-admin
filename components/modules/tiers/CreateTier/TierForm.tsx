@@ -15,10 +15,10 @@ export default function TierForm({
   isPending: boolean;
 }) {
   return (
-    <div className="w-[45vw] p-6 border-r border-gray-100">
+    <div className="w-[45vw] pl-6 pr-2 pt-4 border-r border-gray-100 pb-4">
       <form
         onSubmit={formik.handleSubmit}
-        className="space-y-4 flex flex-col h-full overflow-y-auto pr-1"
+        className="space-y-4 flex flex-col h-full overflow-y-auto px-1 pr-4"
       >
         <div>
           <label className="block text-sm font-medium mb-1">

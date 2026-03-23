@@ -53,7 +53,7 @@ export default function CreateModuleDialog() {
           toast.success(
             `${modules.length} module${
               modules.length !== 1 ? "s" : ""
-            } created successfully`
+            } created successfully`,
           );
         },
         onError: (error) => {
@@ -85,13 +85,13 @@ export default function CreateModuleDialog() {
         </DialogTrigger>
 
         <DialogContent
-          className="max-h-[90vh] min-w-[90vw] p-0 gap-0"
+          className="max-h-[90vh] min-w-[90vw] p-1 gap-0"
           aria-describedby="create-tier-dialog"
         >
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
             <DialogTitle>Add New Modules</DialogTitle>
           </DialogHeader>
-          <div className="h-[80vh] flex gap-0">
+          <div className="h-[calc(90vh-72px)] overflow-y-auto flex gap-0">
             <div className="flex-1 border-gray-100 flex flex-col">
               <ModuleForm
                 modules={modules}

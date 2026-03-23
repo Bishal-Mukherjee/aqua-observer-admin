@@ -84,7 +84,7 @@ export default function CreateTierDialog() {
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
           <DialogTitle>Create New Tier</DialogTitle>
         </DialogHeader>
-        <div className="h-[80vh] flex gap-0">
+        <div className="h-[calc(90vh-72px)] flex gap-0">
           {/* Left: Tier Form */}
           <TierForm
             formik={formik}

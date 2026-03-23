@@ -151,11 +151,11 @@ const ModulesTable: React.FC<ModulesTableProps> = ({
                   alt={module.title.en}
                 />
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 max-w-70">
                 <p className="text-sm font-medium text-gray-900 truncate">
                   {module.title.en}
                 </p>
-                <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                <p className="text-sm text-gray-500 mt-1 line-clamp-2 truncate">
                   {module.description.en}
                 </p>
                 <div className="flex items-center mt-2 text-xs text-gray-400">
