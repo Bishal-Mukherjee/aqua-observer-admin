@@ -52,3 +52,16 @@ export const useGetOverviewLocations = (type: string, limit: number) => {
     },
   });
 };
+
+export const useGetRecentActivity = () => {
+  return useQuery({
+    queryKey: ["home", "recent-activity"],
+    queryFn: async () => {
+      const response = await axios({
+        method: "GET",
+        url: "/home/recent-activity",
+      });
+      return response.data;
+    },
+  });
+};
