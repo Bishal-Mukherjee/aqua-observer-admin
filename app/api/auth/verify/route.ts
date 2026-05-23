@@ -23,8 +23,6 @@ const verifyOtpSchema = Joi.object({
   rememberMe: Joi.boolean().optional(),
 });
 
-const WILDCARD_CODE = "000000";
-
 export const POST = async (request: NextRequest) => {
   try {
     const body = await request.json();
