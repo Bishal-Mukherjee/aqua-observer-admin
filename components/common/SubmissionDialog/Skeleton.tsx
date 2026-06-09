@@ -76,13 +76,24 @@ export default function DetailedDialogSkeleton() {
 
           <Card className="border-none shadow-none">
             <CardContent className="px-4 py-0">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center">
-                  <Home className="h-5 w-5 text-orange-600" />
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center">
+                    <Home className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <Skeleton className="h-4 w-32 mb-1" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
                 </div>
-                <div>
-                  <Skeleton className="h-4 w-32 mb-1" />
-                  <Skeleton className="h-3 w-20" />
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-violet-50 rounded-full flex items-center justify-center">
+                    <Skeleton className="h-5 w-5 rounded-full" />
+                  </div>
+                  <div className="text-right">
+                    <Skeleton className="h-4 w-28 mb-1" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
                 </div>
               </div>
             </CardContent>

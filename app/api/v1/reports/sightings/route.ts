@@ -58,11 +58,11 @@ export const POST = withAuth(async (request: NextRequest) => {
     }
 
     if (waterBody && Array.isArray(waterBody) && waterBody.length > 0) {
-      const waterBodyPlaceholders = waterBody
-        .map((_, index) => `$${queryParams.length + index + 1}`)
-        .join(",");
-      conditions.push(`s.water_body IN (${waterBodyPlaceholders})`);
-      queryParams.push(...waterBody);
+      const waterBodyFilters = waterBody.map((body) => {
+        queryParams.push(body);
+        return `$${queryParams.length} = ANY(s.water_body)`;
+      });
+      conditions.push(`(${waterBodyFilters.join(" OR ")})`);
     }
 
     if (
@@ -84,13 +84,11 @@ export const POST = withAuth(async (request: NextRequest) => {
       Array.isArray(weatherConditions) &&
       weatherConditions.length > 0
     ) {
-      const weatherConditionPlaceholders = weatherConditions
-        .map((_, index) => `$${queryParams.length + index + 1}`)
-        .join(",");
-      conditions.push(
-        `s.weather_condition IN (${weatherConditionPlaceholders})`
-      );
-      queryParams.push(...weatherConditions);
+      const weatherConditionsFilter = weatherConditions.map((condition) => {
+        queryParams.push(condition);
+        return `$${queryParams.length} = ANY(s.weather_condition)`;
+      });
+      conditions.push(`(${weatherConditionsFilter.join(" OR ")})`);
     }
 
     if (threats && Array.isArray(threats) && threats.length > 0) {
