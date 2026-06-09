@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -24,6 +25,14 @@ const toTitleCaseLabel = (text: string) =>
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
+
+const formatPieLabel = (name: string) => {
+  const words = name.split(" ");
+  if (words.length === 3) {
+    return `${words[0]}\n${words[1]} ${words[2]}`;
+  }
+  return words.join("\n");
+};
 
 interface DistributionData {
   region: string;
@@ -101,6 +110,10 @@ export default function DistributionOverviewDonut() {
     );
 
     return {
+      tooltip: {
+        trigger: "item",
+        formatter: "{b}: {c} ({d}%)",
+      },
       legend: {
         orient: "horizontal",
         left: "center",
@@ -115,7 +128,7 @@ export default function DistributionOverviewDonut() {
       graphic: {
         type: "text",
         left: "center",
-        top: "40%",
+        top: "38%",
         style: {
           text: `Total ${
             selectedType.charAt(0).toUpperCase() + selectedType.slice(1)
@@ -127,9 +140,9 @@ export default function DistributionOverviewDonut() {
       },
       series: [
         {
-          top: -40,
+          top: -52,
           type: "pie",
-          radius: ["80", "120"],
+          radius: ["70", "100"],
           center: ["50%", "50%"],
           data: chartData.map((item) => ({
             name: item.region,
@@ -140,9 +153,19 @@ export default function DistributionOverviewDonut() {
           })),
           label: {
             show: true,
+            overflow: "none",
+            fontSize: 10,
+            formatter: (params: { name?: string }) =>
+              formatPieLabel(params.name ?? ""),
           },
           labelLine: {
             show: true,
+            length: 6,
+            length2: 6,
+            smooth: true,
+          },
+          labelLayout: {
+            hideOverlap: false,
           },
           emphasis: {
             itemStyle: {
@@ -199,8 +222,8 @@ export default function DistributionOverviewDonut() {
           <span className="font-medium">{dayjs().format("MMM DD, YYYY")}</span>
         </span>
       </CardHeader>
-      <CardContent>
-        <div className="h-[360px] w-full flex items-center justify-center">
+      <CardContent className="px-0">
+        <div className="h-[360px] w-full">
           <ReactECharts
             option={chartOption}
             style={{ width: "100%", height: "100%" }}

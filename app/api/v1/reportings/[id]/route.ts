@@ -26,6 +26,7 @@ export const GET = withAuth(
              r.block,
              r.district,
              r.village_or_ghat AS "villageOrGhat",
+             r.landmark,
              r.images,
              r.submission_context AS "submissionContext",
              r.submitted_at AS "submittedAt",

@@ -3,7 +3,7 @@
 import React, { Fragment } from "react";
 import dynamic from "next/dynamic";
 import { Helmet } from "react-helmet-async";
-import { MapPinned, Map as MapIcon } from "lucide-react";
+import { ArrowRight, FileText, MapPinned, Map as MapIcon } from "lucide-react";
 import { useGetOverviewLocations } from "@/services/home";
 import GreetingSection from "@/components/modules/home/GreetingSection";
 import CarouselSection from "@/components/modules/home/CarouselSection";
@@ -14,6 +14,7 @@ import QuickActions from "@/components/modules/home/QuickActions";
 import RecentActivity from "@/components/modules/home/RecentActivity";
 import { APP_NAME } from "@/constants/constants";
 import SubmissionDialog from "@/components/common/SubmissionDialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Select,
@@ -24,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { isEmpty } from "lodash";
 import { useSpecies } from "@/store/useSpecies";
+import Link from "next/link";
 
 const InteractiveMap = dynamic(
   () => import("@/components/common/InteractiveMap"),
@@ -74,6 +76,19 @@ export default function DashboardPage() {
           <DistributionOverviewDonut />
           <DistrictMonthlyStackedBar />
         </div>
+        <Alert className="border-l-4 border-l-primary">
+          <FileText className="text-primary h-5 w-5 -mt-0.5" />
+          <AlertDescription className="text-xs flex items-center">
+            <span className="font-medium">Need a detailed breakdown? </span>
+            <Link
+              href="/reports"
+              className="inline-flex items-center gap-0.5 font-medium text-primary hover:underline"
+            >
+              Generate a report
+              <ArrowRight className="h-3 w-3" />
+            </Link>
+          </AlertDescription>
+        </Alert>
         <div className="grid gap-4 lg:grid-cols-2">
           <Card className="shadow-none border-none z-10">
             <CardHeader className="flex items-center justify-between">

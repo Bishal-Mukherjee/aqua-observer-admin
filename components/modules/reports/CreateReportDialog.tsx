@@ -174,7 +174,7 @@ export default function CreateReportDialog() {
                       "reports",
                       new File([csvBlob], `${Date.now()}.csv`, {
                         type: "text/csv",
-                      })
+                      }),
                     );
 
                     let csvUrl = "";
@@ -189,7 +189,22 @@ export default function CreateReportDialog() {
                     setGenerationProgress(60);
 
                     generateReport(
-                      { data: data.result, type: values.submissionType },
+                      {
+                        data: data.result,
+                        type: values.submissionType,
+                        parameters: {
+                          dateRange: values.dateRange,
+                          districts: values.districts,
+                          species: values.species,
+                          ...(values.submissionType === "sightings" && {
+                            waterBody: values.waterBody,
+                            waterBodyConditions: values.waterBodyConditions,
+                            weatherConditions: values.weatherConditions,
+                            threats: values.threats,
+                            fishingGears: values.fishingGears,
+                          }),
+                        },
+                      },
                       {
                         onSuccess: async (pdfBlob) => {
                           setGenerationProgress(80);
@@ -241,21 +256,21 @@ export default function CreateReportDialog() {
                           toast.error("Failed to generate PDF report");
                           setGenerationProgress(0);
                         },
-                      }
+                      },
                     );
                   },
                   onError: () => {
                     toast.error("Failed to fetch report data");
                     setGenerationProgress(0);
                   },
-                }
+                },
               );
             },
             onError: () => {
               toast.error("Failed to create report record");
               setGenerationProgress(0);
             },
-          }
+          },
         );
       } catch (err) {
         toast.error("An unexpected error occurred");

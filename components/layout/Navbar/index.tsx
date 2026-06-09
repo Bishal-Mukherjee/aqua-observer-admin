@@ -3,23 +3,23 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { isEmpty } from "lodash";
-import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+// import { toast } from "sonner";
+// import { Input } from "@/components/ui/input";
+// import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/store/useSidebar";
 import { useAuth } from "@/store/useAuth";
 import { useNotificationPagination } from "@/store/pagination/useNotificationPagination";
 import { useGetNotifications } from "@/services/notifications";
-import { createClient } from "@supabase/supabase-js";
+// import { createClient } from "@supabase/supabase-js";
 import NotificationPopover from "@/components/layout/Navbar/NotificationPopover";
 import SubmissionDialog from "@/components/common/SubmissionDialog";
 import { useSpecies } from "@/store/useSpecies";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// const supabase = createClient(
+//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
+//   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// );
 
 const getPageInfo = (pathname: string) => {
   const path = pathname.split("/").pop();
@@ -137,38 +137,38 @@ export default function Navbar() {
     }
   }, [currentPage, hasMore, isLoading, setCurrentPage]);
 
-  useEffect(() => {
-    const subscription = supabase
-      .channel("reportings") // disbale RLS for this table and enable real-time updates
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "reportings" },
-        (payload: any) => {
-          refetch();
-          toast.warning(getToastText(payload.new?.submission_type), {
-            action: {
-              label: "View",
-              onClick: () => {
-                setIsOpen({
-                  id: payload.new?.id,
-                  submissionType: "REPORTING",
-                  //   submissionType: payload.new?.submission_context.includes(
-                  //     "REPORTING"
-                  //   )
-                  //     ? "REPORTING"
-                  //     : "SIGHTING",
-                });
-              },
-            },
-          });
-        }
-      )
-      .subscribe();
+  // useEffect(() => {
+  //   const subscription = supabase
+  //     .channel("reportings") // disbale RLS for this table and enable real-time updates
+  //     .on(
+  //       "postgres_changes",
+  //       { event: "*", schema: "public", table: "reportings" },
+  //       (payload: any) => {
+  //         refetch();
+  //         toast.warning(getToastText(payload.new?.submission_type), {
+  //           action: {
+  //             label: "View",
+  //             onClick: () => {
+  //               setIsOpen({
+  //                 id: payload.new?.id,
+  //                 submissionType: "REPORTING",
+  //                 //   submissionType: payload.new?.submission_context.includes(
+  //                 //     "REPORTING"
+  //                 //   )
+  //                 //     ? "REPORTING"
+  //                 //     : "SIGHTING",
+  //               });
+  //             },
+  //           },
+  //         });
+  //       }
+  //     )
+  //     .subscribe();
 
-    return () => {
-      supabase.removeChannel(subscription);
-    };
-  }, []);
+  //   return () => {
+  //     supabase.removeChannel(subscription);
+  //   };
+  // }, []);
 
   useEffect(() => {
     if (isOpen && currentPage === 1) {
@@ -273,9 +273,9 @@ export default function Navbar() {
             {user?.name.charAt(0)}
           </div> */}
           <div className="hidden md:block">
-            <p className="text-sm font-medium text-gray-900">
+            {/* <p className="text-sm font-medium text-gray-900">
               {user?.name || "Guest"}
-            </p>
+            </p> */}
             <p className="text-xs text-gray-500">{user?.role || "User"}</p>
           </div>
         </div>

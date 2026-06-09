@@ -25,6 +25,7 @@ export const GET = withAuth(
            s.district,
            s.block,
            s.village_or_ghat AS "villageOrGhat",
+           s.landmark,
            s.latitude,
            s.longitude,
            s.water_body AS "waterBody",

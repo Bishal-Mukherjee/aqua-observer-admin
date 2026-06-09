@@ -30,6 +30,7 @@ import {
   Bandage,
   Home,
   MapPinIcon,
+  MapPinnedIcon,
   PawPrint,
   Siren,
   AlertCircle,
@@ -71,7 +72,7 @@ const SubmissionMap = dynamic(
         <div className="text-gray-500 text-sm">Loading map...</div>
       </div>
     ),
-  }
+  },
 );
 
 dayjs.extend(utc);
@@ -103,6 +104,7 @@ const formatCause = (cause: string) => {
 };
 
 const formatLocationName = (location: string) => {
+  if (!location) return "";
   return location.replace(/_/g, " ");
 };
 
@@ -134,7 +136,7 @@ const getConditionBadge = (count: number, type: string) => {
       variant="outline"
       className={cn(
         "text-xs border-none px-2",
-        colorMap[type as keyof typeof colorMap]
+        colorMap[type as keyof typeof colorMap],
       )}
     >
       {iconMap[type as keyof typeof iconMap]}&nbsp;
@@ -158,7 +160,7 @@ const ReportingSpeciesCard = ({ species, speciesData, causes }: any) => {
 
     return species.map((speciesItem: any) => {
       const ageGroup = speciesData.find(
-        (s: any) => s.value === speciesItem.type
+        (s: any) => s.value === speciesItem.type,
       )?.ageGroup;
 
       return {
@@ -227,7 +229,7 @@ const ReportingSpeciesCard = ({ species, speciesData, causes }: any) => {
                 variant="outline"
                 className={cn(
                   "text-sm font-medium border-none px-3 py-1",
-                  getSpeciesDisplayColor(species.type)
+                  getSpeciesDisplayColor(species.type),
                 )}
               >
                 {transformSpeciesName(species.type)}
@@ -276,7 +278,7 @@ const SightingSpeciesCard = ({ species }: any) => {
                 variant="outline"
                 className={cn(
                   "text-sm font-medium border-none px-3 py-1",
-                  getSpeciesDisplayColor(speciesItem.type)
+                  getSpeciesDisplayColor(speciesItem.type),
                 )}
               >
                 {transformSpeciesName(speciesItem.type)}
@@ -507,7 +509,7 @@ export default function SubmissionDialog({
 
   const handleImageClick = (
     e: React.MouseEvent<HTMLImageElement>,
-    imageUrl: string
+    imageUrl: string,
   ) => {
     const win = window.open("", "_blank");
     if (win) {
@@ -553,14 +555,14 @@ export default function SubmissionDialog({
             toast.success(
               `${
                 isSighting ? "Sighting" : "Report"
-              } status updated successfully`
+              } status updated successfully`,
             );
           },
           onError: () => {
             toast.error(
               `Failed to update ${
                 isSighting ? "sighting" : "report"
-              } status. Please try again.`
+              } status. Please try again.`,
             );
           },
           onSettled: () => {
@@ -568,7 +570,7 @@ export default function SubmissionDialog({
             setAction(null);
             onClose();
           },
-        }
+        },
       );
     }
   };
@@ -601,8 +603,8 @@ export default function SubmissionDialog({
                           isSighting
                             ? "bg-blue-50 text-blue-800"
                             : reportData.type === "LIVE_REPORTING"
-                            ? "bg-green-50 text-green-800"
-                            : "bg-blue-50 text-blue-800"
+                              ? "bg-green-50 text-green-800"
+                              : "bg-blue-50 text-blue-800",
                         )}
                       >
                         {reportData?.type?.split("_")[0]}
@@ -706,18 +708,35 @@ export default function SubmissionDialog({
 
                       <Card className="border-none shadow-none">
                         <CardContent className="px-4 py-0">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center">
-                              <Home className="h-5 w-5 text-orange-600" />
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center">
+                                <Home className="h-5 w-5 text-orange-600" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-semibold text-gray-900">
+                                  {reportData.villageOrGhat || "—"}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Village/Ghat
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-sm font-semibold text-gray-900">
-                                {reportData.villageOrGhat}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                Village/Ghat
-                              </p>
-                            </div>
+                            {reportData.landmark && (
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-violet-50 rounded-full flex items-center justify-center">
+                                  <MapPinnedIcon className="h-5 w-5 text-violet-600" />
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-sm font-semibold text-gray-900">
+                                    {reportData.landmark || "—"}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    Landmark
+                                  </p>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
@@ -817,7 +836,7 @@ export default function SubmissionDialog({
                                 />
                               )}
                             </div>
-                          )
+                          ),
                         )}
                       </div>
                     ) : (
@@ -855,7 +874,7 @@ export default function SubmissionDialog({
                               <Phone className="h-4 w-4 text-gray-500" />
                               <span className="text-gray-700 font-mono text-sm">
                                 {formatPhoneNumber(
-                                  reportData.submittedBy.phoneNumber
+                                  reportData.submittedBy.phoneNumber,
                                 )}
                               </span>
                             </div>
@@ -891,7 +910,7 @@ export default function SubmissionDialog({
                     latitude={reportData.latitude}
                     locationName={`${
                       reportData.villageOrGhat
-                    }, ${formatLocationName(reportData.block)}`}
+                    }, ${formatLocationName(reportData.block)}, ${formatLocationName(reportData.landmark)}`}
                     species={reportData.species}
                   />
                 </div>

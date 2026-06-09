@@ -195,9 +195,9 @@ export default function Sidebar() {
             <h2 className="font-bold text-lg text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
               {APP_NAME}
             </h2>
-            <p className="text-xs text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis">
+            {/* <p className="text-xs text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis">
               Admin Dashboard
-            </p>
+            </p> */}
           </div>
         </div>
       </div>
