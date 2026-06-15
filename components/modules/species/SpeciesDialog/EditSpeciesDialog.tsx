@@ -252,7 +252,7 @@ export const EditSpeciesDialog = ({
     if (file) {
       setImageFile(file);
       const uploadedFile = await uploadFile(
-        "platform-assets-bucket",
+        "platform-assets",
         "species",
         file
       );

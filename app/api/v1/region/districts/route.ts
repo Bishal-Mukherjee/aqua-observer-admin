@@ -1,18 +1,25 @@
-import axios from "axios";
 import { NextResponse } from "next/server";
 import { withAuth } from "@/app/api/lib/with-auth";
-import { config } from "@/app/api/config";
+import { getLookupObjectKey, getObjectFromS3 } from "@/lib/storage";
 
 export const GET = withAuth(async () => {
   try {
-    const url = `${config.supabase.url}/storage/v1/object/${config.supabase.lookupBucket}/districts.json`;
+    const { bucket, key } = getLookupObjectKey("districts.json");
+    const objectBody = await getObjectFromS3(bucket, key);
 
-    const districts = await axios({ url, method: "GET" });
+    if (!objectBody) {
+      return NextResponse.json({
+        message: "Districts not found",
+        result: [],
+      });
+    }
 
-    if (districts.data?.length) {
+    const districts = JSON.parse(objectBody);
+
+    if (districts?.length) {
       return NextResponse.json({
         message: "Districts fetched successfully",
-        result: districts.data,
+        result: districts,
       });
     }
 
