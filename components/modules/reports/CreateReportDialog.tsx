@@ -21,6 +21,7 @@ import {
   useUpdateReport,
 } from "@/services/reports";
 import { useFileUpload } from "@/hooks/useFileUpload";
+import { downloadResource } from "@/services/resources";
 import { ReportCriteriaForm } from "@/components/modules/reports/ReportForm/ReportCriteriaForm";
 import { ReportEnvironmentalForm } from "@/components/modules/reports/ReportForm/ReportEnvironmentalForm";
 import {
@@ -79,7 +80,7 @@ const validationSchema = Yup.object({
 });
 
 export default function CreateReportDialog() {
-  const { uploadFile } = useFileUpload();
+  const { uploadReportFile } = useFileUpload();
 
   const { mutate: fetchFilteredDocs, isPending } = useFetchFilteredDocs();
   const { mutate: createReport, isPending: isCreating } = useCreateReport();
@@ -135,6 +136,7 @@ export default function CreateReportDialog() {
           },
           {
             onSuccess: (reportRecord) => {
+              const reportId = reportRecord.data.id;
               setGenerationProgress(15);
 
               fetchFilteredDocs(
@@ -169,12 +171,12 @@ export default function CreateReportDialog() {
                       type: "text/csv;charset=utf-8;",
                     });
 
-                    const csvUploadResult = await uploadFile(
-                      "dashboard-bucket",
-                      "reports",
-                      new File([csvBlob], `${Date.now()}.csv`, {
+                    const csvUploadResult = await uploadReportFile(
+                      reportId,
+                      new File([csvBlob], "data.csv", {
                         type: "text/csv",
                       }),
+                      "data.csv",
                     );
 
                     let csvUrl = "";
@@ -209,12 +211,12 @@ export default function CreateReportDialog() {
                         onSuccess: async (pdfBlob) => {
                           setGenerationProgress(80);
 
-                          const uploadResult = await uploadFile(
-                            "dashboard-bucket",
-                            "reports",
-                            new File([pdfBlob], `${Date.now()}.pdf`, {
+                          const uploadResult = await uploadReportFile(
+                            reportId,
+                            new File([pdfBlob], "report.pdf", {
                               type: "application/pdf",
-                            })
+                            }),
+                            "report.pdf",
                           );
 
                           let pdfUrl = "";
@@ -230,7 +232,7 @@ export default function CreateReportDialog() {
 
                           updateReport(
                             {
-                              reportId: reportRecord.data.id,
+                              reportId,
                               reportUrl: pdfUrl,
                               csvDataUrl: csvUrl,
                             },
@@ -248,7 +250,7 @@ export default function CreateReportDialog() {
                                 toast.error("Failed to update report record");
                                 setGenerationProgress(0);
                               },
-                            }
+                            },
                           );
                         },
                         onError: (err) => {
@@ -285,24 +287,9 @@ export default function CreateReportDialog() {
 
   const downloadReports = async (fileType: "pdf" | "csv") => {
     if (fileType === "pdf" && fileLink.analysisFile) {
-      const [, fileName] = fileLink.analysisFile.split("/reports/");
-
-      const response = await fetch(fileLink.analysisFile);
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      a.click();
-
-      URL.revokeObjectURL(url);
+      await downloadResource(fileLink.analysisFile);
     } else if (fileType === "csv" && fileLink.reportFile) {
-      const [, fileName] = fileLink.reportFile.split("/reports/");
-      const a = document.createElement("a");
-      a.href = fileLink.reportFile;
-      a.download = fileName;
-      a.click();
+      await downloadResource(fileLink.reportFile);
     }
   };
 
