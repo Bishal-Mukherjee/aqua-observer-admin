@@ -204,7 +204,7 @@ export default function ModuleForm({
     if (file) {
       setThumbnailFile(file);
       const uploadedFile = await uploadFile(
-        "training-modules",
+        "modules",
         "thumbnails",
         file,
       );
@@ -221,7 +221,7 @@ export default function ModuleForm({
     if (file) {
       setUrlFile(file);
       const uploadedFile = await uploadFile(
-        "training-modules",
+        "modules",
         "modules",
         file,
       );

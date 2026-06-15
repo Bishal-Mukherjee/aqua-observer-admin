@@ -208,7 +208,7 @@ export const AddSpeciesDialog = () => {
       setImageFile(file);
       // Uncomment and modify if you have file upload functionality
       const uploadedFile = await uploadFile(
-        "platform-assets-bucket",
+        "platform-assets",
         "species",
         file
       );
