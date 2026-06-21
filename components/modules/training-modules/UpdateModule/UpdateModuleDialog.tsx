@@ -119,7 +119,7 @@ export default function UpdateModuleDialog({
 
   // File upload states
   const [thumbnailMethod, setThumbnailMethod] = useState<"upload" | "link">(
-    "link"
+    "link",
   );
   const [urlMethod, setUrlMethod] = useState<"upload" | "link">("link");
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -167,7 +167,7 @@ export default function UpdateModuleDialog({
           onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["modules"] });
           },
-        }
+        },
       );
     },
   });
@@ -226,17 +226,13 @@ export default function UpdateModuleDialog({
 
   // Handle thumbnail file upload
   const handleThumbnailFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     formik.setFieldValue("thumbnail", "");
     const file = event.target.files?.[0];
     if (file) {
       setThumbnailFile(file);
-      const uploadedFile = await uploadFile(
-        "modules",
-        "thumbnails",
-        file
-      );
+      const uploadedFile = await uploadFile("modules", "thumbnails", file);
       if (uploadedFile?.publicURL) {
         formik.setFieldValue("thumbnail", uploadedFile.publicURL);
       }
@@ -245,17 +241,13 @@ export default function UpdateModuleDialog({
 
   // Handle URL file upload
   const handleUrlFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     formik.setFieldValue("url", "");
     const file = event.target.files?.[0];
     if (file) {
       setUrlFile(file);
-      const uploadedFile = await uploadFile(
-        "modules",
-        "modules",
-        file
-      );
+      const uploadedFile = await uploadFile("modules", "modules", file);
       if (uploadedFile?.publicURL) {
         formik.setFieldValue("url", uploadedFile.publicURL);
       }
@@ -328,7 +320,7 @@ export default function UpdateModuleDialog({
           onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["modules"] });
           },
-        }
+        },
       );
     }
     setShowDeactivateAlert(false);
@@ -384,7 +376,7 @@ export default function UpdateModuleDialog({
                   <SelectContent>
                     {tierOptions
                       ?.sort((a: { value: string }, b: { value: string }) =>
-                        a.value.localeCompare(b.value)
+                        a.value.localeCompare(b.value),
                       )
                       .map((tierOption: { label: string; value: string }) => (
                         <SelectItem

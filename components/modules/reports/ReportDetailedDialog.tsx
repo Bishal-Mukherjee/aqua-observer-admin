@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useFetchReportById } from "@/services/reports";
+import { downloadResource } from "@/services/resources";
 import { getSpeciesDisplayColor } from "@/constants/colorMaps";
 import { useStaticLookup } from "@/store/useStaticLookup";
 import { useDistrictStore } from "@/store/useDistricts";
@@ -77,24 +78,8 @@ export default function ReportDetailedDialog({
 
   const report = reportData?.result;
 
-  const downloadFile = async (fileUrl: string, fileType: "pdf" | "csv") => {
-    const [, fileName] = fileUrl.split("/reports/");
-
-    if (fileType === "pdf") {
-      const response = await fetch(fileUrl);
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      a.click();
-      URL.revokeObjectURL(url);
-    } else {
-      const a = document.createElement("a");
-      a.href = fileUrl;
-      a.download = fileName;
-      a.click();
-    }
+  const downloadFile = async (fileUrl: string) => {
+    await downloadResource(fileUrl);
   };
 
   return (
@@ -134,7 +119,7 @@ export default function ReportDetailedDialog({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => downloadFile(report.reportUrl!, "pdf")}
+                      onClick={() => downloadFile(report.reportUrl!)}
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <FileText className="h-4 w-4 text-blue-600" />
@@ -145,7 +130,7 @@ export default function ReportDetailedDialog({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => downloadFile(report.csvDataUrl!, "csv")}
+                      onClick={() => downloadFile(report.csvDataUrl!)}
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <Download className="h-4 w-4 text-green-600" />

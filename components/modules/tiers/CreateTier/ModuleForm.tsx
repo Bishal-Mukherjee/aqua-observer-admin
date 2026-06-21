@@ -203,11 +203,7 @@ export default function ModuleForm({
     const file = event.target.files?.[0];
     if (file) {
       setThumbnailFile(file);
-      const uploadedFile = await uploadFile(
-        "modules",
-        "thumbnails",
-        file,
-      );
+      const uploadedFile = await uploadFile("modules", "thumbnails", file);
       if (uploadedFile?.publicURL) {
         fileFormik.setFieldValue("thumbnail", uploadedFile.publicURL);
       }
@@ -220,11 +216,7 @@ export default function ModuleForm({
     const file = event.target.files?.[0];
     if (file) {
       setUrlFile(file);
-      const uploadedFile = await uploadFile(
-        "modules",
-        "modules",
-        file,
-      );
+      const uploadedFile = await uploadFile("modules", "modules", file);
       if (uploadedFile?.publicURL) {
         fileFormik.setFieldValue("url", uploadedFile.publicURL);
       }

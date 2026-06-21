@@ -1,8 +1,6 @@
-import {
-  GetObjectCommand,
-  PutObjectCommand,
-} from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { REPORTS_PREFIX } from "@/constants/storage";
 import { getS3Client } from "@/app/api/config/s3";
 import { config } from "@/app/api/config";
 
@@ -38,11 +36,22 @@ export function parseStoragePath(pathOrUrl: string): {
   return { bucket, key: pathOrUrl };
 }
 
+export function buildReportObjectKey(
+  reportId: string,
+  fileName: string,
+): string {
+  return `${REPORTS_PREFIX}/${reportId}/${fileName}`;
+}
+
 export function buildObjectKey(
   prefix: string,
-  dirname: string,
-  filename: string
+  dirname: string | undefined,
+  filename: string,
 ): string {
+  if (!dirname) {
+    return `${prefix}/${filename}`;
+  }
+
   return `${prefix}/${dirname}/${filename}`;
 }
 
@@ -54,7 +63,7 @@ export function buildObjectUrl(key: string): string {
 export async function createPresignedGetUrl(
   bucket: string,
   key: string,
-  expiresIn: number
+  expiresIn: number,
 ): Promise<string> {
   const command = new GetObjectCommand({ Bucket: bucket, Key: key });
   return getSignedUrl(getS3Client(), command, { expiresIn });
@@ -64,7 +73,7 @@ export async function uploadToS3(
   bucket: string,
   key: string,
   body: Buffer,
-  contentType: string
+  contentType: string,
 ): Promise<void> {
   await getS3Client().send(
     new PutObjectCommand({
@@ -72,19 +81,36 @@ export async function uploadToS3(
       Key: key,
       Body: body,
       ContentType: contentType,
-    })
+    }),
   );
 }
 
 export async function getObjectFromS3(
   bucket: string,
-  key: string
+  key: string,
 ): Promise<string> {
   const response = await getS3Client().send(
-    new GetObjectCommand({ Bucket: bucket, Key: key })
+    new GetObjectCommand({ Bucket: bucket, Key: key }),
   );
 
   return (await response.Body?.transformToString()) ?? "";
+}
+
+export async function getObjectFromS3Binary(
+  bucket: string,
+  key: string,
+): Promise<{ body: Uint8Array; contentType?: string }> {
+  const response = await getS3Client().send(
+    new GetObjectCommand({ Bucket: bucket, Key: key }),
+  );
+
+  const body = await response.Body?.transformToByteArray();
+
+  if (!body) {
+    throw new Error("Empty object body");
+  }
+
+  return { body, contentType: response.ContentType };
 }
 
 export function getLookupObjectKey(filename: string): {
