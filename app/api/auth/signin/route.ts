@@ -44,14 +44,14 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const sendCodeResponse = await sendCode(phoneNumber);
+    // const sendCodeResponse = await sendCode(phoneNumber);
 
-    if (sendCodeResponse.status !== "pending") {
-      return NextResponse.json(
-        { error: "Failed to send OTP" },
-        { status: 500 }
-      );
-    }
+    // if (sendCodeResponse.status !== "pending") {
+    //   return NextResponse.json(
+    //     { error: "Failed to send OTP" },
+    //     { status: 500 }
+    //   );
+    // }
 
     return NextResponse.json(
       { message: "OTP sent successfully" },

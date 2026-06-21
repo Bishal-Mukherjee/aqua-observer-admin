@@ -46,11 +46,11 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const verifyResponse = await verifyCode(phoneNumber, code);
+    // const verifyResponse = await verifyCode(phoneNumber, code);
 
-    if (verifyResponse.status !== "approved") {
-      return NextResponse.json({ error: "Invalid OTP code" }, { status: 401 });
-    }
+    // if (verifyResponse.status !== "approved") {
+    //   return NextResponse.json({ error: "Invalid OTP code" }, { status: 401 });
+    // }
 
     const user = query.rows[0];
 

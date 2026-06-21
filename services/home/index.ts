@@ -1,5 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "@/services/api-instance";
+import dayjs from "dayjs";
+import { getMonthIndex } from "@/lib/date";
+
+export type MonthlyDistrictSubmissionsParams = {
+  type: "sightings" | "reportings";
+  year: string;
+  month: string;
+  district: string;
+};
 
 export const useGetHomeStats = () => {
   return useQuery({
@@ -60,6 +69,37 @@ export const useGetRecentActivity = () => {
       const response = await axios({
         method: "GET",
         url: "/home/recent-activity",
+      });
+      return response.data;
+    },
+  });
+};
+
+export const useGetMonthlyDistrictSubmissions = () => {
+  return useMutation({
+    mutationFn: async ({
+      type,
+      year,
+      month,
+      district,
+    }: MonthlyDistrictSubmissionsParams) => {
+      const monthNumber = getMonthIndex(month);
+      if (!monthNumber) {
+        throw new Error(`Invalid month label: ${month}`);
+      }
+
+      const yearNum = Number(year);
+      const monthStart = dayjs(
+        `${yearNum}-${String(monthNumber).padStart(2, "0")}-01`
+      );
+      const from = monthStart.format("YYYY-MM-DD");
+      const to = monthStart.endOf("month").format("YYYY-MM-DD");
+
+      const response = await axios({
+        method: "GET",
+        url: `/${type}?from=${from}&to=${to}&districts=${encodeURIComponent(
+          district
+        )}&page=1`,
       });
       return response.data;
     },
