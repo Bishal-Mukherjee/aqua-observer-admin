@@ -6,6 +6,7 @@ interface Config {
     name: string;
     user: string;
     password: string;
+    ssl: boolean;
   };
   twilio: {
     serviceSid: string;
@@ -18,10 +19,14 @@ interface Config {
     host: string;
     port: number;
   };
-  supabase: {
-    url: string;
-    anonKey: string;
-    lookupBucket: string;
+  aws: {
+    region: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
+  s3: {
+    bucket: string;
+    lookupPrefix: string;
   };
   jwtSecret: string;
 }
@@ -35,6 +40,7 @@ export const config: Config = {
     name: process.env.DB_NAME || "",
     user: process.env.DB_USER || "",
     password: process.env.DB_PASSWORD || "",
+    ssl: process.env.DB_SSL !== "false",
   },
   twilio: {
     serviceSid: process.env.TWILIO_SERVICE_SID || "",
@@ -47,9 +53,13 @@ export const config: Config = {
     host: process.env.REDIS_HOST || "",
     port: Number(process.env.REDIS_PORT),
   },
-  supabase: {
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-    anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-    lookupBucket: process.env.NEXT_PUBLIC_LOOKUP_BUCKET || "",
+  aws: {
+    region: process.env.AWS_REGION || "",
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
+  },
+  s3: {
+    bucket: process.env.AWS_S3_BUCKET || "",
+    lookupPrefix: process.env.AWS_S3_LOOKUP_PREFIX || "",
   },
 };

@@ -111,13 +111,23 @@ export const useFetchReportById = (reportId: string) => {
 };
 
 export const useGenerateReport = () => {
+  const token = localStorage.getItem("auth-storage") || "";
+  let accessToken = "";
+
+  if (token) {
+    accessToken = JSON.parse(token).state.accessToken;
+  }
+
   return useMutation({
     mutationFn: async (data: any) => {
       const response = await baseAxios({
-        url: `${process.env.NEXT_PUBLIC_SUBMISSION_URL}/generate-reports/${data.type}`,
+        url: `${process.env.NEXT_PUBLIC_RUDRA_SERVICE_URL}/reports/generate`,
         method: "POST",
         data,
         responseType: "blob",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
       return response.data;
     },

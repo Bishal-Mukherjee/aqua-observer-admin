@@ -1,7 +1,9 @@
-import { Pool } from "pg";
+import { Pool, PoolConfig } from "pg";
 import { config } from "@/app/api/config";
+import fs from "fs";
+import path from "path";
 
-export const pool = new Pool({
+let poolConfig: PoolConfig = {
   user: config.db.user,
   database: config.db.name,
   host: config.db.host,
@@ -10,4 +12,18 @@ export const pool = new Pool({
   ssl: {
     rejectUnauthorized: false,
   },
-});
+};
+
+if (config.db.ssl) {
+  const caCertPath = path.join(process.cwd(), "certs/global-bundle.pem");
+
+  poolConfig = {
+    ...poolConfig,
+    ssl: {
+      rejectUnauthorized: true,
+      ca: fs.readFileSync(caCertPath).toString(),
+    },
+  };
+}
+
+export const pool = new Pool(poolConfig);

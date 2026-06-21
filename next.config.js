@@ -20,7 +20,7 @@ module.exports = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "*.supabase.co",
+        hostname: "*.amazonaws.com",
       },
       {
         protocol: "https",

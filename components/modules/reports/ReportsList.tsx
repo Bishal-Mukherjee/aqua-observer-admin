@@ -35,6 +35,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { downloadResource } from "@/services/resources";
 
 dayjs.extend(utc);
 
@@ -122,27 +123,9 @@ export default function ReportsList({
 }: ReportsListProps) {
   const [sortingState, setSortingState] = useState<SortingState>([]);
 
-  const downloadReports = async (fileType: "pdf" | "csv", fileUrl: string) => {
-    if (fileType === "pdf" && fileUrl) {
-      const [, fileName] = fileUrl.split("/reports/");
-
-      const response = await fetch(fileUrl);
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      a.click();
-
-      URL.revokeObjectURL(url);
-    } else if (fileType === "csv" && fileUrl) {
-      const [, fileName] = fileUrl.split("/reports/");
-      const a = document.createElement("a");
-      a.href = fileUrl;
-      a.download = fileName;
-      a.click();
-    }
+  const downloadReports = async (_fileType: "pdf" | "csv", fileUrl: string) => {
+    if (!fileUrl) return;
+    await downloadResource(fileUrl);
   };
 
   const tableColumns: ColumnDef<Report>[] = useMemo(

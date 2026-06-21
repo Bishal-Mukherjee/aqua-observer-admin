@@ -5,7 +5,7 @@ import { useGetResources } from "@/services/resources";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-interface SupabaseImageProps {
+interface SignedImageProps {
   src: string;
   alt: string;
   width?: number;
@@ -23,7 +23,7 @@ export const SignedImage = ({
   className = "",
   priority = false,
   onClick = undefined,
-}: SupabaseImageProps) => {
+}: SignedImageProps) => {
   const { data, isLoading, error } = useGetResources(src);
 
   const signedUrl = data?.imageUrl || null;
