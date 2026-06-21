@@ -22,7 +22,7 @@ export const POST = async (request: NextRequest) => {
     if (error) {
       return NextResponse.json(
         { error: "Validation Error", message: error.details[0].message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -30,13 +30,13 @@ export const POST = async (request: NextRequest) => {
 
     const query = await pool.query(
       "SELECT id, role FROM users WHERE phone_number = $1",
-      [phoneNumber]
+      [phoneNumber],
     );
 
     if (query.rows.length === 0) {
       return NextResponse.json(
         { error: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -44,24 +44,24 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    // const sendCodeResponse = await sendCode(phoneNumber);
+    const sendCodeResponse = await sendCode(phoneNumber);
 
-    // if (sendCodeResponse.status !== "pending") {
-    //   return NextResponse.json(
-    //     { error: "Failed to send OTP" },
-    //     { status: 500 }
-    //   );
-    // }
+    if (sendCodeResponse.status !== "pending") {
+      return NextResponse.json(
+        { error: "Failed to send OTP" },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json(
       { message: "OTP sent successfully" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (e) {
     console.log(e);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

@@ -8,6 +8,7 @@ import { useGetOverviewLocations } from "@/services/home";
 import GreetingSection from "@/components/modules/home/GreetingSection";
 import CarouselSection from "@/components/modules/home/CarouselSection";
 import StatsCards from "@/components/modules/home/StatsCards";
+import TopSpeciesCards from "@/components/modules/home/TopSpeciesCards";
 import DistributionOverviewDonut from "@/components/modules/home/DistributionOverviewDonut";
 import DistrictMonthlyStackedBar from "@/components/modules/home/DistrictMonthlyStackedBar";
 import QuickActions from "@/components/modules/home/QuickActions";
@@ -72,6 +73,7 @@ export default function DashboardPage() {
           <CarouselSection />
         </div>
         <StatsCards />
+        <TopSpeciesCards />
         <div className="grid gap-6 grid-cols-3 min-h-[30rem]">
           <DistributionOverviewDonut />
           <DistrictMonthlyStackedBar />

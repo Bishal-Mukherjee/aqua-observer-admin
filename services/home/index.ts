@@ -23,6 +23,30 @@ export const useGetHomeStats = () => {
   });
 };
 
+export type TopSpeciesEntry = {
+  species: string;
+  label: { en: string; bn: string };
+  image: string;
+  category: string;
+  conservationStatus: string;
+  individualCount: number;
+  submissionCount: number;
+  sharePercent: number;
+};
+
+export const useGetTopSpecies = () => {
+  return useQuery({
+    queryKey: ["home", "top-species"],
+    queryFn: async () => {
+      const response = await axios({
+        method: "GET",
+        url: "/home/top-species",
+      });
+      return response.data;
+    },
+  });
+};
+
 export const useGetHomeDistribution = (type: string) => {
   return useQuery({
     queryKey: ["home", "distribution", type],
@@ -99,7 +123,7 @@ export const useGetMonthlyDistrictSubmissions = () => {
         method: "GET",
         url: `/${type}?from=${from}&to=${to}&districts=${encodeURIComponent(
           district
-        )}&page=1`,
+        )}&all=true`,
       });
       return response.data;
     },

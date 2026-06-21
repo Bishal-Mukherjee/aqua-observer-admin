@@ -1,8 +1,16 @@
 "use client";
 
-import React, { Fragment, useState } from "react";
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Helmet } from "react-helmet-async";
+import { debounce } from "lodash";
 import { useGetUsers } from "@/services/users";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,23 +31,6 @@ import { APP_NAME } from "@/constants/constants";
 import { useUsersPagination } from "@/store/pagination/useUsersPagination";
 import { useTiersStore } from "@/store/useTiers";
 
-interface UserData {
-  id: string;
-  name: string;
-  phoneNumber: string;
-  gender: "MALE" | "FEMALE" | "OTHER";
-  role: "SIGHTER" | "SUB_ADMIN";
-  tier: string;
-  status: "ACTIVE" | "SUSPENDED";
-  age: number;
-  email: string | null;
-  occupation: string | null;
-  createdAt: string;
-  lastActiveAt: string;
-  reportingsCount: string;
-  sightingsCount: string;
-}
-
 export default function UsersPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -47,18 +38,52 @@ export default function UsersPage() {
   const { tiers } = useTiersStore();
   const { currentPage, setCurrentPage, totalRecords } = useUsersPagination();
 
-  const { data, isLoading } = useGetUsers();
-
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [tierFilter, setTierFilter] = useState<string>(
-    searchParams.get("tier") || "all"
+    searchParams.get("tier") || "all",
   );
   const [genderFilter, setGenderFilter] = useState<string>("all");
 
+  const debouncedSetSearch = useRef(
+    debounce((value: string) => setDebouncedSearch(value), 300),
+  ).current;
+
+  useEffect(() => {
+    return () => debouncedSetSearch.cancel();
+  }, [debouncedSetSearch]);
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setSearchTerm(value);
+      debouncedSetSearch(value);
+    },
+    [debouncedSetSearch],
+  );
+
+  const filters = useMemo(
+    () => ({
+      search: debouncedSearch,
+      status: statusFilter,
+      role: roleFilter,
+      tier: tierFilter,
+      gender: genderFilter,
+    }),
+    [debouncedSearch, statusFilter, roleFilter, tierFilter, genderFilter],
+  );
+
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [filters, setCurrentPage]);
+
+  const { data, isLoading, isFetching } = useGetUsers(filters);
+
   const clearAllFilters = () => {
+    debouncedSetSearch.cancel();
     setSearchTerm("");
+    setDebouncedSearch("");
     setStatusFilter("all");
     setRoleFilter("all");
     setTierFilter("all");
@@ -73,13 +98,6 @@ export default function UsersPage() {
     tierFilter !== "all" ||
     genderFilter !== "all";
 
-  const filteredUsers = data?.result.filter((user: UserData) => {
-    const matchesSearchTerm =
-      user?.name && user.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTier = tierFilter === "all" || user.tier === tierFilter;
-    return matchesSearchTerm && matchesTier;
-  });
-
   return (
     <Fragment>
       <Helmet>
@@ -90,7 +108,6 @@ export default function UsersPage() {
         <div className="mb-4">
           <RouteBreadcrumbs />
         </div>
-        {/* <UsersTable users={users} isLoading={isLoading} /> */}
         <Card className="shadow-none border-0">
           <CardHeader className="pb-0">
             {/* Filters Section */}
@@ -103,9 +120,8 @@ export default function UsersPage() {
                     <Input
                       placeholder="Search users..."
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onChange={(e) => handleSearchChange(e.target.value)}
                       className="pl-8 bg-white"
-                      disabled={isLoading}
                     />
                   </div>
                 </div>
@@ -118,6 +134,7 @@ export default function UsersPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="ONBOARDED">Onboarded</SelectItem>
                       <SelectItem value="ACTIVE">Active</SelectItem>
                       <SelectItem value="SUSPENDED">Suspended</SelectItem>
                     </SelectContent>
@@ -162,7 +179,7 @@ export default function UsersPage() {
                   </span>
                   {searchTerm && (
                     <Badge variant="secondary" className="text-xs">
-                      Search: "{searchTerm}"
+                      Search: &quot;{searchTerm}&quot;
                     </Badge>
                   )}
                   {statusFilter !== "all" && (
@@ -201,8 +218,8 @@ export default function UsersPage() {
 
           <CardContent>
             <UsersTable
-              isLoading={isLoading}
-              users={filteredUsers || []}
+              isLoading={isLoading || isFetching}
+              users={data?.result || []}
               pagination={{
                 pageIndex: currentPage,
                 pageSize: 10,

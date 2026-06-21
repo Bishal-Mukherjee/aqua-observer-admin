@@ -10,6 +10,17 @@ import { cn } from "@/lib/utils";
 
 dayjs.extend(relativeTime);
 
+// replace underscores with spaces, and first letter of each word to uppercase
+const formatLocationName = (location?: string) => {
+  if (!location) return "";
+
+  return location
+    .replace(/_/g, " ")
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
 export default function RecentActivity() {
   const { data, isLoading } = useGetRecentActivity();
   const result = data?.result;
@@ -19,7 +30,11 @@ export default function RecentActivity() {
     block?: string;
     villageOrGhat?: string;
   }) => {
-    return [item.villageOrGhat, item.block, item.district]
+    return [
+      item.villageOrGhat,
+      formatLocationName(item.block),
+      formatLocationName(item.district),
+    ]
       .filter(Boolean)
       .join(", ");
   };
