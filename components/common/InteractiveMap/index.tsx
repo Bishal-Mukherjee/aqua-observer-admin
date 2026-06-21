@@ -144,14 +144,25 @@ function InteractiveLocationMap({
   data,
   title = "",
   onLocationSelect,
+  variant = "inline",
+  open,
+  onOpenChange,
 }: {
   isLoading: boolean;
   data: any[];
   title?: string;
   onLocationSelect: (params: string) => void;
+  variant?: "inline" | "dialog";
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isExpandDialogOpen, setIsExpandDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"markers" | "heatmap">("markers");
+  const isDialogOnly = variant === "dialog";
+  const isDialogOpen = isDialogOnly ? (open ?? false) : isExpandDialogOpen;
+  const setIsDialogOpen = isDialogOnly
+    ? (onOpenChange ?? (() => {}))
+    : setIsExpandDialogOpen;
 
   const locationData = useMemo(() => {
     return data.map((report) => ({
@@ -255,6 +266,36 @@ function InteractiveLocationMap({
     </div>
   );
 
+  const dialogContent = (
+    <DialogContent className="min-w-[90vw] max-w-[95vw] h-[90vh]">
+      <DialogHeader>
+        <DialogTitle className="capitalize">
+          {String(title).toLowerCase()}
+        </DialogTitle>
+      </DialogHeader>
+      <div className="flex-1 h-full">
+        {isLoading ? (
+          <MapSkeleton />
+        ) : locationData.length === 0 ? (
+          <div className="flex h-[calc(90vh-80px)] flex-col items-center justify-center gap-2 text-gray-400">
+            <Map className="h-12 w-12" />
+            <span className="text-sm">No locations data available</span>
+          </div>
+        ) : (
+          <MapComponent height="h-[calc(90vh-80px)]" />
+        )}
+      </div>
+    </DialogContent>
+  );
+
+  if (isDialogOnly) {
+    return (
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        {dialogContent}
+      </Dialog>
+    );
+  }
+
   return (
     <div className="relative w-full h-full">
       {!isLoading && (
@@ -273,16 +314,7 @@ function InteractiveLocationMap({
             </div>
           </DialogTrigger>
 
-          <DialogContent className="min-w-[90vw] max-w-[95vw] h-[90vh]">
-            <DialogHeader>
-              <DialogTitle className="capitalize">
-                {String(title).toLowerCase()}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="flex-1 h-full">
-              <MapComponent height="h-[calc(90vh-80px)]" />
-            </div>
-          </DialogContent>
+          {dialogContent}
         </Dialog>
       )}
 

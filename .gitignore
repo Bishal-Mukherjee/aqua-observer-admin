@@ -1,4 +1,5 @@
 .env.development
 .env.local
 .next
+.certs
 node_modules
