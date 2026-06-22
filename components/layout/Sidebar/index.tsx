@@ -448,7 +448,7 @@ export default function Sidebar() {
       {/* Bottom Section */}
       <div className="p-4 space-y-2 flex-1 flex flex-col items-end justify-end">
         <div className="text-center w-full mb-2">
-          <p className="text-xs text-gray-500">v1.0.0</p>
+          <p className="text-xs text-gray-500">v1.0.6</p>
         </div>
         <Separator />
 
