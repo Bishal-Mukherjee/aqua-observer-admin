@@ -293,7 +293,7 @@ export default function LoginPage() {
           </Card>
 
           <p className="text-xs text-slate-400 mt-8">
-            © 2025 {APP_NAME}. All rights reserved.
+            © 2026 {APP_NAME}. All rights reserved.
           </p>
         </div>
       </div>
