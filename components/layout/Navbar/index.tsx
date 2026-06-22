@@ -3,23 +3,14 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { isEmpty } from "lodash";
-// import { toast } from "sonner";
-// import { Input } from "@/components/ui/input";
-// import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/store/useSidebar";
 import { useAuth } from "@/store/useAuth";
 import { useNotificationPagination } from "@/store/pagination/useNotificationPagination";
 import { useGetNotifications } from "@/services/notifications";
-// import { createClient } from "@supabase/supabase-js";
 import NotificationPopover from "@/components/layout/Navbar/NotificationPopover";
 import SubmissionDialog from "@/components/common/SubmissionDialog";
 import { useSpecies } from "@/store/useSpecies";
-
-// const supabase = createClient(
-//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-// );
 
 const getPageInfo = (pathname: string) => {
   const path = pathname.split("/").pop();
@@ -78,20 +69,6 @@ const getPageInfo = (pathname: string) => {
   }
 };
 
-const getToastText = (type: string) => {
-  switch (type) {
-    case "LIVE_REPORTING":
-      return "🚨 Reporting alert received! Click to view details.";
-    case "OLD_REPORTING":
-      return "📝 Reporting has been captured. Click to review.";
-    case "LIVE_SIGHTING":
-    case "OLD_SIGHTING":
-      return "👀 Species sighting has been reported! Click to view.";
-    default:
-      return "🔔 You have a new notification. Click to view.";
-  }
-};
-
 export default function Navbar() {
   const pathname = usePathname();
   const { title, description } = getPageInfo(pathname);
@@ -137,39 +114,6 @@ export default function Navbar() {
     }
   }, [currentPage, hasMore, isLoading, setCurrentPage]);
 
-  // useEffect(() => {
-  //   const subscription = supabase
-  //     .channel("reportings") // disbale RLS for this table and enable real-time updates
-  //     .on(
-  //       "postgres_changes",
-  //       { event: "*", schema: "public", table: "reportings" },
-  //       (payload: any) => {
-  //         refetch();
-  //         toast.warning(getToastText(payload.new?.submission_type), {
-  //           action: {
-  //             label: "View",
-  //             onClick: () => {
-  //               setIsOpen({
-  //                 id: payload.new?.id,
-  //                 submissionType: "REPORTING",
-  //                 //   submissionType: payload.new?.submission_context.includes(
-  //                 //     "REPORTING"
-  //                 //   )
-  //                 //     ? "REPORTING"
-  //                 //     : "SIGHTING",
-  //               });
-  //             },
-  //           },
-  //         });
-  //       }
-  //     )
-  //     .subscribe();
-
-  //   return () => {
-  //     supabase.removeChannel(subscription);
-  //   };
-  // }, []);
-
   useEffect(() => {
     if (isOpen && currentPage === 1) {
       setAllNotifications(notifications);
@@ -181,13 +125,6 @@ export default function Navbar() {
       setAllNotifications((prev) => [...prev, ...notifications]);
     }
   }, [notifications, currentPage]);
-
-  //   useEffect(() => {
-  //     if (!isOpen) {
-  //       setCurrentPage(1);
-  //       setAllNotifications([]);
-  //     }
-  //   }, [isOpen, setCurrentPage]);
 
   return (
     <nav className="w-full h-20 bg-white/60 backdrop-blur-md border-b border-white/20 px-6 flex items-center justify-between">
@@ -266,7 +203,7 @@ export default function Navbar() {
         <div
           className={cn(
             "flex items-center space-x-3 border-l border-gray-300 pr-10 pl-3",
-            { "pr-7": !isCollapsed }
+            { "pr-7": !isCollapsed },
           )}
         >
           {/* <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center text-white font-semibold text-sm">
