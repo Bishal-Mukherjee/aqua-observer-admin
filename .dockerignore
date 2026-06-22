@@ -6,7 +6,7 @@ node_modules
 .next
 out
 
-# env files (injected at runtime / build-time via docker-compose or CI)
+# env files
 .env*
 !.env.example
 

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -22,6 +23,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Validate production build secrets
+        run: |
+          missing=()
+          [ -z "${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" ] && missing+=("NEXT_PUBLIC_API_BASE_URL")
+          [ -z "${{ secrets.NEXT_PUBLIC_RUDRA_SERVICE_URL }}" ] && missing+=("NEXT_PUBLIC_RUDRA_SERVICE_URL")
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Missing production environment secrets: ${missing[*]}"
+            exit 1
+          fi
 
       - name: Set image name
         id: image
@@ -71,23 +82,71 @@ jobs:
         env:
           IMAGE: ${{ needs.build-and-push.outputs.image }}:latest
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_SSL: ${{ secrets.DB_SSL }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_S3_LOOKUP_PREFIX: ${{ secrets.AWS_S3_LOOKUP_PREFIX }}
+          REDIS_USERNAME: ${{ secrets.REDIS_USERNAME }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          TWILIO_SERVICE_SID: ${{ secrets.TWILIO_SERVICE_SID }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
         run: |
           set -euo pipefail
+
+          export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:${PATH:-}"
+
+          DOCKER_BIN=""
+          for candidate in docker /usr/bin/docker /usr/local/bin/docker /snap/bin/docker; do
+            if command -v "$candidate" >/dev/null 2>&1; then
+              DOCKER_BIN="$(command -v "$candidate")"
+              break
+            fi
+            if [ -x "$candidate" ]; then
+              DOCKER_BIN="$candidate"
+              break
+            fi
+          done
+
+          if [ -z "$DOCKER_BIN" ]; then
+            echo "::error::docker not found on the self-hosted runner."
+            exit 1
+          fi
+
+          compose() {
+            if "$DOCKER_BIN" compose version >/dev/null 2>&1; then
+              "$DOCKER_BIN" compose "$@"
+            elif command -v docker-compose >/dev/null 2>&1; then
+              docker-compose "$@"
+            elif [ -x /usr/bin/docker-compose ]; then
+              /usr/bin/docker-compose "$@"
+            else
+              echo "::error::docker compose not found on the self-hosted runner."
+              exit 1
+            fi
+          }
 
           DEPLOY_DIR="${DEPLOY_PATH:-/home/ubuntu/aqua-observer-admin}"
           mkdir -p "$DEPLOY_DIR"
           cp docker-compose.prod.yml "$DEPLOY_DIR/docker-compose.prod.yml"
 
+          rm -f "$DEPLOY_DIR/.env"
+
           cd "$DEPLOY_DIR"
 
-          if [ ! -f .env ]; then
-            echo "Missing .env in $DEPLOY_DIR — create it with production secrets before deploying."
-            exit 1
-          fi
-
-          echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          echo "${{ github.token }}" | "$DOCKER_BIN" login ghcr.io -u "${{ github.actor }}" --password-stdin
 
           export IMAGE_NAME="$IMAGE"
-          docker compose -f docker-compose.prod.yml pull
-          docker compose -f docker-compose.prod.yml up -d --remove-orphans
-          docker image prune -f
+          compose -f docker-compose.prod.yml pull
+          compose -f docker-compose.prod.yml up -d --force-recreate --remove-orphans
+          "$DOCKER_BIN" image prune -f

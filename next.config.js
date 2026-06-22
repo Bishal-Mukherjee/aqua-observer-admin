@@ -1,6 +1,5 @@
 module.exports = {
   eslint: {
-    // Lint runs in CI separately; don't block production Docker builds
     ignoreDuringBuilds: true,
   },
   async headers() {
