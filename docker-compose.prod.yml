@@ -1,0 +1,16 @@
+# Production compose — pulls a pre-built image from GHCR (used by GitHub Actions deploy)
+services:
+  app:
+    image: ${IMAGE_NAME:-ghcr.io/bishal-mukherjee/aqua-observer-admin:latest}
+    container_name: aqua-observer-admin
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    networks:
+      - aqua-net
+
+networks:
+  aqua-net:
+    driver: bridge

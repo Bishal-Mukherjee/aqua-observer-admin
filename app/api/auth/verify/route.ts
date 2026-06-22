@@ -31,7 +31,7 @@ export const POST = async (request: NextRequest) => {
     if (error) {
       return NextResponse.json(
         { error: "Validation Error", message: error.details[0].message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -39,7 +39,7 @@ export const POST = async (request: NextRequest) => {
 
     const query = await pool.query(
       `SELECT id, name, phone_number AS "phoneNumber", gender, role, status, last_active_at AS "lastActiveAt" FROM users WHERE phone_number = $1`,
-      [phoneNumber]
+      [phoneNumber],
     );
 
     if (!ALLOWED_ROLES.includes(query.rows[0]?.role)) {
@@ -66,7 +66,7 @@ export const POST = async (request: NextRequest) => {
       config.jwtSecret,
       {
         expiresIn: accessTokenExpiresIn,
-      }
+      },
     );
 
     const refreshToken = crypto.randomBytes(32).toString("hex");
@@ -79,12 +79,12 @@ export const POST = async (request: NextRequest) => {
         user.id,
         refreshTokenHash,
         new Date(Date.now() + refreshTokenExpiresInMs),
-      ]
+      ],
     );
 
     await pool.query(
       "DELETE FROM refresh_tokens WHERE user_id = $1 AND expires_at < NOW()",
-      [user.id]
+      [user.id],
     );
 
     return NextResponse.json(
@@ -96,13 +96,13 @@ export const POST = async (request: NextRequest) => {
           user,
         },
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err) {
     console.log(err);
     return NextResponse.json(
       { error: "Internal Server Error", message: JSON.stringify(err) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

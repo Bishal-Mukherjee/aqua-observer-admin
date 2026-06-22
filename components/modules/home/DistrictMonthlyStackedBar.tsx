@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -9,11 +10,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetOverviewMonthly } from "@/services/home";
+import {
+  useGetMonthlyDistrictSubmissions,
+  useGetOverviewMonthly,
+} from "@/services/home";
 import { useState, useMemo, useCallback } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import dayjs from "dayjs";
+import SubmissionDialog from "@/components/common/SubmissionDialog";
+import { useSpecies } from "@/store/useSpecies";
+
+const InteractiveMap = dynamic(
+  () => import("@/components/common/InteractiveMap"),
+  { ssr: false }
+);
 
 // Color palette for different districts
 const COLORS = [
@@ -70,16 +81,96 @@ const LoadingSkeleton = () => (
 );
 
 export default function DistrictMonthlyStackedBar() {
+  const { species } = useSpecies();
   const [selectedType, setSelectedType] = useState<"sightings" | "reportings">(
-    "reportings"
+    "reportings",
   );
   const [selectedYear, setSelectedYear] = useState<string>(
-    new Date().getFullYear().toString()
+    new Date().getFullYear().toString(),
+  );
+  const [mapDialogOpen, setMapDialogOpen] = useState(false);
+  const [mapData, setMapData] = useState<any[]>([]);
+  const [mapTitle, setMapTitle] = useState("");
+  const [selectedSubmission, setSelectedSubmission] = useState<string | null>(
+    null
   );
 
   const { data, isLoading, error } = useGetOverviewMonthly(
     selectedType,
-    selectedYear
+    selectedYear,
+  );
+  const {
+    mutate: fetchMonthlyDistrictSubmissions,
+    isPending: isMapDataLoading,
+  } = useGetMonthlyDistrictSubmissions();
+
+  const submissionType = selectedType === "reportings" ? "REPORTING" : "SIGHTING";
+
+  const handleBarSegmentClick = useCallback(
+    (params: {
+      componentType?: string;
+      seriesType?: string;
+      seriesName?: string;
+      name?: string;
+      value?: number;
+    }) => {
+      if (
+        params.componentType !== "series" ||
+        params.seriesType !== "bar" ||
+        !params.seriesName ||
+        params.value === undefined ||
+        params.value <= 0
+      ) {
+        return;
+      }
+
+      const monthLabel = params.name;
+      const district = params.seriesName;
+
+      if (!district || !monthLabel) return;
+
+      setMapTitle(
+        `${toTitleCaseLabel(district)} - ${monthLabel} ${selectedYear} ${selectedType}`
+      );
+      setMapData([]);
+      setMapDialogOpen(true);
+
+      fetchMonthlyDistrictSubmissions(
+        {
+          type: selectedType,
+          year: selectedYear,
+          month: monthLabel,
+          district,
+        },
+        {
+          onSuccess: (apiResponse) => {
+            setMapData(apiResponse.result || []);
+          },
+          onError: (err) => {
+            console.error(
+              "Failed to fetch clicked month/district submissions:",
+              err
+            );
+          },
+        }
+      );
+    },
+    [fetchMonthlyDistrictSubmissions, selectedType, selectedYear],
+  );
+
+  const handleMapDialogOpenChange = useCallback((open: boolean) => {
+    setMapDialogOpen(open);
+    if (!open) {
+      setMapData([]);
+      setSelectedSubmission(null);
+    }
+  }, []);
+
+  const chartEvents = useMemo(
+    () => ({
+      click: handleBarSegmentClick,
+    }),
+    [handleBarSegmentClick],
   );
 
   const chartOption = useMemo<EChartsOption>(() => {
@@ -100,7 +191,7 @@ export default function DistrictMonthlyStackedBar() {
           const month = params[0]?.axisValue;
           const total = params.reduce(
             (sum: number, entry: any) => sum + entry.value,
-            0
+            0,
           );
           let tooltip = `<div>`;
           tooltip += `<p style="font-weight: 600; color: #374151; margin-bottom: 8px;">${month}</p>`;
@@ -111,8 +202,8 @@ export default function DistrictMonthlyStackedBar() {
                   entry.color
                 }; border-radius: 2px; margin-right: 6px;"></span>
                 ${toTitleCaseLabel(entry.seriesName)}: ${
-                entry.value
-              } ${selectedType}
+                  entry.value
+                } ${selectedType}
               </p>`;
             }
           });
@@ -173,6 +264,7 @@ export default function DistrictMonthlyStackedBar() {
         name: region,
         type: "bar",
         stack: "total",
+        cursor: "pointer",
         data: chartData.map((item: any) => item[region] || 0),
         itemStyle: {
           color: COLORS[index % COLORS.length],
@@ -191,7 +283,7 @@ export default function DistrictMonthlyStackedBar() {
       (year) => ({
         label: year.toString(),
         value: year.toString(),
-      })
+      }),
     );
   }, []);
 
@@ -212,7 +304,8 @@ export default function DistrictMonthlyStackedBar() {
   const summary = data?.result?.summary || {};
 
   return (
-    <Card className="col-span-2 shadow-none border-0">
+    <>
+      <Card className="col-span-2 shadow-none border-0">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -262,9 +355,28 @@ export default function DistrictMonthlyStackedBar() {
             option={chartOption}
             style={{ width: "100%", height: "100%" }}
             opts={{ renderer: "canvas" }}
+            onEvents={chartEvents}
           />
         </div>
       </CardContent>
-    </Card>
+      </Card>
+
+      <InteractiveMap
+        variant="dialog"
+        open={mapDialogOpen}
+        onOpenChange={handleMapDialogOpenChange}
+        isLoading={isMapDataLoading}
+        data={mapData}
+        title={mapTitle}
+        onLocationSelect={setSelectedSubmission}
+      />
+
+      <SubmissionDialog
+        submissionId={selectedSubmission}
+        speciesData={species}
+        onClose={() => setSelectedSubmission(null)}
+        type={submissionType}
+      />
+    </>
   );
 }

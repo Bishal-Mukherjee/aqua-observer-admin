@@ -1,0 +1,38 @@
+# dependencies
+node_modules
+.pnpm-store
+
+# build output
+.next
+out
+
+# env files (injected at runtime / build-time via docker-compose or CI)
+.env*
+!.env.example
+
+# version control
+.git
+.gitignore
+
+# dev tooling
+.eslintrc*
+.prettierrc*
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# test artifacts
+coverage
+__tests__
+*.test.*
+*.spec.*
+
+# editor
+.vscode
+.idea
+*.swp

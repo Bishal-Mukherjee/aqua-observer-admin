@@ -133,7 +133,7 @@ export default function UsersTable({
     "view" | "edit" | "suspend" | "activate" | null
   >(null);
   const [selectedUserData, setSelectedUserData] = useState<UserData | null>(
-    null
+    null,
   );
 
   // Handle row click
@@ -201,12 +201,12 @@ export default function UsersTable({
         cell: ({ row }) => (
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-semibold text-sm">
-              {row.original.name.charAt(0).toUpperCase()}
+              {row.original?.name?.charAt(0)?.toUpperCase()}
             </div>
             <div>
-              <p className="font-medium text-gray-900">{row.original.name}</p>
+              <p className="font-medium text-gray-900">{row.original?.name}</p>
               <p className="text-xs text-gray-500">
-                {row.original.email || "-"}
+                {row.original?.email || "-"}
               </p>
             </div>
           </div>
@@ -220,7 +220,7 @@ export default function UsersTable({
             <div className="flex items-center gap-1 mb-1">
               <Phone className="h-3 w-3 text-gray-400" />
               <span className="text-sm font-medium text-gray-900">
-                {row.original.phoneNumber}
+                {row.original?.phoneNumber}
               </span>
             </div>
           </div>
@@ -235,10 +235,10 @@ export default function UsersTable({
             variant="outline"
             className={cn(
               "font-medium border-none",
-              getStatusColor(row.getValue("status"))
+              getStatusColor(row.getValue("status")),
             )}
           >
-            {row.getValue("status")}
+            {row.getValue("status") || "-"}
           </Badge>
         ),
       },
@@ -250,10 +250,10 @@ export default function UsersTable({
             variant="outline"
             className={cn(
               "font-medium border-none",
-              getRoleColor(row.getValue("role"))
+              getRoleColor(row.getValue("role")),
             )}
           >
-            {row.getValue("role")}
+            {row.getValue("role") || "-"}
           </Badge>
         ),
       },
@@ -265,10 +265,10 @@ export default function UsersTable({
             variant="outline"
             className={cn(
               "font-medium border-none",
-              getTierColor(row.getValue("tier"))
+              getTierColor(row.getValue("tier")),
             )}
           >
-            {formatTierDisplay(row.getValue("tier"))}
+            {formatTierDisplay(row.getValue("tier") || "-")}
           </Badge>
         ),
       },
@@ -277,7 +277,7 @@ export default function UsersTable({
         header: "Age",
         cell: ({ row }) => (
           <span className="font-medium text-gray-900">
-            {row.getValue("age")}
+            {row.getValue("age") || "-"}
           </span>
         ),
       },
@@ -289,13 +289,13 @@ export default function UsersTable({
             <div className="flex items-center gap-2">
               <Siren className="h-4 w-4 text-orange-500" />
               <span className="text-sm font-medium text-gray-900">
-                {row.original.reportingsCount}
+                {row.original?.reportingsCount || "-"}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <Binoculars className="h-4 w-4 text-blue-500" />
               <span className="text-sm font-medium text-gray-900">
-                {row.original.sightingsCount}
+                {row.original?.sightingsCount || "-"}
               </span>
             </div>
           </div>
@@ -402,7 +402,7 @@ export default function UsersTable({
         enableSorting: false,
       },
     ],
-    []
+    [],
   );
 
   const dataTable = useReactTable({
@@ -457,7 +457,7 @@ export default function UsersTable({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHead>
                 ))}
@@ -481,7 +481,7 @@ export default function UsersTable({
                     <TableCell key={cell.id} className="py-4">
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

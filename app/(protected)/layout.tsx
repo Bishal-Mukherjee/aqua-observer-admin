@@ -1,8 +1,5 @@
 "use client";
 
-// import { useRouter } from "next/navigation";
-// import { useEffect } from "react";
-// import { toast } from "sonner";
 import { HelmetProvider } from "react-helmet-async";
 import Sidebar from "@/components/layout/Sidebar";
 import Navbar from "@/components/layout/Navbar";
@@ -12,12 +9,6 @@ import { useAuth } from "@/store/useAuth";
 import { useGetDistricts } from "@/services/region";
 import { useGetSpecies } from "@/services/species";
 import { useGetTiers } from "@/services/tiers";
-// import { createClient } from "@supabase/supabase-js";
-
-// const supabase = createClient(
-//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-// );
 
 export default function AuthenticatedLayout({
   children,
@@ -32,40 +23,6 @@ export default function AuthenticatedLayout({
   useGetDistricts();
   useGetSpecies();
   useGetTiers();
-
-  //   useEffect(() => {
-  //     if (user) {
-  //       router.push("/home");
-  //     } else {
-  //       router.push("/login");
-  //     }
-  //   }, [user]);
-
-  //   useEffect(() => {
-  //     const subscription = supabase
-  //       .channel("reportings")
-  //       .on(
-  //         "postgres_changes",
-  //         { event: "*", schema: "public", table: "reportings" },
-  //         (payload) => {
-  //           toast.warning("New reporting alert received. Click to view.", {
-  //             action: {
-  //               label: "View",
-  //               onClick: () => {
-  //                 console.log(payload.new);
-  //                 // payload.new
-  //                 // Add navigation or modal logic here if desired
-  //               },
-  //             },
-  //           });
-  //         }
-  //       )
-  //       .subscribe();
-
-  //     return () => {
-  //       supabase.removeChannel(subscription);
-  //     };
-  //   }, []);
 
   if (!user) return null;
 

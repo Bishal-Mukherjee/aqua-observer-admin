@@ -15,6 +15,7 @@ export const GET = withAuth(
       const districtsParam = searchParams.get("districts");
       const isValidParam = searchParams.get("isValid");
       const isValid = isValidParam !== null ? isValidParam === "true" : true;
+      const fetchAll = searchParams.get("all") === "true";
       const page = parseInt(searchParams.get("page") || "1");
       const limit = 10;
       const offset = (page - 1) * limit;
@@ -129,10 +130,12 @@ export const GET = withAuth(
              'phoneNumber', u.phone_number
            ) AS "submittedBy"
          ${baseQuery}
-         ORDER BY r.submitted_at DESC
-         LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`;
+         ORDER BY r.submitted_at DESC`;
 
-      queryParams.push(limit, offset);
+      if (!fetchAll) {
+        dataQuery += ` LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`;
+        queryParams.push(limit, offset);
+      }
 
       const result = await client.query(dataQuery, queryParams);
       client.release();
@@ -143,8 +146,8 @@ export const GET = withAuth(
           result: result.rows,
           pagination: {
             total,
-            page,
-            totalPages,
+            page: fetchAll ? 1 : page,
+            totalPages: fetchAll ? 1 : totalPages,
           },
         },
         { status: 200 }
