@@ -1,8 +1,29 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: aqua-observer-redis
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    networks:
+      - rudra-net
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
   app:
     image: ${IMAGE_NAME:-ghcr.io/bishal-mukherjee/aqua-observer-admin:latest}
     container_name: aqua-observer-admin
     restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
     ports:
       - "3000:3000"
     environment:
@@ -27,8 +48,13 @@ services:
       TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
       TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
     networks:
-      - aqua-net
+      - rudra-net
 
 networks:
-  aqua-net:
+  rudra-net:
+    name: rudra-net
     driver: bridge
+
+volumes:
+  redis-data:
+    name: redis-data

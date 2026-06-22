@@ -38,5 +38,6 @@ services:
       - rudra-net
 
 networks:
-  aqua-net:
+  rudra-net:
+    name: rudra-net
     driver: bridge
