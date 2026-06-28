@@ -29,7 +29,7 @@ interface UserData {
   gender: "MALE" | "FEMALE" | "OTHER";
   role: "SIGHTER" | "SUB_ADMIN";
   tier: string;
-  status: "ACTIVE" | "SUSPENDED";
+  status: "ACTIVE" | "SUSPENDED" | "ONBOARDED";
   age: number;
   email: string | null;
   occupation: string | null;

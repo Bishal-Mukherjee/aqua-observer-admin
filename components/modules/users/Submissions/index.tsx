@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { DateRange } from "react-day-picker";
+import dayjs from "dayjs";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import RouteBreadcrumbs from "@/components/layout/RouteBreadcrumbs";
 import { useGetReportings } from "@/services/reportings";
@@ -82,7 +83,14 @@ export default function UserSubmissions() {
   return (
     <>
       <div className="flex items-start justify-between mb-4">
-        <RouteBreadcrumbs />
+        <div>
+          <RouteBreadcrumbs />
+          {dateRange?.from && dateRange?.to && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Viewing data from {dayjs(dateRange.from).format("D MMM, YYYY")} to {dayjs(dateRange.to).format("D MMM, YYYY")}
+            </p>
+          )}
+        </div>
         <DateRangePicker
           date={dateRange}
           onDateChange={setDateRange}

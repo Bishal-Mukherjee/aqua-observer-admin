@@ -14,7 +14,6 @@ export const GET = withAuth(
     }
 
     try {
-      const userId = request.headers.get("auth-user-id");
       const reportId = resolvedParams.id;
 
       const sql = `
@@ -27,10 +26,10 @@ export const GET = withAuth(
 	  created_by AS "createdBy", 
 	  created_at AS "createdAt"
 	  FROM reports
-	  WHERE created_by = $1 AND id = $2
+	  WHERE id = $1
 	`;
 
-      const result = await pool.query(sql, [userId, reportId]);
+      const result = await pool.query(sql, [reportId]);
 
       return NextResponse.json(
         {

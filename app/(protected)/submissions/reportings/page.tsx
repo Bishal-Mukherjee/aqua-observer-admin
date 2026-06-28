@@ -125,7 +125,14 @@ export default function SubmissionReportingPage() {
 
       <div className="py-10 px-12 flex-1 bg-gray-50">
         <div className="flex items-start justify-between mb-4">
-          <RouteBreadcrumbs />
+          <div>
+            <RouteBreadcrumbs />
+            {dateRange?.from && dateRange?.to && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Viewing data from {dayjs(dateRange.from).format("D MMM, YYYY")} to {dayjs(dateRange.to).format("D MMM, YYYY")}
+              </p>
+            )}
+          </div>
 
           <div className="flex items-center gap-2">
             <DateRangePicker

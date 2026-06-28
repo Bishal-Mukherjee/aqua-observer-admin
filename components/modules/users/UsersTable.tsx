@@ -49,7 +49,7 @@ interface UserData {
   gender: "MALE" | "FEMALE" | "OTHER";
   role: "SIGHTER" | "SUB_ADMIN";
   tier: string;
-  status: "ACTIVE" | "SUSPENDED";
+  status: "ACTIVE" | "SUSPENDED" | "ONBOARDED";
   age: number;
   email: string | null;
   occupation: string | null;
@@ -285,14 +285,14 @@ export default function UsersTable({
         accessorKey: "activity",
         header: "Activity",
         cell: ({ row }) => (
-          <div className="space-y-1 ml-1">
-            <div className="flex items-center gap-2">
+          <div className="space-y-1 ml-1 flex items-center gap-4">
+            <div className="flex items-center gap-1">
               <Siren className="h-4 w-4 text-orange-500" />
               <span className="text-sm font-medium text-gray-900">
                 {row.original?.reportingsCount || "-"}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <Binoculars className="h-4 w-4 text-blue-500" />
               <span className="text-sm font-medium text-gray-900">
                 {row.original?.sightingsCount || "-"}
@@ -334,71 +334,75 @@ export default function UsersTable({
       {
         id: "actions",
         header: "Actions",
-        cell: ({ row }) => (
-          <div className="flex items-center ml-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setAction("edit");
-                    setSelectedUserData(row.original);
-                  }}
-                >
-                  <Edit className="h-4 w-4 text-blue-600" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Edit user</p>
-              </TooltipContent>
-            </Tooltip>
+        cell: ({ row }) => {
+          if (row.original.status === "ONBOARDED")
+            return <span className="text-gray-400">-</span>;
+          return (
+            <div className="flex items-center ml-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAction("edit");
+                      setSelectedUserData(row.original);
+                    }}
+                  >
+                    <Edit className="h-4 w-4 text-blue-600" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Edit user</p>
+                </TooltipContent>
+              </Tooltip>
 
-            {row.original.status === "ACTIVE" ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setAction("suspend");
-                      setSelectedUserData(row.original);
-                    }}
-                  >
-                    <UserX className="h-4 w-4 text-red-600" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Block user</p>
-                </TooltipContent>
-              </Tooltip>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setAction("activate");
-                      setSelectedUserData(row.original);
-                    }}
-                  >
-                    <UserCheck className="h-4 w-4 text-green-600" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Activate user</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </div>
-        ),
+              {row.original.status === "ACTIVE" ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAction("suspend");
+                        setSelectedUserData(row.original);
+                      }}
+                    >
+                      <UserX className="h-4 w-4 text-red-600" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Block user</p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAction("activate");
+                        setSelectedUserData(row.original);
+                      }}
+                    >
+                      <UserCheck className="h-4 w-4 text-green-600" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Activate user</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          );
+        },
         enableSorting: false,
       },
     ],

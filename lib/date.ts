@@ -58,3 +58,7 @@ export const getTimelineStartDate = (
   startDate.setMonth(startDate.getMonth() - months);
   return startDate;
 };
+
+export const getTimelineSubtitle = (timeline: TimelineValue): string => {
+  return TIMELINE_LABELS[timeline];
+};
