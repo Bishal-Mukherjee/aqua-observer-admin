@@ -29,7 +29,7 @@ interface UserData {
   gender: "MALE" | "FEMALE" | "OTHER";
   role: "SIGHTER" | "SUB_ADMIN";
   tier: string;
-  status: "ACTIVE" | "SUSPENDED";
+  status: "ACTIVE" | "SUSPENDED" | "ONBOARDED";
   age: number;
   email: string | null;
   occupation: string | null;
@@ -89,7 +89,7 @@ const getTimeAgo = (isoString: string) => {
   const now = new Date();
   const date = new Date(isoString);
   const diffInHours = Math.floor(
-    (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    (now.getTime() - date.getTime()) / (1000 * 60 * 60),
   );
 
   if (diffInHours < 1) return "Just now";
@@ -127,11 +127,11 @@ export default function UserDetailedDialog({
           {/* User Avatar and Basic Info */}
           <div className="flex flex-col items-center text-center space-y-3">
             <div className="h-16 w-16 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold text-2xl">
-              {userData.name.charAt(0).toUpperCase()}
+              {userData.name?.charAt(0).toUpperCase() ?? "-"}
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {userData.name}
+                {userData.name ?? "-"}
               </h3>
               <p className="text-sm text-gray-500">
                 {userData.email || "No email provided"}
@@ -142,7 +142,7 @@ export default function UserDetailedDialog({
                 variant="outline"
                 className={cn(
                   "font-medium border-none",
-                  getStatusColor(userData.status)
+                  getStatusColor(userData.status),
                 )}
               >
                 {userData.status}
@@ -151,7 +151,7 @@ export default function UserDetailedDialog({
                 variant="outline"
                 className={cn(
                   "font-medium border-none",
-                  getRoleColor(userData.role)
+                  getRoleColor(userData.role),
                 )}
               >
                 {userData.role}
@@ -172,10 +172,14 @@ export default function UserDetailedDialog({
                 <User className="h-4 w-4 text-gray-400 flex-shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm text-gray-500">Gender</p>
-                  <p className="font-medium text-gray-900">
-                    {userData.gender.charAt(0) +
-                      userData.gender.slice(1).toLowerCase()}
-                  </p>
+                  {userData.gender ? (
+                    <p className="font-medium text-gray-900">
+                      {userData.gender.charAt(0) +
+                        userData.gender.slice(1).toLowerCase()}
+                    </p>
+                  ) : (
+                    <p className="font-medium text-gray-900">-</p>
+                  )}
                 </div>
               </div>
 
@@ -253,7 +257,7 @@ export default function UserDetailedDialog({
                     variant="outline"
                     className={cn(
                       "font-medium border-none",
-                      getTierColor(userData.tier)
+                      getTierColor(userData.tier),
                     )}
                   >
                     {formatTierDisplay(userData.tier)}
@@ -302,7 +306,7 @@ export default function UserDetailedDialog({
                   "w-full h-auto p-4 flex items-center justify-between rounded-lg border transition-all",
                   reportingsCount > 0
                     ? "hover:bg-orange-50 border-orange-200 cursor-pointer"
-                    : "cursor-not-allowed opacity-50 border-gray-200"
+                    : "cursor-not-allowed opacity-50 border-gray-200",
                 )}
                 onClick={() => {
                   if (reportingsCount > 0) {
@@ -334,7 +338,7 @@ export default function UserDetailedDialog({
                   "w-full h-auto p-4 flex items-center justify-between rounded-lg border transition-all",
                   sightingsCount > 0
                     ? "hover:bg-blue-50 border-blue-200 cursor-pointer"
-                    : "cursor-not-allowed opacity-50 border-gray-200"
+                    : "cursor-not-allowed opacity-50 border-gray-200",
                 )}
                 onClick={() => {
                   if (sightingsCount > 0) {

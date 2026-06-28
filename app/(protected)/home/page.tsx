@@ -43,7 +43,7 @@ export default function DashboardPage() {
   const [selectedType, setSelectedType] = React.useState("reportings");
   const { data: overviewLocations, isLoading } = useGetOverviewLocations(
     selectedType,
-    50
+    "6months"
   );
 
   const [selectedSubmission, setSelectedSubmission] = React.useState<any>(null);
@@ -96,7 +96,10 @@ export default function DashboardPage() {
             <CardHeader className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MapPinned className="h-5 w-5 text-slate-400" />
-                <p className="text-md font-semibold capitalize pt-1">{`${selectedType} Locations`}</p>
+                <div>
+                  <p className="text-md font-semibold capitalize pt-1">{`${selectedType} Locations`}</p>
+                  <p className="text-xs text-muted-foreground">Last 6 months</p>
+                </div>
               </div>
               <Select onValueChange={handleOnChange} defaultValue="reportings">
                 <SelectTrigger className="w-[180px]">

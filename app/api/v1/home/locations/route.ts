@@ -1,6 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { pool } from "@/app/api/config/db";
 import { withAuth } from "@/app/api/lib/with-auth";
+import {
+  getTimelineStartDate,
+  isValidTimeline,
+  type TimelineValue,
+} from "@/lib/date";
+
+const MAX_LOCATIONS = 5000;
 
 export const GET = withAuth(
   async (
@@ -10,7 +17,7 @@ export const GET = withAuth(
     try {
       const { searchParams } = new URL(request.url);
       const type = searchParams.get("type") || "reportings"; // 'reportings' or 'sightings'
-      const limit = searchParams.get("limit") || "50"; // Default to 50 recent entries
+      const timeline = (searchParams.get("timeline") || "6months").toLowerCase();
 
       // Validate type parameter
       if (!["reportings", "sightings"].includes(type)) {
@@ -22,9 +29,31 @@ export const GET = withAuth(
         );
       }
 
+      if (!isValidTimeline(timeline)) {
+        return NextResponse.json(
+          {
+            message:
+              'Invalid timeline. Must be one of "1month", "3months", "6months", "1year", or "all"',
+          },
+          { status: 400 }
+        );
+      }
+
       const tableName = type === "reportings" ? "reportings" : "sightings";
+      const timelineStartDate = getTimelineStartDate(timeline as TimelineValue);
 
       const client = await pool.connect();
+
+      const timelineCondition = timelineStartDate
+        ? "WHERE t.submitted_at >= $1::date"
+        : "";
+      const queryParams: Array<number | string> = [];
+      if (timelineStartDate) {
+        queryParams.push(timelineStartDate.toISOString().slice(0, 10));
+      }
+
+      const limitParamIndex = queryParams.length + 1;
+      queryParams.push(MAX_LOCATIONS + 1);
 
       const query = `
         SELECT 
@@ -34,7 +63,6 @@ export const GET = withAuth(
           t.village_or_ghat AS "villageOrGhat",
           t.block,
           t.district,
-          u.name AS "submittedBy",
           t.submitted_at AS "submittedAt",
 		  JSON_BUILD_OBJECT(
              'name', u.name,
@@ -42,22 +70,28 @@ export const GET = withAuth(
            ) AS "submittedBy"
 		  FROM ${tableName} t
 		  LEFT JOIN users u ON t.submitted_by = u.id
+        ${timelineCondition}
         ORDER BY t.submitted_at DESC
-        LIMIT $1
+        LIMIT $${limitParamIndex}
       `;
 
-      const result = await client.query(query, [parseInt(limit)]);
+      const result = await client.query(query, queryParams);
       client.release();
+
+      const truncated = result.rows.length > MAX_LOCATIONS;
+      const data = truncated ? result.rows.slice(0, MAX_LOCATIONS) : result.rows;
 
       return NextResponse.json(
         {
-          message: `Recent ${type} map data fetched successfully`,
+          message: `${type} map data fetched successfully`,
           result: {
-            data: result.rows,
+            data,
             metadata: {
-              total: result.rows.length,
+              total: data.length,
               type,
-              limit: parseInt(limit),
+              timeline,
+              truncated,
+              maxLocations: MAX_LOCATIONS,
             },
           },
         },

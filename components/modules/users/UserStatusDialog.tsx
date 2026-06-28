@@ -21,13 +21,13 @@ interface User {
   name: string;
   email: string | null;
   phoneNumber: string;
-  status: "ACTIVE" | "SUSPENDED";
+  status: "ACTIVE" | "SUSPENDED" | "ONBOARDED";
 }
 
 interface UserStatusDialogProps {
   open: boolean;
   user: User | null;
-  newStatus: "ACTIVE" | "SUSPENDED";
+  newStatus: "ACTIVE" | "SUSPENDED" | "ONBOARDED";
   onClose: () => void;
 }
 
@@ -49,6 +49,8 @@ const UserStatusDialog: React.FC<UserStatusDialogProps> = ({
           return "reinstated";
         case "SUSPENDED":
           return "suspended";
+        case "ONBOARDED":
+          return "onboarded";
       }
     }
 
@@ -79,7 +81,7 @@ const UserStatusDialog: React.FC<UserStatusDialogProps> = ({
       {
         onSuccess: () => {
           toast.success(
-            `Profile '${user.name}' has been ${getActionMessage(true)}.`
+            `Profile '${user.name}' has been ${getActionMessage(true)}.`,
           );
         },
         onError: () => {
@@ -89,7 +91,7 @@ const UserStatusDialog: React.FC<UserStatusDialogProps> = ({
           queryClient.invalidateQueries({ queryKey: ["users"] });
           onClose();
         },
-      }
+      },
     );
   };
 

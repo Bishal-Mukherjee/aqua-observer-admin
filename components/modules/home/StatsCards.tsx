@@ -118,9 +118,14 @@ export default function StatsCards() {
             className="shadow-none border-0 border-l-4 border-l-blue-500"
           >
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {config.title}
-              </CardTitle>
+              <div>
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {config.title}
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {stat.changeText}
+                </p>
+              </div>
               <div className="p-2 bg-blue-50 rounded-lg">
                 <Icon className="h-4 w-4 text-blue-600" />
               </div>
@@ -144,9 +149,6 @@ export default function StatsCards() {
                     {formatChange(stat.change)}
                   </span>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {stat.changeText}
-                </span>
               </div>
             </CardContent>
           </Card>

@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "@/services/api-instance";
 import dayjs from "dayjs";
-import { getMonthIndex } from "@/lib/date";
+import { getMonthIndex, type TimelineValue } from "@/lib/date";
 
 export type MonthlyDistrictSubmissionsParams = {
   type: "sightings" | "reportings";
@@ -73,13 +73,16 @@ export const useGetOverviewMonthly = (type: string, year: string) => {
   });
 };
 
-export const useGetOverviewLocations = (type: string, limit: number) => {
+export const useGetOverviewLocations = (
+  type: string,
+  timeline: TimelineValue = "6months"
+) => {
   return useQuery({
-    queryKey: ["home", "locations", type, limit],
+    queryKey: ["home", "locations", type, timeline],
     queryFn: async () => {
       const response = await axios({
         method: "GET",
-        url: `/home/locations?type=${type}&limit=${limit}`,
+        url: `/home/locations?type=${type}&timeline=${timeline}`,
       });
       return response.data;
     },

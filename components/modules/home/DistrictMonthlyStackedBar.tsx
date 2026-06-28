@@ -315,8 +315,7 @@ export default function DistrictMonthlyStackedBar() {
               District
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              Total: {summary.total?.toLocaleString() || 0} {selectedType} in{" "}
-              {selectedYear}
+              Year {selectedYear} • Total: {summary.total?.toLocaleString() || 0} {selectedType}
             </p>
           </div>
           <div className="flex gap-2">

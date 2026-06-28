@@ -45,7 +45,7 @@ interface Report {
   description: string | null;
   reportUrl: string | null;
   csvDataUrl: string | null;
-  createdBy: string;
+  createdBy: string | null;
   createdAt: string;
 }
 
@@ -100,6 +100,9 @@ const LoadingSkeletonRows = () => {
             <Skeleton className="h-4 w-48" />
           </TableCell>
           <TableCell className="py-3">
+            <Skeleton className="h-4 w-28" />
+          </TableCell>
+          <TableCell className="py-3">
             <div className="space-y-1">
               <Skeleton className="h-3 w-24" />
               <Skeleton className="h-3 w-20" />
@@ -140,7 +143,7 @@ export default function ReportsList({
               variant="outline"
               className={cn(
                 "text-xs font-medium border-none",
-                getSubmissionTypeColor(type)
+                getSubmissionTypeColor(type),
               )}
             >
               {formatSubmissionType(type)}
@@ -165,14 +168,19 @@ export default function ReportsList({
         },
       },
       {
-        accessorKey: "createdAt",
-        header: "Created",
+        accessorKey: "createdBy",
+        header: "Created By",
         cell: ({ row }) => {
-          const createdAt = row.getValue("createdAt") as string;
+          const createdBy = row.getValue("createdBy") as string | null;
+          const createdAt = row.original.createdAt as string;
           return (
-            <div className="text-sm">
-              <p className="text-gray-600">{formatDate(createdAt)}</p>
-              <p className="text-xs text-gray-400">{formatTime(createdAt)}</p>
+            <div className="text-sm text-gray-700">
+              {createdBy || (
+                <span className="text-gray-400 italic">Unknown</span>
+              )}
+              <p className="text-gray-600 text-xs">
+                {formatDate(createdAt)} &#x2022; {formatTime(createdAt)}
+              </p>
             </div>
           );
         },
@@ -221,7 +229,7 @@ export default function ReportsList({
         enableSorting: false,
       },
     ],
-    []
+    [],
   );
 
   const dataTable = useReactTable({
@@ -273,7 +281,7 @@ export default function ReportsList({
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </TableHead>
                     ))}
@@ -294,7 +302,7 @@ export default function ReportsList({
                         <TableCell key={cell.id} className="py-3">
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </TableCell>
                       ))}

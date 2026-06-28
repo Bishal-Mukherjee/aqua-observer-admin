@@ -4,6 +4,7 @@ import React, { useState, Fragment } from "react";
 import { Helmet } from "react-helmet-async";
 import { DateRange } from "react-day-picker";
 import { toast } from "sonner";
+import dayjs from "dayjs";
 import { useGetSightings, useGetSightingsInBatch } from "@/services/sightings";
 import RouteBreadcrumbs from "@/components/layout/RouteBreadcrumbs";
 import SubmissionsTable from "@/components/common/SubmissionsTable";
@@ -85,7 +86,14 @@ export default function InvalidSightings() {
 
       <div className="py-10 px-12 flex-1 bg-gray-50">
         <div className="flex items-start justify-between mb-4">
-          <RouteBreadcrumbs />
+          <div>
+            <RouteBreadcrumbs />
+            {dateRange?.from && dateRange?.to && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Viewing data from {dayjs(dateRange.from).format("D MMM, YYYY")} to {dayjs(dateRange.to).format("D MMM, YYYY")}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="mb-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-lg">
