@@ -43,7 +43,7 @@ export default function DashboardPage() {
   const [selectedType, setSelectedType] = React.useState("reportings");
   const { data: overviewLocations, isLoading } = useGetOverviewLocations(
     selectedType,
-    50
+    "6months"
   );
 
   const [selectedSubmission, setSelectedSubmission] = React.useState<any>(null);
