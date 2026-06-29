@@ -365,6 +365,15 @@ export default function SubmissionsTable({
   const hasNextPage = dataTable.getCanNextPage();
   const hasPreviousPage = dataTable.getCanPreviousPage();
 
+  const maxButtons = 5;
+  const startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+  const endPage = Math.min(totalPages, startPage + maxButtons - 1);
+  const adjustedStartPage = Math.max(1, endPage - maxButtons + 1);
+  const pageButtons = Array.from(
+    { length: endPage - adjustedStartPage + 1 },
+    (_, i) => adjustedStartPage + i
+  );
+
   const clearAllFilters = () => {
     setSearchTerm("");
     setStartDate(undefined);
@@ -539,22 +548,19 @@ export default function SubmissionsTable({
                 {isLoading ? (
                   <Skeleton className="h-8 w-32" />
                 ) : (
-                  Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    const pageNum = i + 1;
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={
-                          currentPage === pageNum ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => dataTable.setPageIndex(pageNum - 1)}
-                        className="w-8 h-8"
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })
+                  pageButtons.map((pageNum) => (
+                    <Button
+                      key={pageNum}
+                      variant={
+                        currentPage === pageNum ? "default" : "outline"
+                      }
+                      size="sm"
+                      onClick={() => dataTable.setPageIndex(pageNum - 1)}
+                      className="w-8 h-8"
+                    >
+                      {pageNum}
+                    </Button>
+                  ))
                 )}
               </div>
               <Button
