@@ -57,43 +57,6 @@ dayjs.extend(utc);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
-// interface ReportEntry {
-//   id: string;
-//   longitude: number;
-//   latitude: number;
-//   altitude: number;
-//   provider: string;
-//   district: string;
-//   block: string;
-//   villageOrGhat: string;
-//   species: Array<{
-//     type: string;
-//     adultMale: {
-//       stranded: number;
-//       injured: number;
-//       dead: number;
-//     };
-//     adultFemale: {
-//       stranded: number;
-//       injured: number;
-//       dead: number;
-//     };
-//     subAdult: {
-//       stranded: number;
-//       injured: number;
-//       dead: number;
-//     };
-//   }>;
-//   images: string[] | null;
-//   observed_at: string;
-//   submittedAt: string;
-//   type: string;
-//   submittedBy: {
-//     name: string;
-//     phoneNumber: string;
-//   };
-// }
-
 interface DataTableProps {
   isLoading?: boolean;
   entries: any[];
@@ -131,7 +94,12 @@ const formatObservationTime = (isoString: string) => {
 };
 
 const formatLocationName = (location: string) => {
-  return location.replace(/_/g, " ");
+  return location
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 };
 
 // Add Skeleton component
@@ -217,7 +185,7 @@ export default function SubmissionsTable({
         if (startDate) {
           // Compare start of day (local) for startDate
           isAfterStart = entryDate.isSameOrAfter(
-            dayjs(startDate).startOf("day")
+            dayjs(startDate).startOf("day"),
           );
         }
         if (endDate) {
@@ -236,7 +204,7 @@ export default function SubmissionsTable({
         // Normalize phone number for search (remove spaces and special chars)
         const normalizedPhone = submittedBy.phoneNumber.replace(
           /[\s+\-()]/g,
-          ""
+          "",
         );
         const normalizedSearchTerm = searchTerm.replace(/[\s+\-()]/g, "");
 
@@ -249,7 +217,7 @@ export default function SubmissionsTable({
           entry.species.some((species: any) =>
             transformSpeciesName(species.type)
               .toLowerCase()
-              .includes(lowerSearchTerm)
+              .includes(lowerSearchTerm),
           )
         );
       });
@@ -282,7 +250,7 @@ export default function SubmissionsTable({
         accessorKey: "villageOrGhat",
         header: "Village/Ghat",
         cell: ({ row }) => (
-          <div className="text-gray-700 break-words whitespace-normal">
+          <div className="text-gray-700 wrap-break-word whitespace-normal">
             {row.getValue("villageOrGhat")}
           </div>
         ),
@@ -304,7 +272,7 @@ export default function SubmissionsTable({
                         variant="outline"
                         className={cn(
                           "text-xs font-medium border-none",
-                          getSpeciesDisplayColor(specimen.type)
+                          getSpeciesDisplayColor(specimen.type),
                         )}
                       >
                         {transformSpeciesName(specimen.type)}
@@ -357,7 +325,7 @@ export default function SubmissionsTable({
         ),
       },
     ],
-    [showSubmittedBy, showSpecies] // Add dependency
+    [showSubmittedBy, showSpecies], // Add dependency
   );
 
   const dataTable = useReactTable({
@@ -394,6 +362,15 @@ export default function SubmissionsTable({
   const totalPages = dataTable.getPageCount();
   const hasNextPage = dataTable.getCanNextPage();
   const hasPreviousPage = dataTable.getCanPreviousPage();
+
+  const maxButtons = 5;
+  const startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+  const endPage = Math.min(totalPages, startPage + maxButtons - 1);
+  const adjustedStartPage = Math.max(1, endPage - maxButtons + 1);
+  const pageButtons = Array.from(
+    { length: endPage - adjustedStartPage + 1 },
+    (_, i) => adjustedStartPage + i,
+  );
 
   const clearAllFilters = () => {
     setSearchTerm("");
@@ -457,7 +434,7 @@ export default function SubmissionsTable({
                           variant="outline"
                           className={cn(
                             "w-[140px] justify-start text-left font-normal bg-white",
-                            !startDate && "text-muted-foreground"
+                            !startDate && "text-muted-foreground",
                           )}
                           disabled={isLoading}
                         >
@@ -483,7 +460,7 @@ export default function SubmissionsTable({
                           variant="outline"
                           className={cn(
                             "w-[140px] justify-start text-left font-normal bg-white",
-                            !endDate && "text-muted-foreground"
+                            !endDate && "text-muted-foreground",
                           )}
                           disabled={!startDate || isLoading}
                         >
@@ -597,7 +574,7 @@ export default function SubmissionsTable({
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </TableHead>
                     ))}
@@ -618,7 +595,7 @@ export default function SubmissionsTable({
                         <TableCell key={cell.id} className="py-3 max-w-[200px]">
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </TableCell>
                       ))}
@@ -665,22 +642,17 @@ export default function SubmissionsTable({
                 {isLoading ? (
                   <Skeleton className="h-8 w-32" />
                 ) : (
-                  Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    const pageNum = i + 1;
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={
-                          currentPage === pageNum ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => dataTable.setPageIndex(pageNum - 1)}
-                        className="w-8 h-8"
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })
+                  pageButtons.map((pageNum) => (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => dataTable.setPageIndex(pageNum - 1)}
+                      className="w-8 h-8"
+                    >
+                      {pageNum}
+                    </Button>
+                  ))
                 )}
               </div>
               <Button
