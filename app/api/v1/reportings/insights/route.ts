@@ -5,7 +5,7 @@ import { withAuth } from "@/app/api/lib/with-auth";
 export const GET = withAuth(
   async (
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ id: string }> },
   ) => {
     try {
       const { searchParams } = new URL(request.url);
@@ -21,6 +21,7 @@ export const GET = withAuth(
            r.village_or_ghat AS "villageOrGhat",
            r.block,
            r.district,
+           r.submitted_at AS "submittedAt",
            (
              SELECT COALESCE(
                JSON_AGG(
@@ -79,7 +80,7 @@ export const GET = withAuth(
         conditions.push(
           `r.submitted_at <= $${
             queryParams.length + 1
-          }::date + INTERVAL '1 day' - INTERVAL '1 second'`
+          }::date + INTERVAL '1 day' - INTERVAL '1 second'`,
         );
         queryParams.push(to);
       }
@@ -95,14 +96,14 @@ export const GET = withAuth(
 
       return NextResponse.json(
         { message: "Reportings fetched successfully", result: result.rows },
-        { status: 200 }
+        { status: 200 },
       );
     } catch (error) {
       console.error("Error fetching reportings:", error);
       return NextResponse.json(
         { error: "Internal Server Error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
-  }
+  },
 );
