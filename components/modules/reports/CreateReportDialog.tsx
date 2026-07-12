@@ -124,7 +124,26 @@ export default function CreateReportDialog() {
             submissionType: values.submissionType,
             description: values.description,
             parameters: {
-              dateRange: values.dateRange,
+              dateRange: values.dateRange
+                ? {
+                    from: values.dateRange.from
+                      ? new Date(Date.UTC(
+                          values.dateRange.from.getFullYear(),
+                          values.dateRange.from.getMonth(),
+                          values.dateRange.from.getDate(),
+                          0, 0, 0, 0
+                        )).toISOString()
+                      : undefined,
+                    to: values.dateRange.to
+                      ? new Date(Date.UTC(
+                          values.dateRange.to.getFullYear(),
+                          values.dateRange.to.getMonth(),
+                          values.dateRange.to.getDate(),
+                          23, 59, 59, 999
+                        )).toISOString()
+                      : undefined,
+                  }
+                : undefined,
               district: values.districts,
               species: values.species,
               waterBody: values.waterBody,
@@ -195,7 +214,26 @@ export default function CreateReportDialog() {
                         data: data.result,
                         type: values.submissionType,
                         parameters: {
-                          dateRange: values.dateRange,
+                          dateRange: values.dateRange
+                            ? {
+                                from: values.dateRange.from
+                                  ? new Date(Date.UTC(
+                                      values.dateRange.from.getFullYear(),
+                                      values.dateRange.from.getMonth(),
+                                      values.dateRange.from.getDate(),
+                                      0, 0, 0, 0
+                                    )).toISOString()
+                                  : undefined,
+                                to: values.dateRange.to
+                                  ? new Date(Date.UTC(
+                                      values.dateRange.to.getFullYear(),
+                                      values.dateRange.to.getMonth(),
+                                      values.dateRange.to.getDate(),
+                                      23, 59, 59, 999
+                                    )).toISOString()
+                                  : undefined,
+                              }
+                            : undefined,
                           districts: values.districts,
                           species: values.species,
                           ...(values.submissionType === "sightings" && {

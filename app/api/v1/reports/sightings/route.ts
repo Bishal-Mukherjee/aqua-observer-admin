@@ -34,7 +34,7 @@ export const POST = withAuth(async (request: NextRequest) => {
       conditions.push(
         `s.submitted_at <= $${
           queryParams.length + 1
-        }::date + INTERVAL '1 day' - INTERVAL '1 second'`
+        }::date + INTERVAL '1 day' - INTERVAL '1 second'`,
       );
       queryParams.push(to);
     }
@@ -52,7 +52,7 @@ export const POST = withAuth(async (request: NextRequest) => {
         .map((_, index) => `$${queryParams.length + index + 1}`)
         .join(",");
       conditions.push(
-        `EXISTS (SELECT 1 FROM sighting_species ss WHERE ss.sighting_id = s.id AND ss.species IN (${speciesPlaceholders}))`
+        `EXISTS (SELECT 1 FROM sighting_species ss WHERE ss.sighting_id = s.id AND ss.species IN (${speciesPlaceholders}))`,
       );
       queryParams.push(...species);
     }
@@ -74,7 +74,7 @@ export const POST = withAuth(async (request: NextRequest) => {
         .map((_, index) => `$${queryParams.length + index + 1}`)
         .join(",");
       conditions.push(
-        `s.water_body_condition IN (${waterBodyConditionPlaceholders})`
+        `s.water_body_condition IN (${waterBodyConditionPlaceholders})`,
       );
       queryParams.push(...waterBodyConditions);
     }
@@ -171,13 +171,13 @@ export const POST = withAuth(async (request: NextRequest) => {
         message: "Report generated successfully",
         result: result.rows,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error generating report:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 });
