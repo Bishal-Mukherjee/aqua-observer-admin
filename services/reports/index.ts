@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { DateRange } from "react-day-picker";
 import baseAxios from "axios";
 import axios from "@/services/api-instance";
+import { useReportsFilters } from "@/store/useReportsFilters";
 
 export const useFetchFilteredDocs = () => {
   return useMutation({
@@ -88,14 +89,27 @@ export const useUpdateReport = () => {
   });
 };
 
-export const useFetchGeneratedReports = () => {
+export const useFetchGeneratedReports = (fromDate?: Date, toDate?: Date) => {
+  const { initializeStore, currentPage } = useReportsFilters();
+  const nextPage = currentPage + 1;
+
   return useQuery({
-    queryKey: ["generated-reports"],
+    queryKey: ["generated-reports", fromDate, toDate, currentPage],
     queryFn: async () => {
       const response = await axios({
         method: "GET",
-        url: "/reports",
+        url:
+          "/reports?" +
+          `page=${nextPage}` +
+          (fromDate ? `&from=${dayjs(fromDate).format("YYYY-MM-DD")}` : "") +
+          (toDate ? `&to=${dayjs(toDate).format("YYYY-MM-DD")}` : ""),
       });
+      const { pagination } = response.data;
+      initializeStore(
+        currentPage ?? 1,
+        pagination.totalPages,
+        pagination.total
+      );
       return response.data;
     },
   });

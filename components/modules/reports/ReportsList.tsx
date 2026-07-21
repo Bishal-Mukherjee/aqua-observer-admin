@@ -240,6 +240,16 @@ export default function ReportsList({
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSortingState,
     rowCount: pagination.totalRecords,
+    onPaginationChange: (updater) => {
+      const newState =
+        typeof updater === "function"
+          ? updater({
+              pageIndex: pagination.pageIndex,
+              pageSize: pagination.pageSize,
+            })
+          : updater;
+      setPagination?.(newState.pageIndex);
+    },
     state: {
       sorting: sortingState,
       pagination: {
@@ -264,8 +274,8 @@ export default function ReportsList({
     <Fragment>
       <Card className="shadow-none border-0">
         <CardContent>
-          <div className="rounded-lg border border-gray-200">
-            <Table>
+          <div className="rounded-lg border border-gray-200 overflow-hidden">
+            <Table containerClassName="max-h-108 overflow-y-auto">
               <TableHeader>
                 {dataTable.getHeaderGroups().map((headerGroup) => (
                   <TableRow
@@ -275,7 +285,7 @@ export default function ReportsList({
                     {headerGroup.headers.map((header) => (
                       <TableHead
                         key={header.id}
-                        className="font-semibold text-gray-700"
+                        className="font-semibold text-gray-700 sticky top-0 z-10 bg-slate-50 first:rounded-tl-lg last:rounded-tr-lg border-b border-gray-100"
                       >
                         {header.isPlaceholder
                           ? null
@@ -329,8 +339,8 @@ export default function ReportsList({
                 <Skeleton className="h-4 w-48" />
               ) : (
                 <>
-                  Showing page {currentPage} of {totalPages} ({reports.length}{" "}
-                  total reports)
+                  Showing page {currentPage} of {totalPages} (
+                  {pagination.totalRecords} total reports)
                 </>
               )}
             </div>

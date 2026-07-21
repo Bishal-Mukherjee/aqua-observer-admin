@@ -9,10 +9,12 @@ import { useInitializeStaticLookup } from "@/hooks/useInitializeStaticLookup";
 import { useFetchGeneratedReports } from "@/services/reports";
 import ReportsList from "@/components/modules/reports/ReportsList";
 import ReportDetailedDialog from "@/components/modules/reports/ReportDetailedDialog";
+import { useReportsFilters } from "@/store/useReportsFilters";
 
 export default function ReportsPage() {
   useInitializeStaticLookup();
 
+  const { currentPage, totalRecords, setCurrentPage } = useReportsFilters();
   const { data: reports, isLoading } = useFetchGeneratedReports();
 
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
@@ -35,6 +37,12 @@ export default function ReportsPage() {
           isLoading={isLoading}
           reports={reports?.result || []}
           onSelect={handleSelect}
+          pagination={{
+            pageIndex: currentPage,
+            pageSize: 10,
+            totalRecords,
+          }}
+          setPagination={setCurrentPage}
         />
         {selectedReportId && (
           <ReportDetailedDialog

@@ -55,7 +55,7 @@ const Skeleton = ({ className }: { className?: string }) => (
 
 const getLabelByValue = (
   array: Array<{ label: string; value: string }>,
-  value: string
+  value: string,
 ): string => {
   const found = array.find((item) => item.value === value);
   return found ? found.label : transformName(value);
@@ -182,7 +182,7 @@ export default function ReportDetailedDialog({
                                 >
                                   {getLabelByValue(districts, dist)}
                                 </Badge>
-                              )
+                              ),
                             )}
                           </div>
                         </div>
@@ -203,12 +203,12 @@ export default function ReportDetailedDialog({
                                   variant="outline"
                                   className={cn(
                                     "text-xs font-medium border-none",
-                                    getSpeciesDisplayColor(speciesValue)
+                                    getSpeciesDisplayColor(speciesValue),
                                   )}
                                 >
                                   {speciesValue?.split("_").join(" ")}
                                 </Badge>
-                              )
+                              ),
                             )}
                           </div>
                         </div>
@@ -231,7 +231,7 @@ export default function ReportDetailedDialog({
                                 >
                                   {getLabelByValue(waterBodies, wb)}
                                 </Badge>
-                              )
+                              ),
                             )}
                           </div>
                         </div>
@@ -255,7 +255,7 @@ export default function ReportDetailedDialog({
                                 >
                                   {getLabelByValue(weatherConditions, weather)}
                                 </Badge>
-                              )
+                              ),
                             )}
                           </div>
                         </div>
@@ -279,10 +279,10 @@ export default function ReportDetailedDialog({
                                 >
                                   {getLabelByValue(
                                     waterBodyConditions,
-                                    condition
+                                    condition,
                                   )}
                                 </Badge>
-                              )
+                              ),
                             )}
                           </div>
                         </div>
@@ -306,7 +306,7 @@ export default function ReportDetailedDialog({
                                 >
                                   {getLabelByValue(disturbances, threat)}
                                 </Badge>
-                              )
+                              ),
                             )}
                           </div>
                         </div>
@@ -330,7 +330,7 @@ export default function ReportDetailedDialog({
                                 >
                                   {getLabelByValue(fishingGears, gear)}
                                 </Badge>
-                              )
+                              ),
                             )}
                           </div>
                         </div>
