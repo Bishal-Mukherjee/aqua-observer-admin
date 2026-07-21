@@ -34,10 +34,10 @@ export const useFetchFilteredDocs = () => {
         url: `/reports/${submissionType}`,
         data: {
           from: dateRange?.from
-            ? `${dateRange.from.getFullYear()}-${String(dateRange.from.getMonth() + 1).padStart(2, "0")}-${String(dateRange.from.getDate()).padStart(2, "0")}`
+            ? dayjs(dateRange.from).format("YYYY-MM-DD")
             : undefined,
           to: dateRange?.to
-            ? `${dateRange.to.getFullYear()}-${String(dateRange.to.getMonth() + 1).padStart(2, "0")}-${String(dateRange.to.getDate()).padStart(2, "0")}`
+            ? dayjs(dateRange.to).format("YYYY-MM-DD")
             : undefined,
           districts,
           species,

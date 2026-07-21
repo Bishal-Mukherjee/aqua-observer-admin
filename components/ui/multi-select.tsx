@@ -24,6 +24,8 @@ export interface MultiSelectOption {
   icon?: React.ComponentType<{ className?: string }>;
 }
 
+export const ALL_OPTION_VALUE = "__ALL__";
+
 interface MultiSelectProps {
   options: MultiSelectOption[];
   selected: string[];
@@ -32,6 +34,8 @@ interface MultiSelectProps {
   className?: string;
   disabled?: boolean;
   maxDisplay?: number;
+  enableSelectAll?: boolean;
+  allOptionLabel?: string;
 }
 
 export function MultiSelect({
@@ -42,23 +46,41 @@ export function MultiSelect({
   className,
   disabled = false,
   maxDisplay = 3,
+  enableSelectAll = false,
+  allOptionLabel = "All",
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false);
 
+  const allOptions = enableSelectAll
+    ? [{ label: allOptionLabel, value: ALL_OPTION_VALUE }, ...options]
+    : options;
+
   const handleUnselect = (value: string) => {
-    onChange(selected.filter((item) => item !== value));
+    const next = selected.filter((item) => item !== value);
+    onChange(enableSelectAll && next.length === 0 ? [ALL_OPTION_VALUE] : next);
   };
 
   const handleSelect = (value: string) => {
+    if (enableSelectAll && value === ALL_OPTION_VALUE) {
+      onChange([ALL_OPTION_VALUE]);
+      return;
+    }
+
     if (selected.includes(value)) {
       handleUnselect(value);
     } else {
-      onChange([...selected, value]);
+      const withoutAll = selected.filter((item) => item !== ALL_OPTION_VALUE);
+      const next = [...withoutAll, value];
+      onChange(
+        enableSelectAll && next.length === options.length
+          ? [ALL_OPTION_VALUE]
+          : next,
+      );
     }
   };
 
-  const selectedOptions = options.filter((option) =>
-    selected.includes(option.value)
+  const selectedOptions = allOptions.filter((option) =>
+    selected.includes(option.value),
   );
 
   return (
@@ -71,7 +93,7 @@ export function MultiSelect({
           className={cn(
             "w-full justify-between text-left font-normal h-auto min-h-[2rem] py-2",
             !selected.length && "text-muted-foreground",
-            className
+            className,
           )}
           disabled={disabled}
         >
@@ -111,7 +133,7 @@ export function MultiSelect({
           <CommandInput placeholder="Search options..." />
           <CommandEmpty>No options found.</CommandEmpty>
           <CommandGroup className="max-h-64 overflow-auto">
-            {options.map((option) => (
+            {allOptions.map((option) => (
               <CommandItem
                 key={option.value}
                 value={option.value}
@@ -122,7 +144,7 @@ export function MultiSelect({
                     "mr-2 h-4 w-4",
                     selected.includes(option.value)
                       ? "opacity-100"
-                      : "opacity-0"
+                      : "opacity-0",
                   )}
                 />
                 {option.icon && <option.icon className="mr-2 h-4 w-4" />}
