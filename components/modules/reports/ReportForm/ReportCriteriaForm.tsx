@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { useSpecies } from "@/store/useSpecies";
 import { useDistrictStore } from "@/store/useDistricts";
+import { Info } from "lucide-react";
 
 const SUBMISSION_TYPES = [
   { value: "reportings", label: "Reportings" },
@@ -40,6 +41,15 @@ export function ReportCriteriaForm({
   return (
     <div className="px-6 py-4 flex-1 overflow-y-auto">
       <form onSubmit={formik.handleSubmit} className="space-y-6">
+        <div className="flex items-start gap-2 rounded-md bg-blue-50 border border-blue-100 px-3 py-2 text-xs text-blue-800">
+          <Info className="h-4 w-4 shrink-0 mt-0.5" />
+          <span>
+            Filters default to <span className="font-medium">All</span>. The
+            report is generated across every option unless you pick specific
+            ones.
+          </span>
+        </div>
+
         <div className="space-y-2">
           <Label className="text-slate-700">Submission Type</Label>
           <Select
@@ -84,6 +94,7 @@ export function ReportCriteriaForm({
             placeholder="Select districts..."
             maxDisplay={3}
             disabled={isPending}
+            enableSelectAll
           />
         </div>
 
@@ -96,6 +107,7 @@ export function ReportCriteriaForm({
             placeholder="Select species..."
             maxDisplay={3}
             disabled={isPending}
+            enableSelectAll
           />
         </div>
 

@@ -31,6 +31,11 @@ import {
 import CSVFileSvg from "@/assets/csv-file";
 import ReportSvg from "@/assets/report";
 import { Progress } from "@/components/ui/progress";
+import { ALL_OPTION_VALUE } from "@/components/ui/multi-select";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 const FormSegmentIndicator = ({
   currentIndex,
@@ -101,18 +106,37 @@ export default function CreateReportDialog() {
     analysisFile: "",
   });
 
+  const withoutAllOption = (values: string[] | undefined) => {
+    if (!values || values.length === 0 || values.includes(ALL_OPTION_VALUE)) {
+      return undefined;
+    }
+    return values;
+  };
+
+  const formatDateRange = (dateRange: DateRange | undefined) => {
+    if (!dateRange) return undefined;
+    return {
+      from: dateRange.from
+        ? dayjs(dateRange.from).format("YYYY-MM-DDT00:00:00[Z]")
+        : undefined,
+      to: dateRange.to
+        ? dayjs(dateRange.to).format("YYYY-MM-DDT23:59:59[Z]")
+        : undefined,
+    };
+  };
+
   const formik = useFormik({
     initialValues: {
       dateRange: undefined as DateRange | undefined,
-      districts: [] as string[],
+      districts: [ALL_OPTION_VALUE] as string[],
       description: "",
-      species: [] as string[],
+      species: [ALL_OPTION_VALUE] as string[],
       submissionType: "reportings",
-      waterBody: [] as string[],
-      waterBodyConditions: [] as string[],
-      weatherConditions: [] as string[],
-      threats: [] as string[],
-      fishingGears: [] as string[],
+      waterBody: [ALL_OPTION_VALUE] as string[],
+      waterBodyConditions: [ALL_OPTION_VALUE] as string[],
+      weatherConditions: [ALL_OPTION_VALUE] as string[],
+      threats: [ALL_OPTION_VALUE] as string[],
+      fishingGears: [ALL_OPTION_VALUE] as string[],
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -124,33 +148,14 @@ export default function CreateReportDialog() {
             submissionType: values.submissionType,
             description: values.description,
             parameters: {
-              dateRange: values.dateRange
-                ? {
-                    from: values.dateRange.from
-                      ? new Date(Date.UTC(
-                          values.dateRange.from.getFullYear(),
-                          values.dateRange.from.getMonth(),
-                          values.dateRange.from.getDate(),
-                          0, 0, 0, 0
-                        )).toISOString()
-                      : undefined,
-                    to: values.dateRange.to
-                      ? new Date(Date.UTC(
-                          values.dateRange.to.getFullYear(),
-                          values.dateRange.to.getMonth(),
-                          values.dateRange.to.getDate(),
-                          23, 59, 59, 999
-                        )).toISOString()
-                      : undefined,
-                  }
-                : undefined,
-              district: values.districts,
-              species: values.species,
-              waterBody: values.waterBody,
-              waterBodyCondition: values.waterBodyConditions,
-              weatherCondition: values.weatherConditions,
-              threats: values.threats,
-              fishingGears: values.fishingGears,
+              dateRange: formatDateRange(values.dateRange),
+              district: withoutAllOption(values.districts),
+              species: withoutAllOption(values.species),
+              waterBody: withoutAllOption(values.waterBody),
+              waterBodyCondition: withoutAllOption(values.waterBodyConditions),
+              weatherCondition: withoutAllOption(values.weatherConditions),
+              threats: withoutAllOption(values.threats),
+              fishingGears: withoutAllOption(values.fishingGears),
             },
           },
           {
@@ -161,15 +166,17 @@ export default function CreateReportDialog() {
               fetchFilteredDocs(
                 {
                   dateRange: values.dateRange,
-                  districts: values.districts,
-                  species: values.species,
+                  districts: withoutAllOption(values.districts),
+                  species: withoutAllOption(values.species),
                   submissionType: values.submissionType,
                   description: values.description,
-                  waterBody: values.waterBody,
-                  waterBodyConditions: values.waterBodyConditions,
-                  weatherConditions: values.weatherConditions,
-                  threats: values.threats,
-                  fishingGears: values.fishingGears,
+                  waterBody: withoutAllOption(values.waterBody),
+                  waterBodyConditions: withoutAllOption(
+                    values.waterBodyConditions,
+                  ),
+                  weatherConditions: withoutAllOption(values.weatherConditions),
+                  threats: withoutAllOption(values.threats),
+                  fishingGears: withoutAllOption(values.fishingGears),
                 },
                 {
                   onSuccess: async (data) => {
@@ -214,34 +221,19 @@ export default function CreateReportDialog() {
                         data: data.result,
                         type: values.submissionType,
                         parameters: {
-                          dateRange: values.dateRange
-                            ? {
-                                from: values.dateRange.from
-                                  ? new Date(Date.UTC(
-                                      values.dateRange.from.getFullYear(),
-                                      values.dateRange.from.getMonth(),
-                                      values.dateRange.from.getDate(),
-                                      0, 0, 0, 0
-                                    )).toISOString()
-                                  : undefined,
-                                to: values.dateRange.to
-                                  ? new Date(Date.UTC(
-                                      values.dateRange.to.getFullYear(),
-                                      values.dateRange.to.getMonth(),
-                                      values.dateRange.to.getDate(),
-                                      23, 59, 59, 999
-                                    )).toISOString()
-                                  : undefined,
-                              }
-                            : undefined,
-                          districts: values.districts,
-                          species: values.species,
+                          dateRange: formatDateRange(values.dateRange),
+                          districts: withoutAllOption(values.districts),
+                          species: withoutAllOption(values.species),
                           ...(values.submissionType === "sightings" && {
-                            waterBody: values.waterBody,
-                            waterBodyConditions: values.waterBodyConditions,
-                            weatherConditions: values.weatherConditions,
-                            threats: values.threats,
-                            fishingGears: values.fishingGears,
+                            waterBody: withoutAllOption(values.waterBody),
+                            waterBodyConditions: withoutAllOption(
+                              values.waterBodyConditions,
+                            ),
+                            weatherConditions: withoutAllOption(
+                              values.weatherConditions,
+                            ),
+                            threats: withoutAllOption(values.threats),
+                            fishingGears: withoutAllOption(values.fishingGears),
                           }),
                         },
                       },
