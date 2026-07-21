@@ -96,7 +96,39 @@ export const PUT = withAuth(async (request: NextRequest) => {
 
 export const GET = withAuth(async (request: NextRequest) => {
   try {
-    const sql = `
+    const { searchParams } = new URL(request.url);
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = 10;
+    const offset = (page - 1) * limit;
+
+    const queryParams: any[] = [];
+    const conditions: string[] = [];
+
+    if (from) {
+      conditions.push(`r.created_at >= $${queryParams.length + 1}::date`);
+      queryParams.push(from);
+    }
+
+    if (to) {
+      conditions.push(
+        `r.created_at <= $${
+          queryParams.length + 1
+        }::date + INTERVAL '1 day' - INTERVAL '1 second'`,
+      );
+      queryParams.push(to);
+    }
+
+    const whereClause =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+    const countQuery = `SELECT COUNT(*) as total FROM reports r ${whereClause}`;
+    const countResult = await pool.query(countQuery, queryParams);
+    const total = parseInt(countResult.rows[0].total);
+    const totalPages = Math.ceil(total / limit);
+
+    const dataQuery = `
       SELECT r.id,
         r.submission_type AS "submissionType",
         r.description,
@@ -106,15 +138,22 @@ export const GET = withAuth(async (request: NextRequest) => {
         r.created_at AS "createdAt"
       FROM reports r
       LEFT JOIN users u ON r.created_by = u.id
-      ORDER BY r.created_at DESC;
+      ${whereClause}
+      ORDER BY r.created_at DESC
+      LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2};
     `;
 
-    const result = await pool.query(sql);
+    const result = await pool.query(dataQuery, [...queryParams, limit, offset]);
 
     return NextResponse.json(
       {
         message: "Reports fetched successfully",
         result: result.rows,
+        pagination: {
+          total,
+          page,
+          totalPages,
+        },
       },
       { status: 200 },
     );
