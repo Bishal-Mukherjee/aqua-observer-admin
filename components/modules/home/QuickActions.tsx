@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, BarChart3, UserPlus } from "lucide-react";
+import { FileText, BarChart3, UserPlus, Binoculars } from "lucide-react";
 
 export default function QuickActions() {
   return (
@@ -31,14 +31,21 @@ export default function QuickActions() {
               <span className="text-xs">Add Sighter</span>
             </Button>
           </Link>
-          <Button variant="outline" className="h-16 flex-col space-y-1">
-            <Download className="h-5 w-5" />
-            <span className="text-xs">Export Data</span>
-          </Button>
-          <Button variant="outline" className="h-16 flex-col space-y-1">
-            <BarChart3 className="h-5 w-5" />
-            <span className="text-xs">Analytics</span>
-          </Button>
+          {/* <Link href={"/reports"} className="w-full">
+            <Button variant="outline" className="w-full h-16 flex-col space-y-1">
+              <Download className="h-5 w-5" />
+              <span className="text-xs">Export Data</span>
+            </Button>
+          </Link> */}
+          <Link href={"/submissions/sightings"} className="w-full col-span-2">
+            <Button
+              variant="outline"
+              className="w-full h-16 flex-col space-y-1"
+            >
+              <Binoculars className="h-5 w-5" />
+              <span className="text-xs">Sightings</span>
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>
