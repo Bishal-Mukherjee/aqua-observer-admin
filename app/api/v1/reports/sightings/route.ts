@@ -23,7 +23,7 @@ export const POST = withAuth(async (request: NextRequest) => {
          LEFT JOIN users u ON s.submitted_by = u.id`;
 
     const queryParams = [];
-    const conditions = [];
+    const conditions = [`s.is_valid = true`];
 
     if (from) {
       conditions.push(`s.submitted_at >= $${queryParams.length + 1}::date`);

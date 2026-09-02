@@ -13,7 +13,7 @@ export const POST = withAuth(async (request: NextRequest) => {
          LEFT JOIN users u ON r.submitted_by = u.id`;
 
     const queryParams = [];
-    const conditions = [];
+    const conditions = [`r.is_valid = true`];
 
     if (from) {
       conditions.push(`r.submitted_at >= $${queryParams.length + 1}::date`);
@@ -82,7 +82,6 @@ export const POST = withAuth(async (request: NextRequest) => {
            r.submission_context AS "submissionContext",
            r.submitted_at AS "submittedAt",
            r.observed_at AS "observedAt",
-           r.is_valid AS "isValid",
            (
              SELECT COALESCE(
                JSON_AGG(

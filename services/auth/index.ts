@@ -34,7 +34,6 @@ export const useVerifyCode = () => {
       if (response.status !== 200) {
         throw new Error("Failed to verify code");
       }
-      console.log("Response Data:", response.data);
       setAuth(
         response.data.result.accessToken,
         response.data.result.refreshToken,
